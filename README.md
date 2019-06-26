@@ -86,7 +86,7 @@ Join us and stay tuned:
 - YouTube: https://tinyurl.com/netboxglobal
 
 
-- Website, WhitePaper, Team: http://netbox.global
-- Explorer: http://explorer.netbox.global
+- Website, WhitePaper, Team: https://netbox.global
+- Explorer: https://explorer.netbox.global
 - Browser with wallet: https://cdn.netbox.global/download/netbox.exe
 - Wallets: https://github.com/netboxglobal
