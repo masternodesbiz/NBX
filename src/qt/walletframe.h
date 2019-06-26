@@ -1,5 +1,6 @@
 // Copyright (c) 2011-2013 The Bitcoin developers
 // Copyright (c) 2016-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -56,14 +57,10 @@ public slots:
     void gotoOverviewPage();
     /** Switch to history (transactions) page */
     void gotoHistoryPage();
-    /** Switch to governance page */
-    void gotoGovernancePage();
     /** Switch to masternode page */
     void gotoMasternodePage();
     /** Switch to receive coins page */
     void gotoReceiveCoinsPage();
-    /** Switch to privacy page */
-    void gotoPrivacyPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
     /** Switch to explorer page */
@@ -76,8 +73,8 @@ public slots:
     void gotoMultiSendDialog();
     /** show a multisig tab **/
     void gotoMultisigDialog(int index);
-    /** Show BIP 38 tool - default to Encryption tab */
-    void gotoBip38Tool();
+    /** View or change mnemonic phrase */
+    void gotoHdSeed();
 
     /** Encrypt the wallet */
     void encryptWallet(bool status);

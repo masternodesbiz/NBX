@@ -2,11 +2,12 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/pivx-config.h"
+#include "config/nbx-config.h"
 #endif
 
 #include "util.h"
@@ -89,7 +90,7 @@
 
 using namespace std;
 
-// PIVX only features
+// Netbox.Wallet only features
 // Masternode
 bool fMasterNode = false;
 string strMasterNodePrivKey = "";
@@ -98,19 +99,8 @@ bool fLiteMode = false;
 // SwiftX
 bool fEnableSwiftTX = true;
 int nSwiftTXDepth = 5;
-// Automatic Zerocoin minting
-bool fEnableZeromint = true;
-bool fEnableAutoConvert = true;
-int nZeromintPercentage = 10;
-int nPreferredDenom = 0;
-const int64_t AUTOMINT_DELAY = (60 * 5); // Wait at least 5 minutes until Automint starts
 
-/** Spork enforcement enabled time */
-int64_t enforceMasternodePaymentsTime = 4085657524;
 bool fSucessfullyLoaded = false;
-/** All denominations used by obfuscation */
-std::vector<int64_t> obfuScationDenominations;
-string strBudgetMode = "";
 
 map<string, string> mapArgs;
 map<string, vector<string> > mapMultiArgs;
@@ -220,15 +210,12 @@ bool LogAcceptCategory(const char* category)
             const vector<string>& categories = mapMultiArgs["-debug"];
             ptrCategory.reset(new set<string>(categories.begin(), categories.end()));
             // thread_specific_ptr automatically deletes the set when the thread ends.
-            // "pivx" is a composite category enabling all PIVX-related debug output
-            if (ptrCategory->count(string("pivx"))) {
+            // "nbx" is a composite category enabling all Netbox.Wallet-related debug output
+            if (ptrCategory->count(string("nbx"))) {
                 ptrCategory->insert(string("obfuscation"));
                 ptrCategory->insert(string("swiftx"));
                 ptrCategory->insert(string("masternode"));
                 ptrCategory->insert(string("mnpayments"));
-                ptrCategory->insert(string("zero"));
-                ptrCategory->insert(string("mnbudget"));
-                ptrCategory->insert(string("precompute"));
                 ptrCategory->insert(string("staking"));
             }
         }
@@ -388,7 +375,7 @@ static std::string FormatException(std::exception* pex, const char* pszThread)
     char pszModule[MAX_PATH] = "";
     GetModuleFileNameA(NULL, pszModule, sizeof(pszModule));
 #else
-    const char* pszModule = "pivx";
+    const char* pszModule = "nbx";
 #endif
     if (pex)
         return strprintf(
@@ -409,13 +396,13 @@ void PrintExceptionContinue(std::exception* pex, const char* pszThread)
 boost::filesystem::path GetDefaultDataDir()
 {
     namespace fs = boost::filesystem;
-// Windows < Vista: C:\Documents and Settings\Username\Application Data\PIVX
-// Windows >= Vista: C:\Users\Username\AppData\Roaming\PIVX
-// Mac: ~/Library/Application Support/PIVX
-// Unix: ~/.pivx
+// Windows < Vista: C:\Documents and Settings\Username\Application Data\NetboxWallet
+// Windows >= Vista: C:\Users\Username\AppData\Roaming\NetboxWallet
+// Mac: ~/Library/Application Support/NetboxWallet
+// Unix: ~/.NetboxWallet
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "PIVX";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "NetboxWallet";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -427,10 +414,10 @@ boost::filesystem::path GetDefaultDataDir()
     // Mac
     pathRet /= "Library/Application Support";
     TryCreateDirectory(pathRet);
-    return pathRet / "PIVX";
+    return pathRet / "NetboxWallet";
 #else
     // Unix
-    return pathRet / ".pivx";
+    return pathRet / ".NetboxWallet";
 #endif
 #endif
 }
@@ -477,7 +464,7 @@ void ClearDatadirCache()
 
 boost::filesystem::path GetConfigFile()
 {
-    boost::filesystem::path pathConfigFile(GetArg("-conf", "pivx.conf"));
+    boost::filesystem::path pathConfigFile(GetArg("-conf", "nbx.conf"));
     if (!pathConfigFile.is_complete())
         pathConfigFile = GetDataDir(false) / pathConfigFile;
 
@@ -496,7 +483,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 {
     boost::filesystem::ifstream streamConfig(GetConfigFile());
     if (!streamConfig.good()) {
-        // Create empty pivx.conf if it does not exist
+        // Create empty nbx.conf if it does not exist
         FILE* configFile = fopen(GetConfigFile().string().c_str(), "a");
         if (configFile != NULL)
             fclose(configFile);
@@ -507,7 +494,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
     setOptions.insert("*");
 
     for (boost::program_options::detail::config_file_iterator it(streamConfig, setOptions), end; it != end; ++it) {
-        // Don't overwrite existing settings so command line settings override pivx.conf
+        // Don't overwrite existing settings so command line settings override nbx.conf
         string strKey = string("-") + it->string_key;
         string strValue = it->value[0];
         InterpretNegativeSetting(strKey, strValue);
@@ -519,10 +506,9 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
     ClearDatadirCache();
 }
 
-#ifndef WIN32
 boost::filesystem::path GetPidFile()
 {
-    boost::filesystem::path pathPidFile(GetArg("-pid", "pivxd.pid"));
+    boost::filesystem::path pathPidFile(GetArg("-pid", "nbxd.pid"));
     if (!pathPidFile.is_complete()) pathPidFile = GetDataDir() / pathPidFile;
     return pathPidFile;
 }
@@ -535,7 +521,18 @@ void CreatePidFile(const boost::filesystem::path& path, pid_t pid)
         fclose(file);
     }
 }
-#endif
+
+pid_t ReadPidFile(const boost::filesystem::path& path)
+{
+    pid_t pid = 0;
+    FILE* file = fopen(path.string().c_str(), "r");
+    if (file) {
+        if (!fscanf(file, "%d", &pid))
+            pid = 0;
+        fclose(file);
+    }
+    return pid;
+}
 
 bool RenameOver(boost::filesystem::path src, boost::filesystem::path dest)
 {

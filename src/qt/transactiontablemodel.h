@@ -1,4 +1,5 @@
 // Copyright (c) 2011-2013 The Bitcoin developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -28,11 +29,10 @@ public:
 
     enum ColumnIndex {
         Status = 0,
-        Watchonly = 1,
-        Date = 2,
-        Type = 3,
-        ToAddress = 4,
-        Amount = 5
+        Date = 1,
+        Type = 2,
+        ToAddress = 3,
+        Amount = 4
     };
 
     /** Roles to get specific information from a transaction row.
@@ -43,10 +43,6 @@ public:
         TypeRole = Qt::UserRole,
         /** Date and time this transaction was created */
         DateRole,
-        /** Watch-only boolean */
-        WatchonlyRole,
-        /** Watch-only icon */
-        WatchonlyDecorationRole,
         /** Long description (HTML format) */
         LongDescriptionRole,
         /** Address of transaction */
@@ -93,7 +89,6 @@ private:
     QString formatTxAmount(const TransactionRecord* wtx, bool showUnconfirmed = true, BitcoinUnits::SeparatorStyle separators = BitcoinUnits::separatorStandard) const;
     QString formatTooltip(const TransactionRecord* rec) const;
     QVariant txStatusDecoration(const TransactionRecord* wtx) const;
-    QVariant txWatchonlyDecoration(const TransactionRecord* wtx) const;
     QVariant txAddressDecoration(const TransactionRecord* wtx) const;
 
 public slots:

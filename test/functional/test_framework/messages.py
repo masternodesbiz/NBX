@@ -405,7 +405,6 @@ class CBlockHeader():
             self.nTime = header.nTime
             self.nBits = header.nBits
             self.nNonce = header.nNonce
-            self.nAccumulatorCheckpoint = header.nAccumulatorCheckpoint
             self.sha256 = header.sha256
             self.hash = header.hash
             self.calc_sha256()
@@ -417,7 +416,6 @@ class CBlockHeader():
         self.nTime = 0
         self.nBits = 0
         self.nNonce = 0
-        self.nAccumulatorCheckpoint = 0
         self.sha256 = None
         self.hash = None
 
@@ -428,7 +426,6 @@ class CBlockHeader():
         self.nTime = struct.unpack("<I", f.read(4))[0]
         self.nBits = struct.unpack("<I", f.read(4))[0]
         self.nNonce = struct.unpack("<I", f.read(4))[0]
-        self.nAccumulatorCheckpoint = deser_uint256(f)
         self.sha256 = None
         self.hash = None
 
@@ -440,7 +437,6 @@ class CBlockHeader():
         r += struct.pack("<I", self.nTime)
         r += struct.pack("<I", self.nBits)
         r += struct.pack("<I", self.nNonce)
-        r += ser_uint256(self.nAccumulatorCheckpoint)
         return r
 
     def calc_sha256(self):
@@ -452,7 +448,6 @@ class CBlockHeader():
             r += struct.pack("<I", self.nTime)
             r += struct.pack("<I", self.nBits)
             r += struct.pack("<I", self.nNonce)
-            r += ser_uint256(self.nAccumulatorCheckpoint)
             self.sha256 = uint256_from_str(hash256(r))
             self.hash = encode(hash256(r)[::-1], 'hex_codec').decode('ascii')
 
@@ -461,7 +456,7 @@ class CBlockHeader():
         self.calc_sha256()
         return self.sha256
 
-    # PIV Uniqueness
+    # NBX Uniqueness
     def get_uniqueness(self, prevout):
         r = b""
         r += struct.pack("<I", prevout.n)
@@ -575,7 +570,6 @@ class CBlock(CBlockHeader):
         data += struct.pack("<I", self.nTime)
         data += struct.pack("<I", self.nBits)
         data += struct.pack("<I", self.nNonce)
-        data += ser_uint256(self.nAccumulatorCheckpoint)
         sha256NoSig = hash256(data)
         self.vchBlockSig = key.sign(sha256NoSig, low_s=low_s)
 

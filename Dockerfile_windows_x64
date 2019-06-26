@@ -1,0 +1,25 @@
+FROM ubuntu:18.04 as builder
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends --yes \
+        software-properties-common automake autoconf pkg-config libtool build-essential \
+        curl g++-mingw-w64-x86-64 bsdmainutils \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+RUN update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+
+COPY / /netboxwallet
+
+WORKDIR /netboxwallet/depends
+
+RUN make HOST=x86_64-w64-mingw32 -j$(nproc)
+
+WORKDIR /netboxwallet
+
+RUN ./autogen.sh
+RUN CONFIG_SITE=$PWD/depends/x86_64-w64-mingw32/share/config.site ./configure
+RUN make -j$(nproc)
+#RUN make install
+
+RUN strip $PWD/src/qt/netboxwallet.exe $PWD/src/nbxd.exe $PWD/src/nbx-cli.exe $PWD/src/nbx-tx.exe

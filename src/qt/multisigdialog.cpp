@@ -1,4 +1,5 @@
 // Copyright (c) 2017-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -416,7 +417,7 @@ bool MultisigDialog::createMultisigTransaction(vector<CTxIn> vUserIn, vector<CTx
         }
 
         if(totalIn < totalOut){
-            throw runtime_error("Not enough PIV provided as input to complete transaction (including fee).");
+            throw runtime_error("Not enough NBX provided as input to complete transaction (including fee).");
         }
 
         //calculate change amount
@@ -477,11 +478,11 @@ bool MultisigDialog::createMultisigTransaction(vector<CTxIn> vUserIn, vector<CTx
         unsigned int nBytes = tx.GetSerializeSize(SER_NETWORK, PROTOCOL_VERSION);
         CAmount fee = ::minRelayTxFee.GetFee(nBytes);
 
-        if(tx.vout.at(changeIndex).nValue > fee){
+        if (tx.vout.at(changeIndex).nValue >= fee) {
             tx.vout.at(changeIndex).nValue -= fee;
-            feeStringRet = strprintf("%d",((double)fee)/COIN).c_str();
-        }else{
-            throw runtime_error("Not enough PIV provided to cover fee");
+            feeStringRet = strprintf("%d", ((double) fee) / COIN).c_str();
+        } else {
+            throw runtime_error("Not enough NBX provided to cover fee");
         }
 
         //clear junk from script sigs
@@ -780,7 +781,7 @@ bool MultisigDialog::createRedeemScript(int m, vector<string> vKeys, CScript& re
         for(vector<string>::iterator it = vKeys.begin(); it != vKeys.end(); ++it) {
             string keyString = *it;
 #ifdef ENABLE_WALLET
-            // Case 1: PIVX address and we have full public key:
+            // Case 1: address and we have full public key:
             CBitcoinAddress address(keyString);
             if (pwalletMain && address.IsValid()) {
                 CKeyID keyID;

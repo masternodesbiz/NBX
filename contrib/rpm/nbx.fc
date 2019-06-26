@@ -1,0 +1,8 @@
+/usr/bin/nbx-cli		--	gen_context(system_u:object_r:nbx_exec_t,s0)
+/usr/sbin/nbxd		--	gen_context(system_u:object_r:nbx_exec_t,s0)
+/usr/lib(64)?/nbx/nbxd		--	gen_context(system_u:object_r:nbx_exec_t,s0)
+
+/etc/nbx(/.*)?		gen_context(system_u:object_r:nbx_conf_t,s0)
+/var/lib/nbx(/.*)?		gen_context(system_u:object_r:nbx_var_lib_t,s0)
+
+(/var)?/run/nbxd(/.*)?   gen_context(system_u:object_r:nbx_var_run_t,s0)

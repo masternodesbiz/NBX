@@ -1,11 +1,12 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2014 The Bitcoin developers
+// Copyright (c) 2009-2018 The Bitcoin developers
 // Copyright (c) 2015-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef PIVX_SERIALIZE_H
-#define PIVX_SERIALIZE_H
+#ifndef BITCOIN_SERIALIZE_H
+#define BITCOIN_SERIALIZE_H
 
 #include <algorithm>
 #include <assert.h>
@@ -18,8 +19,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "libzerocoin/Denominations.h"
-#include "libzerocoin/SpendType.h"
 
 class CScript;
 
@@ -44,6 +43,12 @@ inline T* NCONST_PTR(const T* val)
 {
     return const_cast<T*>(val);
 }
+
+//! Safely convert odd char pointer types to standard ones.
+inline char* CharCast(char* c) { return c; }
+inline char* CharCast(unsigned char* c) { return (char*)c; }
+inline const char* CharCast(const char* c) { return c; }
+inline const char* CharCast(const unsigned char* c) { return (const char*)c; }
 
 /////////////////////////////////////////////////////////////////
 //
@@ -107,6 +112,8 @@ inline unsigned int GetSerializeSize(signed long long a, int, int = 0) { return 
 inline unsigned int GetSerializeSize(unsigned long long a, int, int = 0) { return sizeof(a); }
 inline unsigned int GetSerializeSize(float a, int, int = 0) { return sizeof(a); }
 inline unsigned int GetSerializeSize(double a, int, int = 0) { return sizeof(a); }
+template<int N> inline unsigned int GetSerializeSize(const char (&a)[N], int, int=0) { return N; }
+template<int N> inline unsigned int GetSerializeSize(const unsigned char (&a)[N], int, int = 0) { return N; }
 
 template <typename Stream>
 inline void Serialize(Stream& s, char a, int, int = 0)
@@ -172,6 +179,16 @@ template <typename Stream>
 inline void Serialize(Stream& s, double a, int, int = 0)
 {
     WRITEDATA(s, a);
+}
+template<typename Stream, int N>
+inline void Serialize(Stream &s, const char (&a)[N], int, int = 0)
+{
+    s.write(a, N);
+}
+template<typename Stream, int N>
+inline void Serialize(Stream &s, const unsigned char (&a)[N], int, int = 0)
+{
+    s.write(CharCast(a), N);
 }
 
 template <typename Stream>
@@ -239,6 +256,14 @@ inline void Unserialize(Stream& s, double& a, int, int = 0)
 {
     READDATA(s, a);
 }
+template<typename Stream, int N> inline void Unserialize(Stream& s, char (&a)[N], int, int = 0)
+{
+    s.read(a, N);
+}
+template<typename Stream, int N> inline void Unserialize(Stream& s, unsigned char (&a)[N], int, int = 0)
+{
+    s.read(CharCast(a), N);
+}
 
 inline unsigned int GetSerializeSize(bool a, int, int = 0) { return sizeof(char); }
 template <typename Stream>
@@ -256,40 +281,6 @@ inline void Unserialize(Stream& s, bool& a, int, int = 0)
     READDATA(s, f);
     a = f;
 }
-// Serializatin for libzerocoin::CoinDenomination
-inline unsigned int GetSerializeSize(libzerocoin::CoinDenomination a, int, int = 0) { return sizeof(libzerocoin::CoinDenomination); }
-template <typename Stream>
-inline void Serialize(Stream& s, libzerocoin::CoinDenomination a, int, int = 0)
-{
-    int f = libzerocoin::ZerocoinDenominationToInt(a);
-    WRITEDATA(s, f);
-}
-
-template <typename Stream>
-inline void Unserialize(Stream& s, libzerocoin::CoinDenomination& a, int, int = 0)
-{
-    int f=0;
-    READDATA(s, f);
-    a = libzerocoin::IntToZerocoinDenomination(f);
-}
-
-// Serialization for libzerocoin::SpendType
-inline unsigned int GetSerializedSize(libzerocoin::SpendType a, int, int = 0) { return sizeof(libzerocoin::SpendType); }
-template <typename Stream>
-inline void Serialize(Stream& s, libzerocoin::SpendType a, int, int = 0)
-{
-    uint8_t f = static_cast<uint8_t>(a);
-    WRITEDATA(s, f);
-}
-
-template <typename Stream>
-inline void Unserialize(Stream& s, libzerocoin::SpendType & a, int, int = 0)
-{
-    uint8_t f=0;
-    READDATA(s, f);
-    a = static_cast<libzerocoin::SpendType>(f);
-}
-
 
 /**
  * Compact Size
@@ -936,4 +927,4 @@ public:
     }
 };
 
-#endif // PIVX_SERIALIZE_H
+#endif // BITCOIN_SERIALIZE_H

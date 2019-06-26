@@ -1,0 +1,37 @@
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource prefix="/translations">
+        <file alias="bg">locale/nbx_bg.qm</file>
+        <file alias="ca">locale/nbx_ca.qm</file>
+        <file alias="cs">locale/nbx_cs.qm</file>
+        <file alias="da">locale/nbx_da.qm</file>
+        <file alias="de">locale/nbx_de.qm</file>
+        <file alias="en">locale/nbx_en.qm</file>
+        <file alias="en_GB">locale/nbx_en_GB.qm</file>
+        <file alias="en_US">locale/nbx_en_US.qm</file>
+        <file alias="eo">locale/nbx_eo.qm</file>
+        <file alias="es">locale/nbx_es.qm</file>
+        <file alias="es_ES">locale/nbx_es_ES.qm</file>
+        <file alias="fi">locale/nbx_fi.qm</file>
+        <file alias="fr_FR">locale/nbx_fr_FR.qm</file>
+        <file alias="hi_IN">locale/nbx_hi_IN.qm</file>
+        <file alias="hr">locale/nbx_hr.qm</file>
+        <file alias="hr_HR">locale/nbx_hr_HR.qm</file>
+        <file alias="it">locale/nbx_it.qm</file>
+        <file alias="ja">locale/nbx_ja.qm</file>
+        <file alias="ko_KR">locale/nbx_ko_KR.qm</file>
+        <file alias="lt_LT">locale/nbx_lt_LT.qm</file>
+        <file alias="nl">locale/nbx_nl.qm</file>
+        <file alias="pl">locale/nbx_pl.qm</file>
+        <file alias="pt">locale/nbx_pt.qm</file>
+        <file alias="pt_BR">locale/nbx_pt_BR.qm</file>
+        <file alias="ro_RO">locale/nbx_ro_RO.qm</file>
+        <file alias="ru">locale/nbx_ru.qm</file>
+        <file alias="sk">locale/nbx_sk.qm</file>
+        <file alias="sv">locale/nbx_sv.qm</file>
+        <file alias="tr">locale/nbx_tr.qm</file>
+        <file alias="uk">locale/nbx_uk.qm</file>
+        <file alias="vi">locale/nbx_vi.qm</file>
+        <file alias="zh_CN">locale/nbx_zh_CN.qm</file>
+        <file alias="zh_TW">locale/nbx_zh_TW.qm</file>
+    </qresource>
+</RCC>

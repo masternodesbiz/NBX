@@ -1,0 +1,66 @@
+APP=netbox-coin
+TAG=latest
+
+# Metadata about this makefile and position
+MKFILE_PATH := $(lastword $(MAKEFILE_LIST))
+CURRENT_DIR := $(dir $(realpath $(MKFILE_PATH)))
+CURRENT_DIR := $(CURRENT_DIR:/=)
+
+.DEFAULT_GOAL := build
+
+build:
+	docker build --compress --force-rm --pull -t "${APP}:${TAG}" .
+
+run:
+	docker run --rm -it --name "${APP}" --entrypoint=bash "${APP}:${TAG}"
+
+exec:
+	docker exec -it "${APP}" /bin/bash
+
+once:
+	docker run --rm -it --entrypoint=nbxd "${APP}:${TAG}"
+
+build_dev:
+	docker build -f Dockerfile_dev --compress --force-rm --pull -t "${APP}-dev:${TAG}" .
+
+run_dev:
+	docker run --rm -it --name "${APP}-dev" -v $(shell pwd)/NetboxWallet:/root/.NetboxWallet -v $(shell pwd):/netboxwallet -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix -v /etc/localtime:/etc/localtime:ro --entrypoint=bash "${APP}-dev:${TAG}"
+
+once_dev:
+	docker run --rm -it --entrypoint=nbxd -v $(shell pwd):/netboxwallet "${APP}-dev:${TAG}"
+
+exec_dev:
+	docker exec -it "${APP}-dev" /bin/bash
+
+run_test:
+	docker run --rm -it --name "${APP}-dev" --entrypoint=bash "${APP}-dev:${TAG}"
+
+build_qt:
+	docker build -f Dockerfile_qt --compress --force-rm --pull -t "${APP}-qt:${TAG}" .
+
+run_qt:
+	docker run --rm -it --name "${APP}-qt" -e DISPLAY=${DISPLAY} -v /tmp/.X11-unix:/tmp/.X11-unix --entrypoint=bash "${APP}-qt:${TAG}"
+
+build_windows:
+	docker build -f Dockerfile_windows --compress --force-rm --pull -t "${APP}-windows:${TAG}" .
+
+run_windows:
+	docker run --rm -it --name "${APP}-windows" "${APP}-windows:${TAG}"
+
+build_windows_x64:
+	docker build -f Dockerfile_windows_x64 --compress --force-rm --pull -t "${APP}-windows-x64:${TAG}" .
+
+run_windows_x64:
+	docker run --rm -it --name "${APP}-windows-x64" "${APP}-windows-x64:${TAG}"
+
+build_static:
+	docker build -f Dockerfile_static --compress --force-rm --pull -t "${APP}-static:${TAG}" .
+
+run_static:
+	docker run --rm -it --name "${APP}-static" "${APP}-static:${TAG}"
+
+build_osx:
+	docker build -f Dockerfile_osx --compress --force-rm --pull -t "${APP}-osx:${TAG}" .
+
+run_osx:
+	docker run --rm -it --name "${APP}-osx" "${APP}-osx:${TAG}"

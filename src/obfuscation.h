@@ -1,5 +1,6 @@
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,16 +11,13 @@
 #include "masternode-payments.h"
 #include "masternode-sync.h"
 #include "masternodeman.h"
-#include "obfuscation-relay.h"
 #include "sync.h"
 
 class CTxIn;
 class CObfuscationPool;
 class CObfuScationSigner;
-class CMasterNodeVote;
 class CBitcoinAddress;
 class CObfuscationQueue;
-class CObfuscationBroadcastTx;
 class CActiveMasternode;
 
 // pool states for mixing
@@ -41,19 +39,10 @@ class CActiveMasternode;
 #define OBFUSCATION_QUEUE_TIMEOUT 30
 #define OBFUSCATION_SIGNING_TIMEOUT 15
 
-// used for anonymous relaying of inputs/outputs/sigs
-#define OBFUSCATION_RELAY_IN 1
-#define OBFUSCATION_RELAY_OUT 2
-#define OBFUSCATION_RELAY_SIG 3
-
-static const CAmount OBFUSCATION_COLLATERAL = (10 * COIN);
-static const CAmount OBFUSCATION_POOL_MAX = (99999.99 * COIN);
-
 extern CObfuscationPool obfuScationPool;
 extern CObfuScationSigner obfuScationSigner;
 extern std::vector<CObfuscationQueue> vecObfuscationQueue;
 extern std::string strMasterNodePrivKey;
-extern map<uint256, CObfuscationBroadcastTx> mapObfuscationBroadcastTxes;
 extern CActiveMasternode activeMasternode;
 
 /** Holds an Obfuscation input
@@ -177,25 +166,11 @@ public:
      */
     bool Sign();
 
-    bool Relay();
-
     /// Is this Obfuscation expired?
     bool IsExpired()
     {
         return (GetTime() - time) > OBFUSCATION_QUEUE_TIMEOUT; // 120 seconds
     }
-
-};
-
-/** Helper class to store Obfuscation transaction (tx) information.
- */
-class CObfuscationBroadcastTx
-{
-public:
-    CTransaction tx;
-    CTxIn vin;
-    vector<unsigned char> vchSig;
-    int64_t sigTime;
 };
 
 /** Helper object for signing and checking signatures
@@ -203,7 +178,7 @@ public:
 class CObfuScationSigner
 {
 public:
-    /// Is the inputs associated with this public key? (and there is 10000 PIV - checking if valid masternode)
+    /// Is the inputs associated with this public key? (and there is 10000 NBX - checking if valid masternode)
     bool IsVinAssociatedWithPubkey(CTxIn& vin, CPubKey& pubkey);
     /// Set the private/public key values, returns true if successful
     bool GetKeysFromSecret(std::string strSecret, CKey& keyRet, CPubKey& pubkeyRet);
@@ -246,9 +221,6 @@ private:
 
     int64_t lastNewBlock;
 
-    //debugging data
-    std::string strAutoDenomResult;
-
 public:
     enum messages {
         ERR_ALREADY_HAVE,
@@ -279,7 +251,7 @@ public:
     CScript collateralPubKey;
 
     CMasternode* pSubmittedToMasternode;
-    int sessionDenom;    //Users must submit an denom matching this
+    int cachedNumBlocks; //used for the overview screen
 
     CObfuscationPool()
     {

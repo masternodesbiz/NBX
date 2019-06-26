@@ -1,5 +1,6 @@
 // Copyright (c) 2011-2013 The Bitcoin developers
 // Copyright (c) 2017-2018 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -22,7 +23,6 @@ TransactionFilterProxy::TransactionFilterProxy(QObject* parent) : QSortFilterPro
                                                                   dateTo(MAX_DATE),
                                                                   addrPrefix(),
                                                                   typeFilter(COMMON_TYPES),
-                                                                  watchOnlyFilter(WatchOnlyFilter_All),
                                                                   minAmount(0),
                                                                   limitRows(-1),
                                                                   showInactive(true),
@@ -36,7 +36,6 @@ bool TransactionFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex& 
 
     int type = index.data(TransactionTableModel::TypeRole).toInt();
     QDateTime datetime = index.data(TransactionTableModel::DateRole).toDateTime();
-    bool involvesWatchAddress = index.data(TransactionTableModel::WatchonlyRole).toBool();
     QString address = index.data(TransactionTableModel::AddressRole).toString();
     QString label = index.data(TransactionTableModel::LabelRole).toString();
     qint64 amount = llabs(index.data(TransactionTableModel::AmountRole).toLongLong());
@@ -47,10 +46,6 @@ bool TransactionFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex& 
     if (fHideOrphans && isOrphan(status, type))
         return false;
     if (!(TYPE(type) & typeFilter))
-        return false;
-    if (involvesWatchAddress && watchOnlyFilter == WatchOnlyFilter_No)
-        return false;
-    if (!involvesWatchAddress && watchOnlyFilter == WatchOnlyFilter_Yes)
         return false;
     if (datetime < dateFrom || datetime > dateTo)
         return false;
@@ -87,12 +82,6 @@ void TransactionFilterProxy::setMinAmount(const CAmount& minimum)
     invalidateFilter();
 }
 
-void TransactionFilterProxy::setWatchOnlyFilter(WatchOnlyFilter filter)
-{
-    this->watchOnlyFilter = filter;
-    invalidateFilter();
-}
-
 void TransactionFilterProxy::setLimit(int limit)
 {
     this->limitRows = limit;
@@ -121,7 +110,6 @@ int TransactionFilterProxy::rowCount(const QModelIndex& parent) const
 
 bool TransactionFilterProxy::isOrphan(const int status, const int type)
 {
-    return ( (type == TransactionRecord::Generated || type == TransactionRecord::StakeMint ||
-            type == TransactionRecord::StakeZPIV || type == TransactionRecord::MNReward)
+    return ( (type == TransactionRecord::Generated || type == TransactionRecord::StakeMint || type == TransactionRecord::MNReward)
             && (status == TransactionStatus::Conflicted || status == TransactionStatus::NotAccepted) );
 }

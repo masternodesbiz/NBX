@@ -1,0 +1,30 @@
+FROM ubuntu:18.04 as builder
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends --yes \
+        software-properties-common automake autoconf pkg-config libtool build-essential \
+        libboost-all-dev bsdmainutils libssl1.0-dev libevent-dev libgmp-dev libqrencode-dev \
+        qtbase5-dev qttools5-dev-tools libprotobuf-dev protobuf-compiler libminiupnpc-dev  \
+        python-setuptools cmake libcap-dev libbz2-dev \
+        curl g++-mingw-w64-x86-64 g++-mingw-w64-i686 git
+
+RUN update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+RUN update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+
+RUN update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
+RUN update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
+
+RUN add-apt-repository ppa:bitcoin/bitcoin
+RUN apt-get update \
+    && apt-get install --no-install-recommends --yes \
+        libdb4.8-dev libdb4.8++-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /netboxwallet
+
+RUN ln -s /netboxwallet/src/nbxd /usr/local/bin/
+RUN ln -s /netboxwallet/src/nbx-cli /usr/local/bin/
+RUN ln -s /netboxwallet/src/nbx-tx /usr/local/bin/
+RUN ln -s /netboxwallet/src/qt/netboxwallet /usr/local/bin/
+
+#COPY / /netboxwallet

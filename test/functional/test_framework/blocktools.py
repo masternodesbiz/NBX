@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (c) 2015-2016 The Bitcoin Core developers
+# Copyright (c) 2018-2019 Netbox.Global
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Utilities for manipulating blocks and transactions."""
@@ -17,7 +18,6 @@ def create_block(hashprev, coinbase, nTime=None):
         block.nTime = nTime
     block.hashPrevBlock = hashprev
     block.nBits = 0x1e0ffff0 # Will break after a difficulty adjustment...
-    block.nAccumulatorCheckpoint = 0
     block.vtx.append(coinbase)
     block.hashMerkleRoot = block.calc_merkle_root()
     block.calc_sha256()

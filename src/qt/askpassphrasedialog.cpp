@@ -1,6 +1,7 @@
 // Copyright (c) 2011-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2018 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -9,6 +10,7 @@
 
 #include "guiconstants.h"
 #include "guiutil.h"
+#include "init.h"
 #include "walletmodel.h"
 
 #include "allocators.h"
@@ -17,6 +19,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QWidget>
+#include <QProcess>
 
 AskPassphraseDialog::AskPassphraseDialog(Mode mode, QWidget* parent, WalletModel* model, Context context) : QDialog(parent, Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint),
                                                                                                             ui(new Ui::AskPassphraseDialog),
@@ -50,8 +53,8 @@ AskPassphraseDialog::AskPassphraseDialog(Mode mode, QWidget* parent, WalletModel
         ui->passEdit1->hide();
         setWindowTitle(tr("Encrypt wallet"));
         break;
-    case Mode::UnlockAnonymize:
-        ui->anonymizationCheckBox->show();
+    case Mode::UnlockStaking:
+        ui->unlockForStakingOnlyCheckBox->show();
     case Mode::Unlock: // Ask passphrase
         ui->warningLabel->setText(tr("This operation needs your wallet passphrase to unlock the wallet."));
         ui->passLabel2->hide();
@@ -74,17 +77,17 @@ AskPassphraseDialog::AskPassphraseDialog(Mode mode, QWidget* parent, WalletModel
         break;
     }
 
-    // Set checkbox "For anonymization, automint, and staking only" depending on from where we were called
-    if (context == Context::Unlock_Menu || context == Context::Mint_zPIV || context == Context::BIP_38 || context == Context::UI_Vote) {
-        ui->anonymizationCheckBox->setChecked(true);
+    // Set checkbox "For staking only" depending on from where we were called
+    if (context == Context::Unlock_Menu) {
+        ui->unlockForStakingOnlyCheckBox->setChecked(true);
     }
     else {
-        ui->anonymizationCheckBox->setChecked(false);
+        ui->unlockForStakingOnlyCheckBox->setChecked(false);
     }
 
-    // It doesn't make sense to show the checkbox for sending PIV because you wouldn't check it anyway.
-    if (context == Context::Send_PIV || context == Context::Send_zPIV) {
-        ui->anonymizationCheckBox->hide();
+    // It doesn't make sense to show the checkbox for sending NBX because you wouldn't check it anyway.
+    if (context == Context::Send_NBX) {
+        ui->unlockForStakingOnlyCheckBox->hide();
     }
 
     textChanged();
@@ -104,17 +107,11 @@ AskPassphraseDialog::~AskPassphraseDialog()
 
 void AskPassphraseDialog::accept()
 {
-    SecureString oldpass, newpass1, newpass2;
     if (!model)
         return;
-    oldpass.reserve(MAX_PASSPHRASE_SIZE);
-    newpass1.reserve(MAX_PASSPHRASE_SIZE);
-    newpass2.reserve(MAX_PASSPHRASE_SIZE);
-    // TODO: get rid of this .c_str() by implementing SecureString::operator=(std::string)
-    // Alternately, find a way to make this input mlock()'d to begin with.
-    oldpass.assign(ui->passEdit1->text().toStdString().c_str());
-    newpass1.assign(ui->passEdit2->text().toStdString().c_str());
-    newpass2.assign(ui->passEdit3->text().toStdString().c_str());
+    SecureString oldpass  = SecureStringFromString(ui->passEdit1->text().toStdString());
+    SecureString newpass1 = SecureStringFromString(ui->passEdit2->text().toStdString());
+    SecureString newpass2 = SecureStringFromString(ui->passEdit3->text().toStdString());
 
     switch (mode) {
     case Mode::Encrypt: {
@@ -123,7 +120,7 @@ void AskPassphraseDialog::accept()
             break;
         }
         QMessageBox::StandardButton retval = QMessageBox::question(this, tr("Confirm wallet encryption"),
-            tr("Warning: If you encrypt your wallet and lose your passphrase, you will <b>LOSE ALL OF YOUR PIV</b>!") + "<br><br>" + tr("Are you sure you wish to encrypt your wallet?"),
+            tr("Are you sure you wish to encrypt your wallet?"),
             QMessageBox::Yes | QMessageBox::Cancel,
             QMessageBox::Cancel);
         if (retval == QMessageBox::Yes) {
@@ -131,16 +128,18 @@ void AskPassphraseDialog::accept()
                 if (model->setWalletEncrypted(true, newpass1)) {
                     QMessageBox::warning(this, tr("Wallet encrypted"),
                         "<qt>" +
-                            tr("PIVX will close now to finish the encryption process. "
+                            tr("Netbox.Wallet will be restarted now to finish the encryption process. "
                                "Remember that encrypting your wallet cannot fully protect "
-                               "your PIVs from being stolen by malware infecting your computer.") +
+                               "your NBXs from being stolen by malware infecting your computer.") +
                             "<br><br><b>" +
                             tr("IMPORTANT: Any previous backups you have made of your wallet file "
                                "should be replaced with the newly generated, encrypted wallet file. "
                                "For security reasons, previous backups of the unencrypted wallet file "
                                "will become useless as soon as you start using the new, encrypted wallet.") +
                             "</b></qt>");
-                    QApplication::quit();
+                    QStringList args = QApplication::arguments();
+                    args.removeFirst();
+                    emit model->needRestart(args);
                 } else {
                     QMessageBox::critical(this, tr("Wallet encryption failed"),
                         tr("Wallet encryption failed due to an internal error. Your wallet was not encrypted."));
@@ -154,9 +153,9 @@ void AskPassphraseDialog::accept()
             QDialog::reject(); // Cancelled
         }
     } break;
-    case Mode::UnlockAnonymize:
+    case Mode::UnlockStaking:
     case Mode::Unlock:
-        if (!model->setWalletLocked(false, oldpass, ui->anonymizationCheckBox->isChecked())) {
+        if (!model->setWalletLocked(false, oldpass, ui->unlockForStakingOnlyCheckBox->isChecked())) {
             QMessageBox::critical(this, tr("Wallet unlock failed"),
                 tr("The passphrase entered for the wallet decryption was incorrect."));
         } else {
@@ -197,7 +196,7 @@ void AskPassphraseDialog::textChanged()
     case Mode::Encrypt: // New passphrase x2
         acceptable = !ui->passEdit2->text().isEmpty() && !ui->passEdit3->text().isEmpty();
         break;
-    case Mode::UnlockAnonymize: // Old passphrase x1
+    case Mode::UnlockStaking: // Old passphrase x1
     case Mode::Unlock:          // Old passphrase x1
     case Mode::Decrypt:
         acceptable = !ui->passEdit1->text().isEmpty();

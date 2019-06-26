@@ -1,6 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2017-2018 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -10,6 +11,7 @@
 #include "key.h"
 #include "pubkey.h"
 #include "sync.h"
+#include "script/sign.h"
 
 #include <boost/signals2/signal.hpp>
 
@@ -17,7 +19,7 @@ class CScript;
 class CScriptID;
 
 /** A virtual base class for key stores */
-class CKeyStore
+class CKeyStore : public SigningProvider
 {
 protected:
     mutable CCriticalSection cs_KeyStore;
@@ -40,12 +42,6 @@ public:
     virtual bool HaveCScript(const CScriptID& hash) const = 0;
     virtual bool GetCScript(const CScriptID& hash, CScript& redeemScriptOut) const = 0;
 
-    //! Support for Watch-only addresses
-    virtual bool AddWatchOnly(const CScript& dest) = 0;
-    virtual bool RemoveWatchOnly(const CScript& dest) = 0;
-    virtual bool HaveWatchOnly(const CScript& dest) const = 0;
-    virtual bool HaveWatchOnly() const = 0;
-
     //! Support for MultiSig addresses
     virtual bool AddMultiSig(const CScript& dest) = 0;
     virtual bool RemoveMultiSig(const CScript& dest) = 0;
@@ -55,7 +51,6 @@ public:
 
 typedef std::map<CKeyID, CKey> KeyMap;
 typedef std::map<CScriptID, CScript> ScriptMap;
-typedef std::set<CScript> WatchOnlySet;
 typedef std::set<CScript> MultiSigScriptSet;
 
 /** Basic key store, that keeps keys in an address->secret map */
@@ -64,7 +59,6 @@ class CBasicKeyStore : public CKeyStore
 protected:
     KeyMap mapKeys;
     ScriptMap mapScripts;
-    WatchOnlySet setWatchOnly;
     MultiSigScriptSet setMultiSig;
 
 public:
@@ -76,11 +70,6 @@ public:
     virtual bool AddCScript(const CScript& redeemScript);
     virtual bool HaveCScript(const CScriptID& hash) const;
     virtual bool GetCScript(const CScriptID& hash, CScript& redeemScriptOut) const;
-
-    virtual bool AddWatchOnly(const CScript& dest);
-    virtual bool RemoveWatchOnly(const CScript& dest);
-    virtual bool HaveWatchOnly(const CScript& dest) const;
-    virtual bool HaveWatchOnly() const;
 
     virtual bool AddMultiSig(const CScript& dest);
     virtual bool RemoveMultiSig(const CScript& dest);

@@ -1,6 +1,7 @@
 // Copyright (c) 2011-2014 The Bitcoin developers
 // Copyright (c) 2014-2016 The Dash developers
 // Copyright (c) 2016-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -29,7 +30,6 @@
 // Amount column is right-aligned it contains numbers
 static int column_alignments[] = {
     Qt::AlignLeft | Qt::AlignVCenter, /* status */
-    Qt::AlignLeft | Qt::AlignVCenter, /* watchonly */
     Qt::AlignLeft | Qt::AlignVCenter, /* date */
     Qt::AlignLeft | Qt::AlignVCenter, /* type */
     Qt::AlignLeft | Qt::AlignVCenter, /* address */
@@ -212,7 +212,7 @@ TransactionTableModel::TransactionTableModel(CWallet* wallet, WalletModel* paren
                                                                                      priv(new TransactionTablePriv(wallet, this)),
                                                                                      fProcessingQueuedTransactions(false)
 {
-    columns << QString() << QString() << tr("Date") << tr("Type") << tr("Address") << BitcoinUnits::getAmountColumnTitle(walletModel->getOptionsModel()->getDisplayUnit());
+    columns << QString() << tr("Date") << tr("Type") << tr("Address") << BitcoinUnits::getAmountColumnTitle(walletModel->getOptionsModel()->getDisplayUnit());
     priv->refreshWallet();
 
     connect(walletModel->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
@@ -336,39 +336,15 @@ QString TransactionTableModel::formatTxType(const TransactionRecord* wtx) const
         return tr("Masternode Reward");
     case TransactionRecord::RecvFromOther:
         return tr("Received from");
-    case TransactionRecord::RecvWithObfuscation:
-        return tr("Received via Obfuscation");
     case TransactionRecord::SendToAddress:
     case TransactionRecord::SendToOther:
         return tr("Sent to");
     case TransactionRecord::SendToSelf:
         return tr("Payment to yourself");
     case TransactionRecord::StakeMint:
-        return tr("PIV Stake");
-    case TransactionRecord::StakeZPIV:
-        return tr("zPIV Stake");
+        return tr("NBX Stake");
     case TransactionRecord::Generated:
         return tr("Mined");
-    case TransactionRecord::ObfuscationDenominate:
-        return tr("Obfuscation Denominate");
-    case TransactionRecord::ObfuscationCollateralPayment:
-        return tr("Obfuscation Collateral Payment");
-    case TransactionRecord::ObfuscationMakeCollaterals:
-        return tr("Obfuscation Make Collateral Inputs");
-    case TransactionRecord::ObfuscationCreateDenominations:
-        return tr("Obfuscation Create Denominations");
-    case TransactionRecord::Obfuscated:
-        return tr("Obfuscated");
-    case TransactionRecord::ZerocoinMint:
-        return tr("Converted PIV to zPIV");
-    case TransactionRecord::ZerocoinSpend:
-        return tr("Spent zPIV");
-    case TransactionRecord::RecvFromZerocoinSpend:
-        return tr("Received PIV from zPIV");
-    case TransactionRecord::ZerocoinSpend_Change_zPiv:
-        return tr("Minted Change as zPIV from zPIV Spend");
-    case TransactionRecord::ZerocoinSpend_FromMe:
-        return tr("Converted zPIV to PIV");
 
     default:
         return QString();
@@ -380,17 +356,13 @@ QVariant TransactionTableModel::txAddressDecoration(const TransactionRecord* wtx
     switch (wtx->type) {
     case TransactionRecord::Generated:
     case TransactionRecord::StakeMint:
-    case TransactionRecord::StakeZPIV:
     case TransactionRecord::MNReward:
         return QIcon(":/icons/tx_mined");
-    case TransactionRecord::RecvWithObfuscation:
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::RecvFromOther:
-    case TransactionRecord::RecvFromZerocoinSpend:
         return QIcon(":/icons/tx_input");
     case TransactionRecord::SendToAddress:
     case TransactionRecord::SendToOther:
-    case TransactionRecord::ZerocoinSpend:
         return QIcon(":/icons/tx_output");
     default:
         return QIcon(":/icons/tx_inout");
@@ -399,37 +371,20 @@ QVariant TransactionTableModel::txAddressDecoration(const TransactionRecord* wtx
 
 QString TransactionTableModel::formatTxToAddress(const TransactionRecord* wtx, bool tooltip) const
 {
-    QString watchAddress;
-    if (tooltip) {
-        // Mark transactions involving watch-only addresses by adding " (watch-only)"
-        watchAddress = wtx->involvesWatchAddress ? QString(" (") + tr("watch-only") + QString(")") : "";
-    }
-
     switch (wtx->type) {
     case TransactionRecord::RecvFromOther:
-        return QString::fromStdString(wtx->address) + watchAddress;
+        return QString::fromStdString(wtx->address);
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::MNReward:
-    case TransactionRecord::RecvWithObfuscation:
     case TransactionRecord::SendToAddress:
     case TransactionRecord::Generated:
     case TransactionRecord::StakeMint:
-    case TransactionRecord::ZerocoinSpend:
-    case TransactionRecord::ZerocoinSpend_FromMe:
-    case TransactionRecord::RecvFromZerocoinSpend:
         return lookupAddress(wtx->address, tooltip);
-    case TransactionRecord::Obfuscated:
-        return lookupAddress(wtx->address, tooltip) + watchAddress;
     case TransactionRecord::SendToOther:
-        return QString::fromStdString(wtx->address) + watchAddress;
-    case TransactionRecord::ZerocoinMint:
-    case TransactionRecord::ZerocoinSpend_Change_zPiv:
-        return tr("Anonymous (zPIV Transaction)");
-    case TransactionRecord::StakeZPIV:
-        return tr("Anonymous (zPIV Stake)");
+        return QString::fromStdString(wtx->address);
     case TransactionRecord::SendToSelf:
     default:
-        return tr("(n/a)") + watchAddress;
+        return tr("(n/a)");
     }
 }
 
@@ -504,14 +459,6 @@ QVariant TransactionTableModel::txStatusDecoration(const TransactionRecord* wtx)
     }
 }
 
-QVariant TransactionTableModel::txWatchonlyDecoration(const TransactionRecord* wtx) const
-{
-    if (wtx->involvesWatchAddress)
-        return QIcon(":/icons/eye");
-    else
-        return QVariant();
-}
-
 QString TransactionTableModel::formatTooltip(const TransactionRecord* rec) const
 {
     QString tooltip = formatTxStatus(rec) + QString("\n") + formatTxType(rec);
@@ -533,8 +480,6 @@ QVariant TransactionTableModel::data(const QModelIndex& index, int role) const
         switch (index.column()) {
         case Status:
             return txStatusDecoration(rec);
-        case Watchonly:
-            return txWatchonlyDecoration(rec);
         case ToAddress:
             return txAddressDecoration(rec);
         }
@@ -560,8 +505,6 @@ QVariant TransactionTableModel::data(const QModelIndex& index, int role) const
             return rec->time;
         case Type:
             return formatTxType(rec);
-        case Watchonly:
-            return (rec->involvesWatchAddress ? 1 : 0);
         case ToAddress:
             return formatTxToAddress(rec, true);
         case Amount:
@@ -574,8 +517,7 @@ QVariant TransactionTableModel::data(const QModelIndex& index, int role) const
         return column_alignments[index.column()];
     case Qt::ForegroundRole:
         // Minted
-        if (rec->type == TransactionRecord::Generated || rec->type == TransactionRecord::StakeMint ||
-                rec->type == TransactionRecord::StakeZPIV || rec->type == TransactionRecord::MNReward) {
+        if (rec->type == TransactionRecord::Generated || rec->type == TransactionRecord::StakeMint || rec->type == TransactionRecord::MNReward) {
             if (rec->status.status == TransactionStatus::Conflicted || rec->status.status == TransactionStatus::NotAccepted)
                 return COLOR_ORPHAN;
             else
@@ -603,10 +545,6 @@ QVariant TransactionTableModel::data(const QModelIndex& index, int role) const
         return rec->type;
     case DateRole:
         return QDateTime::fromTime_t(static_cast<uint>(rec->time));
-    case WatchonlyRole:
-        return rec->involvesWatchAddress;
-    case WatchonlyDecorationRole:
-        return txWatchonlyDecoration(rec);
     case LongDescriptionRole:
         return priv->describe(rec, walletModel->getOptionsModel()->getDisplayUnit());
     case AddressRole:
@@ -645,8 +583,6 @@ QVariant TransactionTableModel::headerData(int section, Qt::Orientation orientat
                 return tr("Date and time that the transaction was received.");
             case Type:
                 return tr("Type of transaction.");
-            case Watchonly:
-                return tr("Whether or not a watch-only address is involved in this transaction.");
             case ToAddress:
                 return tr("Destination address of transaction.");
             case Amount:

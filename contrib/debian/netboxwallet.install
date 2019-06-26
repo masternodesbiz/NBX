@@ -1,0 +1,6 @@
+usr/local/bin/netboxwallet usr/bin
+share/pixmaps/nbx32.xpm usr/share/pixmaps
+share/pixmaps/nbx16.xpm usr/share/pixmaps
+share/pixmaps/nbx128.png usr/share/pixmaps
+debian/netboxwallet.desktop usr/share/applications
+debian/netboxwallet.protocol usr/share/kde4/services/

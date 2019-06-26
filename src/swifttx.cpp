@@ -1,5 +1,6 @@
 // Copyright (c) 2014-2016 The Dash developers
 // Copyright (c) 2016-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -16,6 +17,7 @@
 #include "sync.h"
 #include "util.h"
 #include "validationinterface.h"
+
 #include <boost/foreach.hpp>
 
 using namespace std;
@@ -39,7 +41,7 @@ int nCompleteTXLocks;
 void ProcessMessageSwiftTX(CNode* pfrom, std::string& strCommand, CDataStream& vRecv)
 {
     if (fLiteMode) return; //disable all obfuscation/masternode related functionality
-    if (!IsSporkActive(SPORK_2_SWIFTTX)) return;
+    if (!IsSporkActive(SPORK_1_SWIFTTX)) return;
     if (!masternodeSync.IsBlockchainSynced()) return;
 
     if (strCommand == "ix") {
@@ -61,7 +63,7 @@ void ProcessMessageSwiftTX(CNode* pfrom, std::string& strCommand, CDataStream& v
         }
 
         for (const CTxOut &o : tx.vout) {
-            // IX supports normal scripts and unspendable scripts (used in DS collateral and Budget collateral).
+            // IX supports normal scripts and unspendable scripts (used in DS collateral).
             // TODO: Look into other script types that are normal and can be included
             if (!o.scriptPubKey.IsNormalPaymentScript() && !o.scriptPubKey.IsUnspendable()) {
                 LogPrintf("ProcessMessageSwiftTX::ix - Invalid Script %s\n", tx.ToString().c_str());
@@ -199,7 +201,7 @@ bool IsIXTXValid(const CTransaction& txCollateral)
         }
     }
 
-    if (nValueOut > GetSporkValue(SPORK_5_MAX_VALUE) * COIN) {
+    if (nValueOut > GetSporkValue(SPORK_2_MAX_VALUE) * COIN) {
         LogPrint("swiftx", "IsIXTXValid - Transaction value too high - %s\n", txCollateral.ToString().c_str());
         return false;
     }
@@ -463,7 +465,7 @@ void CleanTransactionLocksList()
 int GetTransactionLockSignatures(uint256 txHash)
 {
     if(fLargeWorkForkFound || fLargeWorkInvalidChainFound) return -2;
-    if (!IsSporkActive(SPORK_2_SWIFTTX)) return -1;
+    if (!IsSporkActive(SPORK_1_SWIFTTX)) return -1;
 
     std::map<uint256, CTransactionLock>::iterator it = mapTxLocks.find(txHash);
     if(it != mapTxLocks.end()) return it->second.CountSignatures();

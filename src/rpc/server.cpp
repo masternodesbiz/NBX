@@ -2,6 +2,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -267,11 +268,11 @@ UniValue stop(const UniValue& params, bool fHelp)
     if (fHelp || params.size() > 1)
         throw runtime_error(
             "stop\n"
-            "\nStop PIVX server.");
+            "\nStop Netbox.Wallet server.");
     // Event loop will exit after current HTTP requests have been handled, so
     // this reply will get back to the client.
     StartShutdown();
-    return "PIVX server stopping";
+    return "Netbox.Wallet server stopping";
 }
 
 
@@ -301,12 +302,7 @@ static const CRPCCommand vRPCCommands[] =
         {"network", "clearbanned", &clearbanned, true, false, false},
 
         /* Block chain and UTXO */
-        {"blockchain", "findserial", &findserial, true, false, false},
-        {"blockchain", "getaccumulatorvalues", &getaccumulatorvalues, true, false, false},
-        {"blockchain", "getaccumulatorwitness", &getaccumulatorwitness, true, false, false},
         {"blockchain", "getblockindexstats", &getblockindexstats, true, false, false},
-        {"blockchain", "getmintsinblocks", &getmintsinblocks, true, false, false},
-        {"blockchain", "getserials", &getserials, true, false, false},
         {"blockchain", "getblockchaininfo", &getblockchaininfo, true, false, false},
         {"blockchain", "getbestblockhash", &getbestblockhash, true, false, false},
         {"blockchain", "getblockcount", &getblockcount, true, false, false},
@@ -314,7 +310,6 @@ static const CRPCCommand vRPCCommands[] =
         {"blockchain", "getblockhash", &getblockhash, true, false, false},
         {"blockchain", "getblockheader", &getblockheader, false, false, false},
         {"blockchain", "getchaintips", &getchaintips, true, false, false},
-        {"blockchain", "getchecksumblock", &getchecksumblock, false, false, false},
         {"blockchain", "getdifficulty", &getdifficulty, true, false, false},
         {"blockchain", "getfeeinfo", &getfeeinfo, true, false, false},
         {"blockchain", "getmempoolinfo", &getmempoolinfo, true, true, false},
@@ -360,57 +355,45 @@ static const CRPCCommand vRPCCommands[] =
         {"hidden", "invalidateblock", &invalidateblock, true, true, false},
         {"hidden", "reconsiderblock", &reconsiderblock, true, true, false},
         {"hidden", "setmocktime", &setmocktime, true, false, false},
-        { "hidden",             "waitfornewblock",        &waitfornewblock,        true,  true,  false  },
-        { "hidden",             "waitforblock",           &waitforblock,           true,  true,  false  },
-        { "hidden",             "waitforblockheight",     &waitforblockheight,     true,  true,  false  },
+        {"hidden", "waitfornewblock", &waitfornewblock, true, true, false},
+        {"hidden", "waitforblock", &waitforblock, true, true, false},
+        {"hidden", "waitforblockheight", &waitforblockheight, true, true, false},
 
-        /* PIVX features */
-        {"pivx", "listmasternodes", &listmasternodes, true, true, false},
-        {"pivx", "getmasternodecount", &getmasternodecount, true, true, false},
-        {"pivx", "masternodeconnect", &masternodeconnect, true, true, false},
-        {"pivx", "createmasternodebroadcast", &createmasternodebroadcast, true, true, false},
-        {"pivx", "decodemasternodebroadcast", &decodemasternodebroadcast, true, true, false},
-        {"pivx", "relaymasternodebroadcast", &relaymasternodebroadcast, true, true, false},
-        {"pivx", "masternodecurrent", &masternodecurrent, true, true, false},
-        {"pivx", "masternodedebug", &masternodedebug, true, true, false},
-        {"pivx", "startmasternode", &startmasternode, true, true, false},
-        {"pivx", "createmasternodekey", &createmasternodekey, true, true, false},
-        {"pivx", "getmasternodeoutputs", &getmasternodeoutputs, true, true, false},
-        {"pivx", "listmasternodeconf", &listmasternodeconf, true, true, false},
-        {"pivx", "getmasternodestatus", &getmasternodestatus, true, true, false},
-        {"pivx", "getmasternodewinners", &getmasternodewinners, true, true, false},
-        {"pivx", "getmasternodescores", &getmasternodescores, true, true, false},
-        {"pivx", "preparebudget", &preparebudget, true, true, false},
-        {"pivx", "submitbudget", &submitbudget, true, true, false},
-        {"pivx", "mnbudgetvote", &mnbudgetvote, true, true, false},
-        {"pivx", "getbudgetvotes", &getbudgetvotes, true, true, false},
-        {"pivx", "getnextsuperblock", &getnextsuperblock, true, true, false},
-        {"pivx", "getbudgetprojection", &getbudgetprojection, true, true, false},
-        {"pivx", "getbudgetinfo", &getbudgetinfo, true, true, false},
-        {"pivx", "mnbudgetrawvote", &mnbudgetrawvote, true, true, false},
-        {"pivx", "mnfinalbudget", &mnfinalbudget, true, true, false},
-        {"pivx", "checkbudgets", &checkbudgets, true, true, false},
-        {"pivx", "mnsync", &mnsync, true, true, false},
-        {"pivx", "spork", &spork, true, true, false},
-        {"pivx", "getpoolinfo", &getpoolinfo, true, true, false},
+        /* NBX features */
+        {"nbx", "listmasternodes", &listmasternodes, true, true, false},
+        {"nbx", "getmasternodecount", &getmasternodecount, true, true, false},
+        {"nbx", "masternodeconnect", &masternodeconnect, true, true, false},
+        {"nbx", "createmasternodebroadcast", &createmasternodebroadcast, true, true, false},
+        {"nbx", "decodemasternodebroadcast", &decodemasternodebroadcast, true, true, false},
+        {"nbx", "relaymasternodebroadcast", &relaymasternodebroadcast, true, true, false},
+        {"nbx", "masternodecurrent", &masternodecurrent, true, true, false},
+        {"nbx", "masternodedebug", &masternodedebug, true, true, false},
+        {"nbx", "startmasternode", &startmasternode, true, true, false},
+        {"nbx", "createmasternodekey", &createmasternodekey, true, true, false},
+        {"nbx", "getmasternodeoutputs", &getmasternodeoutputs, true, true, false},
+        {"nbx", "listmasternodeconf", &listmasternodeconf, true, true, false},
+        {"nbx", "getmasternodestatus", &getmasternodestatus, true, true, false},
+        {"nbx", "getmasternodewinners", &getmasternodewinners, true, true, false},
+        {"nbx", "getmasternodescores", &getmasternodescores, true, true, false},
+        {"nbx", "mnsync", &mnsync, true, true, false},
+        {"nbx", "spork", &spork, true, true, false},
+        {"nbx", "getpoolinfo", &getpoolinfo, true, true, false},
 
 #ifdef ENABLE_WALLET
         /* Wallet */
         {"wallet", "addmultisigaddress", &addmultisigaddress, true, false, true},
         {"wallet", "autocombinerewards", &autocombinerewards, false, false, true},
         {"wallet", "backupwallet", &backupwallet, true, false, true},
-        {"wallet", "enableautomintaddress", &enableautomintaddress, true, false, true},
-        {"wallet", "createautomintaddress", &createautomintaddress, true, false, true},
         {"wallet", "dumpprivkey", &dumpprivkey, true, false, true},
         {"wallet", "dumpwallet", &dumpwallet, true, false, true},
-        {"wallet", "bip38encrypt", &bip38encrypt, true, false, true},
-        {"wallet", "bip38decrypt", &bip38decrypt, true, false, true},
         {"wallet", "encryptwallet", &encryptwallet, true, false, true},
         {"wallet", "getaccountaddress", &getaccountaddress, true, false, true},
         {"wallet", "getaccount", &getaccount, true, false, true},
         {"wallet", "getaddressesbyaccount", &getaddressesbyaccount, true, false, true},
         {"wallet", "getbalance", &getbalance, false, false, true},
+        {"wallet", "gethdseed", &gethdseed, false, false, true},
         {"wallet", "getnewaddress", &getnewaddress, true, false, true},
+        {"wallet", "getreservedaddress", &getreservedaddress, true, false, true},
         {"wallet", "getrawchangeaddress", &getrawchangeaddress, true, false, true},
         {"wallet", "getreceivedbyaccount", &getreceivedbyaccount, false, false, true},
         {"wallet", "getreceivedbyaddress", &getreceivedbyaddress, false, false, true},
@@ -419,9 +402,8 @@ static const CRPCCommand vRPCCommands[] =
         {"wallet", "gettransaction", &gettransaction, false, false, true},
         {"wallet", "getunconfirmedbalance", &getunconfirmedbalance, false, false, true},
         {"wallet", "getwalletinfo", &getwalletinfo, false, false, true},
-        {"wallet", "importprivkey", &importprivkey, true, false, true},
-        {"wallet", "importwallet", &importwallet, true, false, true},
-        {"wallet", "importaddress", &importaddress, true, false, true},
+        {"wallet", "getxpub", &getxpub, false, false, true},
+        {"wallet", "getfirstaddress", &getfirstaddress, false, false, true},
         {"wallet", "keypoolrefill", &keypoolrefill, true, false, true},
         {"wallet", "listaccounts", &listaccounts, false, false, true},
         {"wallet", "listaddressgroupings", &listaddressgroupings, false, false, true},
@@ -439,36 +421,13 @@ static const CRPCCommand vRPCCommands[] =
         {"wallet", "sendtoaddress", &sendtoaddress, false, false, true},
         {"wallet", "sendtoaddressix", &sendtoaddressix, false, false, true},
         {"wallet", "setaccount", &setaccount, true, false, true},
+        {"wallet", "sethdseed", &sethdseed, false, false, true},
         {"wallet", "setstakesplitthreshold", &setstakesplitthreshold, false, false, true},
         {"wallet", "settxfee", &settxfee, true, false, true},
         {"wallet", "signmessage", &signmessage, true, false, true},
         {"wallet", "walletlock", &walletlock, true, false, true},
         {"wallet", "walletpassphrasechange", &walletpassphrasechange, true, false, true},
         {"wallet", "walletpassphrase", &walletpassphrase, true, false, true},
-
-        {"zerocoin", "createrawzerocoinstake", &createrawzerocoinstake, false, false, true},
-        {"zerocoin", "createrawzerocoinpublicspend", &createrawzerocoinpublicspend, false, false, true},
-        {"zerocoin", "getzerocoinbalance", &getzerocoinbalance, false, false, true},
-        {"zerocoin", "listmintedzerocoins", &listmintedzerocoins, false, false, true},
-        {"zerocoin", "listspentzerocoins", &listspentzerocoins, false, false, true},
-        {"zerocoin", "listzerocoinamounts", &listzerocoinamounts, false, false, true},
-        {"zerocoin", "mintzerocoin", &mintzerocoin, false, false, true},
-        {"zerocoin", "spendzerocoin", &spendzerocoin, false, false, true},
-        {"zerocoin", "spendrawzerocoin", &spendrawzerocoin, true, false, false},
-        {"zerocoin", "spendzerocoinmints", &spendzerocoinmints, false, false, true},
-        {"zerocoin", "resetmintzerocoin", &resetmintzerocoin, false, false, true},
-        {"zerocoin", "resetspentzerocoin", &resetspentzerocoin, false, false, true},
-        {"zerocoin", "getarchivedzerocoin", &getarchivedzerocoin, false, false, true},
-        {"zerocoin", "importzerocoins", &importzerocoins, false, false, true},
-        {"zerocoin", "exportzerocoins", &exportzerocoins, false, false, true},
-        {"zerocoin", "reconsiderzerocoins", &reconsiderzerocoins, false, false, true},
-        {"zerocoin", "getspentzerocoinamount", &getspentzerocoinamount, false, false, false},
-        {"zerocoin", "getzpivseed", &getzpivseed, false, false, true},
-        {"zerocoin", "setzpivseed", &setzpivseed, false, false, true},
-        {"zerocoin", "generatemintlist", &generatemintlist, false, false, true},
-        {"zerocoin", "searchdzpiv", &searchdzpiv, false, false, true},
-        {"zerocoin", "dzpivstate", &dzpivstate, false, false, true},
-        {"zerocoin", "clearspendcache", &clearspendcache, false, false, true}
 
 #endif // ENABLE_WALLET
 };
@@ -632,14 +591,14 @@ std::vector<std::string> CRPCTable::listCommands() const
 
 std::string HelpExampleCli(string methodname, string args)
 {
-    return "> pivx-cli " + methodname + " " + args + "\n";
+    return "> nbx-cli " + methodname + " " + args + "\n";
 }
 
 std::string HelpExampleRpc(string methodname, string args)
 {
     return "> curl --user myusername --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", "
            "\"method\": \"" +
-           methodname + "\", \"params\": [" + args + "] }' -H 'content-type: text/plain;' http://127.0.0.1:51473/\n";
+           methodname + "\", \"params\": [" + args + "] }' -H 'content-type: text/plain;' http://127.0.0.1:28735/\n";
 }
 
 void RPCSetTimerInterfaceIfUnset(RPCTimerInterface *iface)

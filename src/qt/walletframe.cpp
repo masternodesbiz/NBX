@@ -1,5 +1,6 @@
 // Copyright (c) 2011-2013 The Bitcoin developers
 // Copyright (c) 2016-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,6 +8,7 @@
 
 #include "bitcoingui.h"
 #include "walletview.h"
+#include "walletmodel.h"
 
 #include <cstdio>
 
@@ -55,6 +57,8 @@ bool WalletFrame::addWallet(const QString& name, WalletModel* walletModel)
 
     // Ensure a walletView is able to show the main window
     connect(walletView, SIGNAL(showNormalIfMinimized()), gui, SLOT(showNormalIfMinimized()));
+
+    connect(walletModel, SIGNAL(needRestart(QStringList)), gui, SLOT(handleRestart(QStringList)));
 
     return true;
 }
@@ -119,13 +123,6 @@ void WalletFrame::gotoHistoryPage()
         i.value()->gotoHistoryPage();
 }
 
-void WalletFrame::gotoGovernancePage()
-{
-    QMap<QString, WalletView*>::const_iterator i;
-    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->gotoGovernancePage();
-}
-
 void WalletFrame::gotoMasternodePage() // Masternode list
 {
     QMap<QString, WalletView*>::const_iterator i;
@@ -145,13 +142,6 @@ void WalletFrame::gotoReceiveCoinsPage()
     QMap<QString, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
         i.value()->gotoReceiveCoinsPage();
-}
-
-void WalletFrame::gotoPrivacyPage()
-{
-    QMap<QString, WalletView*>::const_iterator i;
-    for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
-        i.value()->gotoPrivacyPage();
 }
 
 void WalletFrame::gotoSendCoinsPage(QString addr)
@@ -175,11 +165,11 @@ void WalletFrame::gotoVerifyMessageTab(QString addr)
         walletView->gotoVerifyMessageTab(addr);
 }
 
-void WalletFrame::gotoBip38Tool()
+void WalletFrame::gotoHdSeed()
 {
     WalletView* walletView = currentWalletView();
     if (walletView)
-        walletView->gotoBip38Tool();
+        walletView->gotoHdSeed();
 }
 
 void WalletFrame::gotoMultiSendDialog()

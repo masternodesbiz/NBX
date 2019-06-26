@@ -1,5 +1,6 @@
 // Copyright (c) 2014-2016 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -45,13 +46,13 @@ void CActiveMasternode::ManageStatus()
         status = ACTIVE_MASTERNODE_NOT_CAPABLE;
         notCapableReason = "";
 
-        if (pwalletMain->IsLocked()) {
+        if (pwalletMain && pwalletMain->IsLocked()) {
             notCapableReason = "Wallet is locked.";
             LogPrintf("CActiveMasternode::ManageStatus() - not capable: %s\n", notCapableReason);
             return;
         }
 
-        if (pwalletMain->GetBalance() == 0) {
+        if (pwalletMain && pwalletMain->GetBalance() == 0) {
             notCapableReason = "Hot node, waiting for remote activation.";
             LogPrintf("CActiveMasternode::ManageStatus() - not capable: %s\n", notCapableReason);
             return;
@@ -93,8 +94,10 @@ void CActiveMasternode::ManageStatus()
                 return;
             }
 
-            LOCK(pwalletMain->cs_wallet);
-            pwalletMain->LockCoin(vin.prevout);
+            if (pwalletMain) {
+                LOCK(pwalletMain->cs_wallet);
+                pwalletMain->LockCoin(vin.prevout);
+            }
 
             // send to all nodes
             CPubKey pubKeyMasternode;
@@ -198,7 +201,7 @@ bool CActiveMasternode::SendMasternodePing(std::string& errorMessage)
          * AFTER MIGRATION TO V12 IS DONE
          */
 
-        if (IsSporkActive(SPORK_10_MASTERNODE_PAY_UPDATED_NODES)) return true;
+        if (IsSporkActive(SPORK_3_MASTERNODE_PAY_UPDATED_NODES)) return true;
         // for migration purposes ping our node on old masternodes network too
         std::string retErrorMessage;
         std::vector<unsigned char> vchMasterNodeSignature;
@@ -300,7 +303,7 @@ bool CActiveMasternode::CreateBroadcast(CTxIn vin, CService service, CKey keyCol
      * AFTER MIGRATION TO V12 IS DONE
      */
 
-    if (IsSporkActive(SPORK_10_MASTERNODE_PAY_UPDATED_NODES)) return true;
+    if (IsSporkActive(SPORK_3_MASTERNODE_PAY_UPDATED_NODES)) return true;
     // for migration purposes inject our node in old masternodes' list too
     std::string retErrorMessage;
     std::vector<unsigned char> vchMasterNodeSignature;

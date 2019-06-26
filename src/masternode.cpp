@@ -1,10 +1,13 @@
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2018 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "masternode.h"
+#include "activemasternode.h"
 #include "addrman.h"
+#include "init.h"
 #include "masternodeman.h"
 #include "obfuscation.h"
 #include "sync.h"
@@ -70,7 +73,6 @@ CMasternode::CMasternode()
     cacheInputAge = 0;
     cacheInputAgeBlock = 0;
     unitTest = false;
-    allowFreeTx = true;
     nActiveState = MASTERNODE_ENABLED,
     protocolVersion = PROTOCOL_VERSION;
     nLastDsq = 0;
@@ -95,7 +97,6 @@ CMasternode::CMasternode(const CMasternode& other)
     cacheInputAge = other.cacheInputAge;
     cacheInputAgeBlock = other.cacheInputAgeBlock;
     unitTest = other.unitTest;
-    allowFreeTx = other.allowFreeTx;
     nActiveState = MASTERNODE_ENABLED,
     protocolVersion = other.protocolVersion;
     nLastDsq = other.nLastDsq;
@@ -120,7 +121,6 @@ CMasternode::CMasternode(const CMasternodeBroadcast& mnb)
     cacheInputAge = 0;
     cacheInputAgeBlock = 0;
     unitTest = false;
-    allowFreeTx = true;
     nActiveState = MASTERNODE_ENABLED,
     protocolVersion = mnb.protocolVersion;
     nLastDsq = mnb.nLastDsq;
@@ -342,7 +342,6 @@ CMasternodeBroadcast::CMasternodeBroadcast()
     cacheInputAge = 0;
     cacheInputAgeBlock = 0;
     unitTest = false;
-    allowFreeTx = true;
     protocolVersion = PROTOCOL_VERSION;
     nLastDsq = 0;
     nScanningErrorCount = 0;
@@ -362,7 +361,6 @@ CMasternodeBroadcast::CMasternodeBroadcast(CService newAddr, CTxIn newVin, CPubK
     cacheInputAge = 0;
     cacheInputAgeBlock = 0;
     unitTest = false;
-    allowFreeTx = true;
     protocolVersion = protocolVersionIn;
     nLastDsq = 0;
     nScanningErrorCount = 0;
@@ -382,7 +380,6 @@ CMasternodeBroadcast::CMasternodeBroadcast(const CMasternode& mn)
     cacheInputAge = mn.cacheInputAge;
     cacheInputAgeBlock = mn.cacheInputAgeBlock;
     unitTest = mn.unitTest;
-    allowFreeTx = mn.allowFreeTx;
     protocolVersion = mn.protocolVersion;
     nLastDsq = mn.nLastDsq;
     nScanningErrorCount = mn.nScanningErrorCount;
@@ -517,8 +514,7 @@ bool CMasternodeBroadcast::CheckAndUpdate(int& nDos)
     }
 
     std::string errorMessage = "";
-    if (!obfuScationSigner.VerifyMessage(pubKeyCollateralAddress, sig, GetNewStrMessage(), errorMessage)
-    		&& !obfuScationSigner.VerifyMessage(pubKeyCollateralAddress, sig, GetOldStrMessage(), errorMessage))
+    if (!obfuScationSigner.VerifyMessage(pubKeyCollateralAddress, sig, GetNewStrMessage(), errorMessage))
     {
         // don't ban for old masternodes, their sigs could be broken because of the bug
         nDos = protocolVersion < MIN_PEER_MNANNOUNCE ? 0 : 100;
@@ -526,8 +522,8 @@ bool CMasternodeBroadcast::CheckAndUpdate(int& nDos)
     }
 
     if (Params().NetworkID() == CBaseChainParams::MAIN) {
-        if (addr.GetPort() != 51472) return false;
-    } else if (addr.GetPort() == 51472)
+        if (addr.GetPort() != 28734) return false;
+    } else if (addr.GetPort() == 28734)
         return false;
 
     //search existing Masternode list, this is where we update existing Masternodes with new mnb broadcasts
@@ -616,7 +612,7 @@ bool CMasternodeBroadcast::CheckInputsAndAdd(int& nDoS)
     }
 
     // verify that sig time is legit in past
-    // should be at least not earlier than block when 1000 PIV tx got MASTERNODE_MIN_CONFIRMATIONS
+    // should be at least not earlier than block when 1000 NBX tx got MASTERNODE_MIN_CONFIRMATIONS
     uint256 hashBlock = 0;
     CTransaction tx2;
     GetTransaction(vin.prevout.hash, tx2, hashBlock, true);
@@ -659,11 +655,7 @@ bool CMasternodeBroadcast::Sign(CKey& keyCollateralAddress)
     std::string errorMessage;
     sigTime = GetAdjustedTime();
 
-    std::string strMessage;
-    if(chainActive.Height() < Params().Zerocoin_Block_V2_Start())
-    	strMessage = GetOldStrMessage();
-    else
-    	strMessage = GetNewStrMessage();
+    std::string strMessage = GetNewStrMessage();
 
     if (!obfuScationSigner.SignMessage(strMessage, errorMessage, sig, keyCollateralAddress))
     	return error("CMasternodeBroadcast::Sign() - Error: %s", errorMessage);
@@ -679,22 +671,10 @@ bool CMasternodeBroadcast::VerifySignature()
 {
     std::string errorMessage;
 
-    if(!obfuScationSigner.VerifyMessage(pubKeyCollateralAddress, sig, GetNewStrMessage(), errorMessage)
-            && !obfuScationSigner.VerifyMessage(pubKeyCollateralAddress, sig, GetOldStrMessage(), errorMessage))
+    if(!obfuScationSigner.VerifyMessage(pubKeyCollateralAddress, sig, GetNewStrMessage(), errorMessage))
         return error("CMasternodeBroadcast::VerifySignature() - Error: %s", errorMessage);
 
     return true;
-}
-
-std::string CMasternodeBroadcast::GetOldStrMessage()
-{
-    std::string strMessage;
-
-    std::string vchPubKey(pubKeyCollateralAddress.begin(), pubKeyCollateralAddress.end());
-    std::string vchPubKey2(pubKeyMasternode.begin(), pubKeyMasternode.end());
-    strMessage = addr.ToString() + std::to_string(sigTime) + vchPubKey + vchPubKey2 + std::to_string(protocolVersion);
-
-    return strMessage;
 }
 
 std:: string CMasternodeBroadcast::GetNewStrMessage()

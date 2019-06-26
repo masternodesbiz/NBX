@@ -1,6 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2016-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -95,7 +96,7 @@ public:
     {
         if (fee < CFeeRate(0))
             return false;
-        if (fee.GetFeePerK() > minRelayFee.GetFeePerK() * 10000)
+        if (fee.GetFeePerK() > minRelayFee.GetNonZeroFeePerK() * 10000)
             return false;
         return true;
     }
@@ -174,12 +175,8 @@ private:
         // We need to guess why the transaction was included in a block-- either
         // because it is high-priority or because it has sufficient fees.
         bool sufficientFee = (feeRate > minRelayFee);
-        bool sufficientPriority = AllowFree(dPriority);
         const char* assignedTo = "unassigned";
-        if (sufficientFee && !sufficientPriority && CBlockAverage::AreSane(feeRate, minRelayFee)) {
-            history[nBlocksTruncated].RecordFee(feeRate);
-            assignedTo = "fee";
-        } else if (sufficientPriority && !sufficientFee && CBlockAverage::AreSane(dPriority)) {
+        if (!sufficientFee && CBlockAverage::AreSane(dPriority)) {
             history[nBlocksTruncated].RecordPriority(dPriority);
             assignedTo = "priority";
         } else {
@@ -411,10 +408,8 @@ bool CTxMemPool::addUnchecked(const uint256& hash, const CTxMemPoolEntry& entry)
     {
         mapTx[hash] = entry;
         const CTransaction& tx = mapTx[hash].GetTx();
-        if(!tx.HasZerocoinSpendInputs()) {
-            for (unsigned int i = 0; i < tx.vin.size(); i++)
-                mapNextTx[tx.vin[i].prevout] = CInPoint(&tx, i);
-        }
+        for (unsigned int i = 0; i < tx.vin.size(); i++)
+            mapNextTx[tx.vin[i].prevout] = CInPoint(&tx, i);
         nTransactionsUpdated++;
         totalTxSize += entry.GetTxSize();
     }
@@ -565,18 +560,13 @@ void CTxMemPool::check(const CCoinsViewCache* pcoins) const
                 fDependsWait = true;
             } else {
                 const CCoins* coins = pcoins->AccessCoins(txin.prevout.hash);
-                if(!txin.IsZerocoinSpend() && !txin.IsZerocoinPublicSpend())
-                    assert(coins && coins->IsAvailable(txin.prevout.n));
+                assert(coins && coins->IsAvailable(txin.prevout.n));
             }
             // Check whether its inputs are marked in mapNextTx.
-            if(!txin.IsZerocoinSpend()  && !txin.IsZerocoinPublicSpend()) {
-                std::map<COutPoint, CInPoint>::const_iterator it3 = mapNextTx.find(txin.prevout);
-                assert(it3 != mapNextTx.end());
-                assert(it3->second.ptx == &tx);
-                assert(it3->second.n == i);
-            }else{
-                fDependsWait=false;
-            }
+            std::map<COutPoint, CInPoint>::const_iterator it3 = mapNextTx.find(txin.prevout);
+            assert(it3 != mapNextTx.end());
+            assert(it3->second.ptx == &tx);
+            assert(it3->second.n == i);
             i++;
         }
         if (fDependsWait)

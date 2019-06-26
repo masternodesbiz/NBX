@@ -1,6 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2017-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -59,32 +60,6 @@ bool CBasicKeyStore::GetCScript(const CScriptID& hash, CScript& redeemScriptOut)
         return true;
     }
     return false;
-}
-
-bool CBasicKeyStore::AddWatchOnly(const CScript& dest)
-{
-    LOCK(cs_KeyStore);
-    setWatchOnly.insert(dest);
-    return true;
-}
-
-bool CBasicKeyStore::RemoveWatchOnly(const CScript& dest)
-{
-    LOCK(cs_KeyStore);
-    setWatchOnly.erase(dest);
-    return true;
-}
-
-bool CBasicKeyStore::HaveWatchOnly(const CScript& dest) const
-{
-    LOCK(cs_KeyStore);
-    return setWatchOnly.count(dest) > 0;
-}
-
-bool CBasicKeyStore::HaveWatchOnly() const
-{
-    LOCK(cs_KeyStore);
-    return (!setWatchOnly.empty());
 }
 
 bool CBasicKeyStore::AddMultiSig(const CScript& dest)

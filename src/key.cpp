@@ -1,5 +1,6 @@
 // Copyright (c) 2009-2017 The Bitcoin developers
 // Copyright (c) 2017-2018 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -231,7 +232,7 @@ bool CKey::VerifyPubKey(const CPubKey& pubkey) const
         return false;
     }
     unsigned char rnd[8];
-    std::string str = "Bitcoin key verification\n";
+    std::string str = "Netbox.Wallet key verification\n";
     GetRandBytes(rnd, sizeof(rnd));
     uint256 hash;
     CHash256().Write((unsigned char*)str.data(), str.size()).Write(rnd, sizeof(rnd)).Finalize(hash.begin());
@@ -301,7 +302,7 @@ bool CExtKey::Derive(CExtKey& out, unsigned int nChild) const
 
 void CExtKey::SetMaster(const unsigned char* seed, unsigned int nSeedLen)
 {
-    static const unsigned char hashkey[] = {'B', 'i', 't', 'c', 'o', 'i', 'n', ' ', 's', 'e', 'e', 'd'};
+    static const unsigned char hashkey[] = {'N', 'e', 't', 'b', 'o', 'x', 'W', 'a', 'l', 'l', 'e', 't', ' ', 's', 'e', 'e', 'd'};
     std::vector<unsigned char, secure_allocator<unsigned char>> vout(64);
     CHMAC_SHA512(hashkey, sizeof(hashkey)).Write(seed, nSeedLen).Finalize(vout.data());
     key.Set(vout.data(), vout.data() + 32, true);

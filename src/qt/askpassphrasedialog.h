@@ -1,5 +1,6 @@
 // Copyright (c) 2011-2013 The Bitcoin developers
 // Copyright (c) 2017-2018 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -24,7 +25,7 @@ class AskPassphraseDialog : public QDialog
 public:
     enum class Mode {
         Encrypt,         /**< Ask passphrase twice and encrypt */
-        UnlockAnonymize, /**< Ask passphrase and unlock only for anonymization */
+        UnlockStaking, /**< Ask passphrase and unlock only for staking */
         Unlock,          /**< Ask passphrase and unlock */
         ChangePass,      /**< Ask old passphrase + new passphrase twice */
         Decrypt          /**< Ask passphrase and decrypt wallet */
@@ -38,13 +39,9 @@ public:
         Encrypt,        /** Encrypt unencrypted wallet */
         ToggleLock,     /** Toggle wallet lock state */
         ChangePass,     /** Change passphrase */
-        Send_PIV,       /** Send PIV */
-        Send_zPIV,      /** Send zPIV */
-        Mint_zPIV,      /** Mint zPIV */
-        BIP_38,         /** BIP38 menu */
+        Send_NBX,       /** Send NBX */
         Multi_Sig,      /** Multi-Signature dialog */
         Sign_Message,   /** Sign/verify message dialog */
-        UI_Vote,        /** Governance Tab UI Voting */
     };
 
     explicit AskPassphraseDialog(Mode mode, QWidget* parent, WalletModel* model, Context context);

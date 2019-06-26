@@ -1,0 +1,27 @@
+FROM ubuntu:18.04 as builder
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends --yes \
+        software-properties-common automake autoconf pkg-config libtool build-essential \
+        curl bsdmainutils python3-setuptools cmake libcap-dev libz-dev libbz2-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY / /netboxwallet
+
+WORKDIR /netboxwallet/depends
+
+RUN mkdir SDKs \
+    && cd SDKs \
+    && curl -sSLo MacOSX10.11.sdk.tar.xz https://github.com/phracker/MacOSX-SDKs/releases/download/MacOSX10.11.sdk/MacOSX10.11.sdk.tar.xz \
+    && tar -xf MacOSX10.11.sdk.tar.xz \
+    && rm MacOSX10.11.sdk.tar.xz
+
+RUN make HOST=x86_64-apple-darwin11 -j$(nproc)
+
+WORKDIR /netboxwallet
+
+RUN ./autogen.sh
+RUN CONFIG_SITE=$PWD/depends/x86_64-apple-darwin11/share/config.site ./configure
+RUN make -j$(nproc)
+
+RUN $PWD/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-strip $PWD/src/qt/netboxwallet $PWD/src/nbxd $PWD/src/nbx-cli $PWD/src/nbx-tx

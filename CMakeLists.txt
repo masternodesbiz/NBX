@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(PIVX)
+project(NBX)
 
 set(BDB_VER "4.8.30")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/contrib/cmake")
@@ -74,8 +74,7 @@ if (GMP_FOUND)
     include_directories ( ${GMP_INCLUDE_DIR} )
     link_directories ( ${GMP_LIBRARY_DIRS} )
 else()
-    message(WARNING "GMP not found, falling back to OpenSSL for bignum!")
-    set(BIGNUM_CONFIGURE_FLAGS "--with-zerocoin-bignum=openssl")
+    message(WARNING "GMP not found!")
 endif()
 
 find_package(ZMQ)
@@ -97,11 +96,11 @@ else()
     )
 endif()
 
-# run configure if pivx_config.h doesn't exist
-if (EXISTS	"${CMAKE_CURRENT_SOURCE_DIR}/src/config/pivx-config.h")
+# run configure if nbx_config.h doesn't exist
+if (EXISTS	"${CMAKE_CURRENT_SOURCE_DIR}/src/config/nbx-config.h")
 else()
     execute_process(
-            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/configure ${BDB_CONFIGURE_FLAGS} ${BIGNUM_CONFIGURE_FLAGS}
+            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/configure ${BDB_CONFIGURE_FLAGS}
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 endif()
@@ -144,7 +143,7 @@ include_directories(
 )
 
 set(libleveldb_a_headers
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/config/pivx-config.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/config/nbx-config.h
         ${CMAKE_CURRENT_SOURCE_DIR}/src/leveldb/port/atomic_pointer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/src/leveldb/port/port_example.h
         ${CMAKE_CURRENT_SOURCE_DIR}/src/leveldb/port/port_posix.h
@@ -325,7 +324,6 @@ set(SERVER_SOURCES
         ./src/txdb.cpp
         ./src/txmempool.cpp
         ./src/validationinterface.cpp
-        ./src/zpivchain.cpp
         )
 add_library(SERVER_A STATIC ${BitcoinHeaders} ${SERVER_SOURCES})
 
@@ -353,21 +351,14 @@ set(WALLET_SOURCES
         ./src/masternode-sync.cpp
         ./src/masternodeconfig.cpp
         ./src/masternodeman.cpp
-        ./src/zpiv/mintpool.cpp
         ./src/wallet/rpcdump.cpp
-        ./src/zpiv/deterministicmint.cpp
-        ./src/zpiv/zerocoin.cpp
         ./src/wallet/rpcwallet.cpp
         ./src/kernel.cpp
         ./src/wallet/wallet.cpp
         ./src/wallet/wallet_ismine.cpp
         ./src/wallet/walletdb.cpp
-        ./src/zpiv/zpivwallet.cpp
-        ./src/zpiv/zpivtracker.cpp
-        ./src/zpiv/zpivmodule.cpp
         ./src/stakeinput.cpp
         ./src/genwit.cpp
-        ./src/lightzpivthread.cpp
         )
 add_library(WALLET_A STATIC ${BitcoinHeaders} ${WALLET_SOURCES})
 
@@ -406,42 +397,7 @@ set(BITCOIN_CRYPTO_SOURCES
         )
 add_library(BITCOIN_CRYPTO_A STATIC ${BITCOIN_CRYPTO_SOURCES})
 
-set(ZEROCOIN_SOURCES
-        ./src/libzerocoin/Accumulator.h
-        ./src/libzerocoin/AccumulatorProofOfKnowledge.h
-        ./src/libzerocoin/bignum.h
-        ./src/libzerocoin/bignum.cpp
-        ./src/libzerocoin/Coin.h
-        ./src/libzerocoin/CoinSpend.h
-        ./src/libzerocoin/Commitment.h
-        ./src/libzerocoin/Denominations.h
-        ./src/libzerocoin/ParamGeneration.h
-        ./src/libzerocoin/Params.h
-        ./src/libzerocoin/SerialNumberSignatureOfKnowledge.h
-        ./src/libzerocoin/SpendType.h
-        ./src/libzerocoin/ZerocoinDefines.h
-        ./src/libzerocoin/Accumulator.cpp
-        ./src/libzerocoin/AccumulatorProofOfKnowledge.cpp
-        ./src/libzerocoin/Coin.cpp
-        ./src/libzerocoin/Denominations.cpp
-        ./src/libzerocoin/CoinSpend.cpp
-        ./src/libzerocoin/Commitment.cpp
-        ./src/libzerocoin/ParamGeneration.cpp
-        ./src/libzerocoin/Params.cpp
-        ./src/libzerocoin/SerialNumberSignatureOfKnowledge.cpp
-        )
-if(GMP_FOUND)
-    list(APPEND ZEROCOIN_SOURCES ./src/libzerocoin/bignum_gmp.cpp)
-else()
-    list(APPEND ZEROCOIN_SOURCES ./src/libzerocoin/bignum_openssl.cpp)
-endif()
-add_library(ZEROCOIN_A STATIC ${ZEROCOIN_SOURCES})
-
 set(COMMON_SOURCES
-        ./src/zpiv/accumulators.cpp
-        ./src/zpiv/accumulatorcheckpoints.cpp
-        ./src/zpiv/accumulatormap.cpp
-        ./src/zpiv/witness.cpp
         ./src/allocators.cpp
         ./src/amount.cpp
         ./src/base58.cpp
@@ -450,9 +406,7 @@ set(COMMON_SOURCES
         ./src/coins.cpp
         ./src/compressor.cpp
         ./src/primitives/block.cpp
-        ./src/zpiv/deterministicmint.cpp
         ./src/primitives/transaction.cpp
-        ./src/zpiv/zerocoin.cpp
         ./src/core_read.cpp
         ./src/core_write.cpp
         ./src/hash.cpp
@@ -495,9 +449,9 @@ add_library(UTIL_A STATIC ${BitcoinHeaders} ${UTIL_SOURCES})
 set(CLI_SOURCES ./src/rpc/client.cpp)
 add_library(CLI_A STATIC ${BitcoinHeaders} ${CLI_SOURCES})
 
-add_executable(pivx-cli ${CMAKE_CURRENT_SOURCE_DIR}/src/pivx-cli.cpp)
-add_dependencies(pivx-cli libunivalue)
-target_link_libraries(pivx-cli
+add_executable(nbx-cli ${CMAKE_CURRENT_SOURCE_DIR}/src/nbx-cli.cpp)
+add_dependencies(nbx-cli libunivalue)
+target_link_libraries(nbx-cli
         CLI_A
         univalue
         UTIL_A
@@ -505,28 +459,26 @@ target_link_libraries(pivx-cli
         ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${LIBEVENT_LIB}
         )
 
-add_executable(pivx-tx ${CMAKE_CURRENT_SOURCE_DIR}/src/pivx-tx.cpp)
-add_dependencies(pivx-tx libunivalue libsecp256k1)
-target_link_libraries(pivx-tx
+add_executable(nbx-tx ${CMAKE_CURRENT_SOURCE_DIR}/src/nbx-tx.cpp)
+add_dependencies(nbx-tx libunivalue libsecp256k1)
+target_link_libraries(nbx-tx
         univalue
         COMMON_A
-        ZEROCOIN_A
         UTIL_A
         BITCOIN_CRYPTO_A
         secp256k1
         ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} ${LIBEVENT_LIB}
         )
 if(GMP_FOUND)
-    target_link_libraries(pivx-tx ${GMP_LIBRARY})
+    target_link_libraries(nbx-tx ${GMP_LIBRARY})
 endif()
 
-add_executable(pivxd ${CMAKE_CURRENT_SOURCE_DIR}/src/pivxd.cpp)
-add_dependencies(pivxd libunivalue libsecp256k1 leveldb leveldb_sse42 memenv)
-target_link_libraries(pivxd
+add_executable(nbxd ${CMAKE_CURRENT_SOURCE_DIR}/src/nbxd.cpp)
+add_dependencies(nbxd libunivalue libsecp256k1 leveldb leveldb_sse42 memenv)
+target_link_libraries(nbxd
         SERVER_A
         COMMON_A
         univalue
-        ZEROCOIN_A
         UTIL_A
         WALLET_A
         BITCOIN_CRYPTO_A
@@ -534,10 +486,10 @@ target_link_libraries(pivxd
         ${BerkeleyDB_LIBRARIES} ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${LIBEVENT_LIB} miniupnpc pthread
         )
 if(GMP_FOUND)
-    target_link_libraries(pivxd ${GMP_LIBRARY})
+    target_link_libraries(nbxd ${GMP_LIBRARY})
 endif()
 if(ZMQ_FOUND)
-    target_link_libraries(pivxd ZMQ_A ${ZMQ_LIB})
+    target_link_libraries(nbxd ZMQ_A ${ZMQ_LIB})
 endif ()
 
 

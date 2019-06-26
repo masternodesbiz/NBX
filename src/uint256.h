@@ -2,11 +2,12 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2018 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef PIVX_UINT256_H
-#define PIVX_UINT256_H
+#ifndef BITCOIN_UINT256_H
+#define BITCOIN_UINT256_H
 
 #include <assert.h>
 #include <cstring>
@@ -280,7 +281,7 @@ public:
 
     uint32_t Get32(int n = 0) const
     {
-        return pn[2 * n];
+        return pn[n];
     }
     /**
      * Returns the position of the highest bit set plus one, or zero if the
@@ -389,6 +390,12 @@ class uint512 : public base_uint<512>
 public:
     uint512() {}
     uint512(const base_uint<512>& b) : base_uint<512>(b) {}
+    uint512(const base_uint<256>& b) {
+        for (int i = 0; i < b.WIDTH; i++)
+            pn[i] = b.pn[i];
+        for (int i = b.WIDTH; i < WIDTH; i++)
+            pn[i] = 0;
+    }
     uint512(uint64_t b) : base_uint<512>(b) {}
     explicit uint512(const std::string& str) : base_uint<512>(str) {}
     explicit uint512(const std::vector<unsigned char>& vch) : base_uint<512>(vch) {}
@@ -410,4 +417,4 @@ inline uint512 uint512S(const std::string& str)
     return rv;
 }
 
-#endif // PIVX_UINT256_H
+#endif // BITCOIN_UINT256_H

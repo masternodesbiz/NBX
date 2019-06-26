@@ -1,24 +1,23 @@
 // Copyright (c) 2011-2015 The Bitcoin developers
 // Copyright (c) 2016-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "walletview.h"
 
 #include "addressbookpage.h"
-#include "bip38tooldialog.h"
 #include "bitcoingui.h"
 #include "blockexplorer.h"
 #include "clientmodel.h"
-#include "governancepage.h"
 #include "guiutil.h"
+#include "hdseeddialog.h"
 #include "masternodeconfig.h"
 #include "multisenddialog.h"
 #include "multisigdialog.h"
 #include "optionsmodel.h"
 #include "overviewpage.h"
 #include "receivecoinsdialog.h"
-#include "privacydialog.h"
 #include "sendcoinsdialog.h"
 #include "signverifymessagedialog.h"
 #include "transactiontablemodel.h"
@@ -116,15 +115,11 @@ WalletView::WalletView(QWidget* parent) : QStackedWidget(parent),
     vbox->addLayout(hbox_buttons);
     transactionsPage->setLayout(vbox);
 
-    privacyPage = new PrivacyDialog();
-    governancePage = new GovernancePage();
     receiveCoinsPage = new ReceiveCoinsDialog();
     sendCoinsPage = new SendCoinsDialog();
 
     addWidget(overviewPage);
     addWidget(transactionsPage);
-    addWidget(privacyPage);
-    addWidget(governancePage);
     addWidget(receiveCoinsPage);
     addWidget(sendCoinsPage);
     addWidget(explorerWindow);
@@ -185,7 +180,6 @@ void WalletView::setClientModel(ClientModel* clientModel)
     if (settings.value("fShowMasternodesTab").toBool()) {
         masternodeListPage->setClientModel(clientModel);
     }
-    governancePage->setClientModel(clientModel);
 }
 
 void WalletView::setWalletModel(WalletModel* walletModel)
@@ -199,10 +193,8 @@ void WalletView::setWalletModel(WalletModel* walletModel)
     if (settings.value("fShowMasternodesTab").toBool()) {
         masternodeListPage->setWalletModel(walletModel);
     }
-    privacyPage->setModel(walletModel);
     receiveCoinsPage->setModel(walletModel);
     sendCoinsPage->setModel(walletModel);
-    governancePage->setWalletModel(walletModel);
 
     if (walletModel) {
         // Receive and pass through messages from wallet model
@@ -254,11 +246,6 @@ void WalletView::gotoHistoryPage()
     setCurrentWidget(transactionsPage);
 }
 
-void WalletView::gotoGovernancePage()
-{
-    setCurrentWidget(governancePage);
-}
-
 void WalletView::gotoBlockExplorerPage()
 {
     setCurrentWidget(explorerWindow);
@@ -275,13 +262,6 @@ void WalletView::gotoMasternodePage()
 void WalletView::gotoReceiveCoinsPage()
 {
     setCurrentWidget(receiveCoinsPage);
-}
-
-void WalletView::gotoPrivacyPage()
-{
-    setCurrentWidget(privacyPage);
-    // Refresh UI-elements in case coins were locked/unlocked in CoinControl
-    walletModel->emitBalanceChanged();
 }
 
 void WalletView::gotoSendCoinsPage(QString addr)
@@ -316,12 +296,12 @@ void WalletView::gotoVerifyMessageTab(QString addr)
         signVerifyMessageDialog->setAddress_VM(addr);
 }
 
-void WalletView::gotoBip38Tool()
+void WalletView::gotoHdSeed()
 {
-    Bip38ToolDialog* bip38ToolDialog = new Bip38ToolDialog(this);
-    //bip38ToolDialog->setAttribute(Qt::WA_DeleteOnClose);
-    bip38ToolDialog->setModel(walletModel);
-    bip38ToolDialog->showTab_ENC(true);
+    if (!walletModel)
+        return;
+    HdSeedDialog hdseedDialog(this, walletModel);
+    hdseedDialog.exec();
 }
 
 void WalletView::gotoMultiSendDialog()
@@ -346,7 +326,6 @@ bool WalletView::handlePaymentRequest(const SendCoinsRecipient& recipient)
 void WalletView::showOutOfSyncWarning(bool fShow)
 {
     overviewPage->showOutOfSyncWarning(fShow);
-    privacyPage->showOutOfSyncWarning(fShow);
 }
 
 void WalletView::updateEncryptionStatus()
@@ -388,8 +367,8 @@ void WalletView::unlockWallet(AskPassphraseDialog::Context context)
         return;
     // Unlock wallet when requested by wallet model
 
-    if (walletModel->getEncryptionStatus() == WalletModel::Locked || walletModel->getEncryptionStatus() == WalletModel::UnlockedForAnonymizationOnly) {
-        AskPassphraseDialog dlg(AskPassphraseDialog::Mode::UnlockAnonymize, this, walletModel, context);
+    if (walletModel->getEncryptionStatus() == WalletModel::Locked || walletModel->getEncryptionStatus() == WalletModel::UnlockedForStakingOnly) {
+        AskPassphraseDialog dlg(AskPassphraseDialog::Mode::UnlockStaking, this, walletModel, context);
         dlg.exec();
     }
 }
@@ -411,12 +390,12 @@ void WalletView::toggleLockWallet()
 
     // Unlock the wallet when requested
     if (encStatus == walletModel->Locked) {
-        AskPassphraseDialog dlg(AskPassphraseDialog::Mode::UnlockAnonymize, this, walletModel, AskPassphraseDialog::Context::ToggleLock);
+        AskPassphraseDialog dlg(AskPassphraseDialog::Mode::UnlockStaking, this, walletModel, AskPassphraseDialog::Context::ToggleLock);
         dlg.exec();
     }
 
-    else if (encStatus == walletModel->Unlocked || encStatus == walletModel->UnlockedForAnonymizationOnly) {
-            walletModel->setWalletLocked(true);
+    else if (encStatus == walletModel->Unlocked || encStatus == walletModel->UnlockedForStakingOnly) {
+        walletModel->setWalletLocked(true);
     }
 }
 

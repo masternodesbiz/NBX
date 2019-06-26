@@ -1,5 +1,6 @@
 // Copyright (c) 2012-2014 The Bitcoin developers
 // Copyright (c) 2017-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,8 +9,6 @@
 
 #include "chainparams.h"
 #include "hash.h"
-#include "libzerocoin/bignum.h"
-#include "libzerocoin/CoinSpend.h"
 #include "primitives/transaction.h"
 #include "script/script.h"
 #include "script/standard.h"
@@ -17,7 +16,6 @@
 
 #include <math.h>
 #include <stdlib.h>
-
 
 #define LN2SQUARED 0.4804530139182014246671025263266649717305529515945455
 #define LN2 0.6931471805599453094172321214581765680755001343602552
@@ -183,10 +181,6 @@ bool CBloomFilter::IsRelevantAndUpdate(const CTransaction& tx)
                 break;
             }
 
-            if (txout.IsZerocoinMint()){
-                data = vector<unsigned char>(txout.scriptPubKey.begin() + 6, txout.scriptPubKey.begin() + txout.scriptPubKey.size());
-            }
-
             if (data.size() != 0 && contains(data)) {
                 fFound = true;
                 if ((nFlags & BLOOM_UPDATE_MASK) == BLOOM_UPDATE_ALL)
@@ -218,12 +212,6 @@ bool CBloomFilter::IsRelevantAndUpdate(const CTransaction& tx)
             opcodetype opcode;
             if (!txin.scriptSig.GetOp(pc, opcode, data))
                 break;
-            if (txin.IsZerocoinSpend()) {
-                CDataStream s(vector<unsigned char>(txin.scriptSig.begin() + 44, txin.scriptSig.end()),
-                        SER_NETWORK, PROTOCOL_VERSION);
-
-                data = libzerocoin::CoinSpend::ParseSerial(s);
-            }
             if (data.size() != 0 && contains(data)) {
                 return true;
             }

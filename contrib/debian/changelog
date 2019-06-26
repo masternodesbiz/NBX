@@ -1,5 +1,3 @@
-pivx (3.2.0-trusty1) trusty; urgency=medium
+nbxd (3.3.0-trusty1) trusty; urgency=medium
 
-  * PIVX Core v3.2.0 (trusty).
-
- -- Fuzzbawls  Fri, 12 Apr 2019 12:01:00 -0700
+  * Netbox.Wallet v3.3.0 (trusty).

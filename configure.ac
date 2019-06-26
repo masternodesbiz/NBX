@@ -2,20 +2,20 @@ dnl require autoconf 2.60 (AS_ECHO/AS_ECHO_N)
 AC_PREREQ([2.60])
 define(_CLIENT_VERSION_MAJOR, 3)
 define(_CLIENT_VERSION_MINOR, 3)
-define(_CLIENT_VERSION_REVISION, 99)
+define(_CLIENT_VERSION_REVISION, 0)
 define(_CLIENT_VERSION_BUILD, 0)
-define(_CLIENT_VERSION_IS_RELEASE, false)
-define(_COPYRIGHT_YEAR, 2018)
-AC_INIT([Pivx Core],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[www.pivx.org],[pivx])
+define(_CLIENT_VERSION_IS_RELEASE, true)
+define(_COPYRIGHT_YEAR, 2019)
+AC_INIT([Netbox.Global],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[netbox.global],[nbx])
 AC_CONFIG_SRCDIR([src/main.cpp])
-AC_CONFIG_HEADERS([src/config/pivx-config.h])
+AC_CONFIG_HEADERS([src/config/nbx-config.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([build-aux/m4])
 
-BITCOIN_DAEMON_NAME=pivxd
-BITCOIN_GUI_NAME=pivx-qt
-BITCOIN_CLI_NAME=pivx-cli
-BITCOIN_TX_NAME=pivx-tx
+BITCOIN_DAEMON_NAME=nbxd
+BITCOIN_GUI_NAME=netboxwallet
+BITCOIN_CLI_NAME=nbx-cli
+BITCOIN_TX_NAME=nbx-tx
 
 dnl Unless the user specified ARFLAGS, force it to be cr
 AC_ARG_VAR(ARFLAGS, [Flags for the archiver, defaults to <cr> if not set])
@@ -201,12 +201,6 @@ AC_ARG_ENABLE([zmq],
   [disable ZMQ notifications])],
   [use_zmq=$enableval],
   [use_zmq=yes])
-
-AC_ARG_WITH([zerocoin-bignum],
-  [AS_HELP_STRING([--with-zerocoin-bignum=gmp|openssl|auto],
-  [Specify Bignum Implementation. Default is auto])],
-  [req_bignum=$withval],
-  [req_bignum=auto])
 
 AC_ARG_WITH([protoc-bindir],[AS_HELP_STRING([--with-protoc-bindir=BIN_DIR],[specify protoc bin path])], [protoc_bin_path=$withval], [])
 
@@ -400,7 +394,7 @@ CPPFLAGS="$CPPFLAGS -DHAVE_BUILD_INFO -D__STDC_FORMAT_MACROS"
 
 AC_ARG_WITH([utils],
   [AS_HELP_STRING([--with-utils],
-  [build pivx-cli pivx-tx (default=yes)])],
+  [build nbx-cli nbx-tx (default=yes)])],
   [build_bitcoin_utils=$withval],
   [build_bitcoin_utils=yes])
 
@@ -412,7 +406,7 @@ AC_ARG_WITH([libs],
 
 AC_ARG_WITH([daemon],
   [AS_HELP_STRING([--with-daemon],
-  [build pivxd daemon (default=yes)])],
+  [build nbxd daemon (default=yes)])],
   [build_bitcoind=$withval],
   [build_bitcoind=yes])
 
@@ -626,7 +620,7 @@ AC_C_BIGENDIAN
 dnl Check for pthread compile/link requirements
 AX_PTHREAD
 
-# The following macro will add the necessary defines to pivx-config.h, but
+# The following macro will add the necessary defines to nbx-config.h, but
 # they also need to be passed down to any subprojects. Pull the results out of
 # the cache and add them to CPPFLAGS.
 AC_SYS_LARGEFILE
@@ -1155,11 +1149,11 @@ AC_SUBST(UNIVALUE_LIBS)
 
 BITCOIN_QT_PATH_PROGS([PROTOC], [protoc],$protoc_bin_path)
 
-AC_MSG_CHECKING([whether to build pivxd])
+AC_MSG_CHECKING([whether to build nbxd])
 AM_CONDITIONAL([BUILD_BITCOIND], [test x$build_bitcoind = xyes])
 AC_MSG_RESULT($build_bitcoind)
 
-AC_MSG_CHECKING([whether to build utils (pivx-cli pivx-tx)])
+AC_MSG_CHECKING([whether to build utils (nbx-cli nbx-tx)])
 AM_CONDITIONAL([BUILD_BITCOIN_UTILS], [test x$build_bitcoin_utils = xyes])
 AC_MSG_RESULT($build_bitcoin_utils)
 
@@ -1191,32 +1185,6 @@ fi
 if test "x$use_ccache" = "xyes"; then
     AX_CHECK_PREPROC_FLAG([-Qunused-arguments],[CPPFLAGS="-Qunused-arguments $CPPFLAGS"])
 fi
-
-dnl bignum value
-set_bignum=$req_bignum
-case $req_bignum in
-auto)
-  GMP_CHECK
-  if test x"$has_gmp" != x"yes"; then
-    AC_MSG_ERROR([gmp bignum automatically selected but libgmp is not available. Use depends,
-    install libgmp or select an other bignum implementation (ONLY gmp is fully SUPPORTED)])
-  else
-    set_bignum=gmp
-  fi
-  ;;
-gmp)
-  GMP_CHECK
-  if test x"$has_gmp" != x"yes"; then
-    AC_MSG_ERROR([gmp bignum explicitly requested but libgmp is not available])
-  fi
-  ;;
-openssl)
-    AC_MSG_WARN([openssl bignum explicitly requested. This is DEPRECATED.])
-  ;;
-*)
-  AC_MSG_ERROR([invalid bignum implementation selection])
-  ;;
-esac
 
 dnl enable wallet
 AC_MSG_CHECKING([if wallet should be enabled])
@@ -1286,7 +1254,7 @@ if test x$bitcoin_enable_qt != xno; then
     AC_MSG_WARN("xgettext is required to update qt translations")
   fi
 
-  AC_MSG_CHECKING([whether to build test_pivx-qt])
+  AC_MSG_CHECKING([whether to build test_nbx-qt])
   if test x$use_gui_tests$bitcoin_enable_qt_test = xyesyes; then
     AC_MSG_RESULT([yes])
     BUILD_TEST_QT="yes"
@@ -1297,23 +1265,7 @@ fi
 
 AM_CONDITIONAL([ENABLE_ZMQ], [test "x$use_zmq" = "xyes"])
 
-# select bignum implementation
-case $set_bignum in
-gmp)
-  AC_DEFINE(USE_NUM_GMP, 1, [Define this symbol to use the gmp implementation])
-  ;;
-openssl)
-  AC_DEFINE(USE_NUM_OPENSSL, 1, [Define this symbol to use openssl implementation])
-  ;;
-*)
-  AC_MSG_ERROR([invalid bignum implementation])
-  ;;
-esac
-
-AM_CONDITIONAL([USE_NUM_GMP], [test "x$set_bignum" = "xgmp"])
-AM_CONDITIONAL([USE_NUM_OPENSSL], [test "x$set_bignum" = "xopenssl"])
-
-AC_MSG_CHECKING([whether to build test_pivx])
+AC_MSG_CHECKING([whether to build test_nbx])
 if test x$use_tests = xyes; then
   AC_MSG_RESULT([yes])
   BUILD_TEST="yes"
@@ -1403,8 +1355,6 @@ AC_SUBST(EVENT_PTHREADS_LIBS)
 AC_SUBST(ZMQ_LIBS)
 AC_SUBST(PROTOBUF_LIBS)
 AC_SUBST(QR_LIBS)
-AC_SUBST(USE_NUM_GMP)
-AC_SUBST(USE_NUM_OPENSSL)
 AC_CONFIG_FILES([Makefile src/Makefile doc/man/Makefile share/setup.nsi share/qt/Info.plist test/config.ini])
 AC_CONFIG_FILES([contrib/devtools/split-debug.sh],[chmod +x contrib/devtools/split-debug.sh])
 AM_COND_IF([HAVE_DOXYGEN], [AC_CONFIG_FILES([doc/Doxyfile])])
@@ -1472,7 +1422,6 @@ if test x$bitcoin_enable_qt != xno; then
     echo "    with qr     = $use_qr"
 fi
 echo "  with zmq      = $use_zmq"
-echo "  with bignum   = $set_bignum"
 echo "  with test     = $use_tests"
 echo "  with bench    = $use_bench"
 echo "  with upnp     = $use_upnp"

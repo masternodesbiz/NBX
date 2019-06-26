@@ -1,0 +1,21 @@
+FROM ubuntu:18.04 as builder
+
+RUN apt-get update \
+    && apt-get install --no-install-recommends --yes \
+        software-properties-common automake autoconf pkg-config libtool build-essential \
+        curl bsdmainutils \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY / /netboxwallet
+
+WORKDIR /netboxwallet/depends
+
+RUN make -j$(nproc)
+
+WORKDIR /netboxwallet
+
+RUN ./autogen.sh
+RUN CONFIG_SITE=$PWD/depends/x86_64-pc-linux-gnu/share/config.site ./configure
+RUN make -j$(nproc)
+
+RUN strip $PWD/src/qt/netboxwallet $PWD/src/nbxd $PWD/src/nbx-cli $PWD/src/nbx-tx

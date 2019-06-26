@@ -1,5 +1,6 @@
 // Copyright (c) 2012-2013 The PPCoin developers
 // Copyright (c) 2015-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -7,12 +8,12 @@
 
 #include "db.h"
 #include "kernel.h"
+#include "masternode-sync.h"
 #include "script/interpreter.h"
 #include "timedata.h"
 #include "util.h"
 #include "stakeinput.h"
 #include "utilmoneystr.h"
-#include "zpivchain.h"
 
 using namespace std;
 
@@ -28,16 +29,6 @@ unsigned int getIntervalVersion(bool fTestNet)
         return MODIFIER_INTERVAL_TESTNET;
     else
         return MODIFIER_INTERVAL;
-}
-
-// Hard checkpoints of stake modifiers to ensure they are deterministic
-static std::map<int, unsigned int> mapStakeModifierCheckpoints =
-    boost::assign::map_list_of(0, 0xfd11f4e7u);
-
-// Get time weight
-int64_t GetWeight(int64_t nIntervalBeginning, int64_t nIntervalEnd)
-{
-    return nIntervalEnd - nIntervalBeginning - nStakeMinAge;
 }
 
 // Get the last stake modifier and its generation time from a given block
@@ -82,8 +73,6 @@ static bool SelectBlockFromCandidates(
     uint64_t nStakeModifierPrev,
     const CBlockIndex** pindexSelected)
 {
-    bool fModifierV2 = false;
-    bool fFirstRun = true;
     bool fSelected = false;
     uint256 hashBest = 0;
     *pindexSelected = (const CBlockIndex*)0;
@@ -95,21 +84,11 @@ static bool SelectBlockFromCandidates(
         if (fSelected && pindex->GetBlockTime() > nSelectionIntervalStop)
             break;
 
-        //if the lowest block height (vSortedByTimestamp[0]) is >= switch height, use new modifier calc
-        if (fFirstRun){
-            fModifierV2 = pindex->nHeight >= Params().ModifierUpgradeBlock();
-            fFirstRun = false;
-        }
-
         if (mapSelectedBlocks.count(pindex->GetBlockHash()) > 0)
             continue;
 
         // compute the selection hash by hashing an input that is unique to that block
-        uint256 hashProof;
-        if(fModifierV2)
-            hashProof = pindex->GetBlockHash();
-        else
-            hashProof = pindex->IsProofOfStake() ? 0 : pindex->GetBlockHash();
+        uint256 hashProof = pindex->GetBlockHash();
 
         CDataStream ss(SER_GETHASH, 0);
         ss << hashProof << nStakeModifierPrev;
@@ -350,33 +329,8 @@ bool Stake(CStakeInput* stakeInput, unsigned int nBits, unsigned int nTimeBlockF
     return fSuccess;
 }
 
-bool ContextualCheckZerocoinStake(int nPreviousBlockHeight, CStakeInput* stake)
-{
-    if (nPreviousBlockHeight < Params().Zerocoin_Block_V2_Start())
-        return error("%s: zPIV stake block is less than allowed start height", __func__);
-
-    if (CZPivStake* zPIV = dynamic_cast<CZPivStake*>(stake)) {
-        CBlockIndex* pindexFrom = zPIV->GetIndexFrom();
-        if (!pindexFrom)
-            return error("%s: failed to get index associated with zPIV stake checksum", __func__);
-
-        if (chainActive.Height() - pindexFrom->nHeight < Params().Zerocoin_RequiredStakeDepth())
-            return error("%s: zPIV stake does not have required confirmation depth. Current height %d,  stakeInput height %d.", __func__, chainActive.Height(), pindexFrom->nHeight);
-
-        //The checksum needs to be the exact checksum from 200 blocks ago
-        uint256 nCheckpoint200 = chainActive[nPreviousBlockHeight - Params().Zerocoin_RequiredStakeDepth()]->nAccumulatorCheckpoint;
-        uint32_t nChecksum200 = ParseChecksum(nCheckpoint200, libzerocoin::AmountToZerocoinDenomination(zPIV->GetValue()));
-        if (nChecksum200 != zPIV->GetChecksum())
-            return error("%s: accumulator checksum is different than the block 200 blocks previous. stake=%d block200=%d", __func__, zPIV->GetChecksum(), nChecksum200);
-    } else {
-        return error("%s: dynamic_cast of stake ptr failed", __func__);
-    }
-
-    return true;
-}
-
 // Check kernel hash target and coinstake signature
-bool CheckProofOfStake(const CBlock block, uint256& hashProofOfStake, std::unique_ptr<CStakeInput>& stake, int nPreviousBlockHeight)
+bool CheckProofOfStake(const CBlock block, uint256& hashProofOfStake, std::unique_ptr<CStakeInput>& stake)
 {
     const CTransaction tx = block.vtx[1];
     if (!tx.IsCoinStake())
@@ -386,31 +340,19 @@ bool CheckProofOfStake(const CBlock block, uint256& hashProofOfStake, std::uniqu
     const CTxIn& txin = tx.vin[0];
 
     //Construct the stakeinput object
-    if (txin.IsZerocoinSpend()) {
-        libzerocoin::CoinSpend spend = TxInToZerocoinSpend(txin);
-        if (spend.getSpendType() != libzerocoin::SpendType::STAKE)
-            return error("%s: spend is using the wrong SpendType (%d)", __func__, (int)spend.getSpendType());
+    // First try finding the previous transaction in database
+    uint256 hashBlock;
+    CTransaction txPrev;
+    if (!GetTransaction(txin.prevout.hash, txPrev, hashBlock, true))
+        return error("CheckProofOfStake() : INFO: read txPrev failed");
 
-        stake = std::unique_ptr<CStakeInput>(new CZPivStake(spend));
+    //verify signature and script
+    if (!VerifyScript(txin.scriptSig, txPrev.vout[txin.prevout.n].scriptPubKey, STANDARD_SCRIPT_VERIFY_FLAGS, TransactionSignatureChecker(&tx, 0)))
+        return error("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString().c_str());
 
-        if (!ContextualCheckZerocoinStake(nPreviousBlockHeight, stake.get()))
-            return error("%s: staked zPIV fails context checks", __func__);
-    } else {
-        // First try finding the previous transaction in database
-        uint256 hashBlock;
-        CTransaction txPrev;
-        if (!GetTransaction(txin.prevout.hash, txPrev, hashBlock, true))
-            return error("CheckProofOfStake() : INFO: read txPrev failed, tx id prev: %s, block id %s",
-                         txin.prevout.hash.GetHex(), block.GetHash().GetHex());
-
-        //verify signature and script
-        if (!VerifyScript(txin.scriptSig, txPrev.vout[txin.prevout.n].scriptPubKey, STANDARD_SCRIPT_VERIFY_FLAGS, TransactionSignatureChecker(&tx, 0)))
-            return error("CheckProofOfStake() : VerifySignature failed on coinstake %s", tx.GetHash().ToString().c_str());
-
-        CPivStake* pivInput = new CPivStake();
-        pivInput->SetInput(txPrev, txin.prevout.n);
-        stake = std::unique_ptr<CStakeInput>(pivInput);
-    }
+    CNbxStake* pivInput = new CNbxStake();
+    pivInput->SetInput(txPrev, txin.prevout.n);
+    stake = std::unique_ptr<CStakeInput>(pivInput);
 
     //Get the
     CBlockIndex* pindexfrom = stake->GetIndexFrom();
@@ -431,48 +373,11 @@ bool CheckProofOfStake(const CBlock block, uint256& hashProofOfStake, std::uniqu
 
     unsigned int nBlockFromTime = blockfrom.nTime;
     unsigned int nTxTime = block.nTime;
-    if (!txin.IsZerocoinSpend() && nPreviousBlockHeight >= Params().Zerocoin_Block_Public_Spend_Enabled() - 1) { //Equivalent for zPIV is checked above in ContextualCheckZerocoinStake()
-        if (nTxTime < nBlockFromTime) // Transaction timestamp nTxTime
-            return error("CheckStakeKernelHash() : nTime violation - nBlockFromTime=%d nTimeTx=%d", nBlockFromTime, nTxTime);
-        if (nBlockFromTime + nStakeMinAge > nTxTime) // Min age requirement
-            return error("CheckStakeKernelHash() : min age violation - nBlockFromTime=%d nStakeMinAge=%d nTimeTx=%d", nBlockFromTime, nStakeMinAge, nTxTime);
-    }
     if (!CheckStake(stake->GetUniqueness(), stake->GetValue(), nStakeModifier, bnTargetPerCoinDay, nBlockFromTime,
                     nTxTime, hashProofOfStake)) {
         return error("CheckProofOfStake() : INFO: check kernel failed on coinstake %s, hashProof=%s \n",
                      tx.GetHash().GetHex(), hashProofOfStake.GetHex());
     }
 
-    return true;
-}
-
-// Check whether the coinstake timestamp meets protocol
-bool CheckCoinStakeTimestamp(int64_t nTimeBlock, int64_t nTimeTx)
-{
-    // v0.3 protocol
-    return (nTimeBlock == nTimeTx);
-}
-
-// Get stake modifier checksum
-unsigned int GetStakeModifierChecksum(const CBlockIndex* pindex)
-{
-    assert(pindex->pprev || pindex->GetBlockHash() == Params().HashGenesisBlock());
-    // Hash previous checksum with flags, hashProofOfStake and nStakeModifier
-    CDataStream ss(SER_GETHASH, 0);
-    if (pindex->pprev)
-        ss << pindex->pprev->nStakeModifierChecksum;
-    ss << pindex->nFlags << pindex->hashProofOfStake << pindex->nStakeModifier;
-    uint256 hashChecksum = Hash(ss.begin(), ss.end());
-    hashChecksum >>= (256 - 32);
-    return hashChecksum.Get64();
-}
-
-// Check stake modifier hard checkpoints
-bool CheckStakeModifierCheckpoints(int nHeight, unsigned int nStakeModifierChecksum)
-{
-    if (fTestNet) return true; // Testnet has no checkpoints
-    if (mapStakeModifierCheckpoints.count(nHeight)) {
-        return nStakeModifierChecksum == mapStakeModifierCheckpoints[nHeight];
-    }
     return true;
 }

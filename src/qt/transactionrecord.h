@@ -1,6 +1,7 @@
 // Copyright (c) 2011-2014 The Bitcoin developers
 // Copyright (c) 2014-2016 The Dash developers
 // Copyright (c) 2016-2018 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -77,24 +78,12 @@ public:
         Other,
         Generated,
         StakeMint,
-        StakeZPIV,
         SendToAddress,
         SendToOther,
         RecvWithAddress,
         MNReward,
         RecvFromOther,
-        SendToSelf,
-        ZerocoinMint,
-        ZerocoinSpend,
-        RecvFromZerocoinSpend,
-        ZerocoinSpend_Change_zPiv,
-        ZerocoinSpend_FromMe,
-        RecvWithObfuscation,
-        ObfuscationDenominate,
-        ObfuscationCollateralPayment,
-        ObfuscationMakeCollaterals,
-        ObfuscationCreateDenominations,
-        Obfuscated
+        SendToSelf
     };
 
     /** Number of confirmation recommended for accepting a transaction */
@@ -134,9 +123,6 @@ public:
 
     /** Status: can change with block chain update */
     TransactionStatus status;
-
-    /** Whether the transaction was sent/received with a watch-only address */
-    bool involvesWatchAddress;
 
     /** Return the unique identifier for this transaction (part) */
     QString getTxID() const;

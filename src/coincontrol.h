@@ -1,6 +1,7 @@
 // Copyright (c) 2011-2013 The Bitcoin developers
 // Copyright (c) 2014-2016 The Dash developers
 // Copyright (c) 2015-2017 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -21,8 +22,6 @@ public:
     int nSplitBlock;
     //! If false, allows unselected inputs, but requires all selected inputs be used
     bool fAllowOtherInputs;
-    //! Includes watch only addresses which match the ISMINE_WATCH_SOLVABLE criteria
-    bool fAllowWatchOnly;
     //! Minimum absolute fee (not per kilobyte)
     CAmount nMinimumTotalFee;
 
@@ -38,7 +37,6 @@ public:
         useSwiftTX = false;
         useObfuScation = false;
         fAllowOtherInputs = false;
-        fAllowWatchOnly = true;
         nMinimumTotalFee = 0;
         fSplitBlock = false;
         nSplitBlock = 1;

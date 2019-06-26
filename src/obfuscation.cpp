@@ -1,9 +1,11 @@
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "obfuscation.h"
+#include "activemasternode.h"
 #include "coincontrol.h"
 #include "init.h"
 #include "main.h"
@@ -12,10 +14,10 @@
 #include "swifttx.h"
 #include "guiinterface.h"
 #include "util.h"
+#include "wallet/wallet.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <boost/foreach.hpp>
 
 #include <algorithm>
 #include <boost/assign/list_of.hpp>
@@ -32,8 +34,6 @@ CObfuScationSigner obfuScationSigner;
 std::vector<CObfuscationQueue> vecObfuscationQueue;
 // Keep track of the used Masternodes
 std::vector<CTxIn> vecMasternodesUsed;
-// Keep track of the scanning errors I've seen
-map<uint256, CObfuscationBroadcastTx> mapObfuscationBroadcastTxes;
 // Keep track of the active Masternode
 CActiveMasternode activeMasternode;
 
@@ -62,7 +62,6 @@ void CObfuscationPool::SetNull()
     // Both sides
     state = POOL_STATUS_IDLE;
     sessionID = 0;
-    sessionDenom = 0;
     entries.clear();
     finalTransaction.vin.clear();
     finalTransaction.vout.clear();
@@ -219,19 +218,6 @@ void CObfuscationPool::CheckFinalTransaction()
             return;
         }
 
-        if (!mapObfuscationBroadcastTxes.count(txNew.GetHash())) {
-            CObfuscationBroadcastTx dstx;
-            dstx.tx = txNew;
-            dstx.vin = activeMasternode.vin;
-            dstx.vchSig = vchSig;
-            dstx.sigTime = sigTime;
-
-            mapObfuscationBroadcastTxes.insert(make_pair(txNew.GetHash(), dstx));
-        }
-
-        CInv inv(MSG_DSTX, txNew.GetHash());
-        RelayInv(inv);
-
         // Tell the clients it was successful
         RelayCompletedTransaction(sessionID, false, MSG_SUCCESS);
 
@@ -375,7 +361,7 @@ void CObfuscationPool::ChargeRandomFees()
                 with using it to stop abuse. Otherwise it could serve as an attack vector and
                 allow endless transaction that would bloat PIVX and make it unusable. To
                 stop these kinds of attacks 1 in 10 successful transactions are charged. This
-                adds up to a cost of 0.001 PIV per transaction on average.
+                adds up to a cost of 0.001 NBX per transaction on average.
             */
             if (r <= 10) {
                 LogPrintf("CObfuscationPool::ChargeRandomFees -- charging random fees. %u\n", i);
@@ -398,7 +384,7 @@ void CObfuscationPool::ChargeRandomFees()
 //
 void CObfuscationPool::CheckTimeout()
 {
-    if (!fEnableZeromint && !fMasterNode) return;
+    if (!fMasterNode) return;
 
     // catching hanging sessions
     if (!fMasterNode) {
@@ -483,7 +469,7 @@ void CObfuscationPool::CheckTimeout()
 //
 void CObfuscationPool::CheckForCompleteQueue()
 {
-    if (!fEnableZeromint && !fMasterNode) return;
+    if (!fMasterNode) return;
 
     /* Check to see if we're ready for submissions from clients */
     //
@@ -494,15 +480,13 @@ void CObfuscationPool::CheckForCompleteQueue()
         UpdateState(POOL_STATUS_ACCEPTING_ENTRIES);
 
         CObfuscationQueue dsq;
-        dsq.nDenom = sessionDenom;
         dsq.vin = activeMasternode.vin;
         dsq.time = GetTime();
         dsq.ready = true;
         dsq.Sign();
-        dsq.Relay();
+//        dsq.Relay();
     }
 }
-
 
 // Check to make sure everything is signed
 bool CObfuscationPool::SignaturesComplete()
@@ -615,29 +599,18 @@ bool CObfuscationQueue::Sign()
     std::string errorMessage = "";
 
     if (!obfuScationSigner.SetKey(strMasterNodePrivKey, errorMessage, key2, pubkey2)) {
-        LogPrintf("CObfuscationQueue():Relay - ERROR: Invalid Masternodeprivkey: '%s'\n", errorMessage);
+        LogPrintf("CObfuscationQueue():Sign - ERROR: Invalid Masternodeprivkey: '%s'\n", errorMessage);
         return false;
     }
 
     if (!obfuScationSigner.SignMessage(strMessage, errorMessage, vchSig, key2)) {
-        LogPrintf("CObfuscationQueue():Relay - Sign message failed");
+        LogPrintf("CObfuscationQueue():Sign - Sign message failed");
         return false;
     }
 
     if (!obfuScationSigner.VerifyMessage(pubkey2, vchSig, strMessage, errorMessage)) {
-        LogPrintf("CObfuscationQueue():Relay - Verify message failed");
+        LogPrintf("CObfuscationQueue():Sign - Verify message failed");
         return false;
-    }
-
-    return true;
-}
-
-bool CObfuscationQueue::Relay()
-{
-    LOCK(cs_vNodes);
-    for (CNode* pnode : vNodes) {
-        // always relay to everyone
-        pnode->PushMessage("dsq", (*this));
     }
 
     return true;
@@ -671,7 +644,7 @@ void ThreadCheckObfuScationPool()
     if (fLiteMode) return; //disable all Obfuscation/Masternode related functionality
 
     // Make this thread recognisable as the wallet flushing thread
-    RenameThread("pivx-obfuscation");
+    RenameThread("obfuscation");
 
     unsigned int c = 0;
 

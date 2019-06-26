@@ -2,6 +2,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2016-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -167,11 +168,6 @@ enum opcodetype
     OP_NOP8 = 0xb7,
     OP_NOP9 = 0xb8,
     OP_NOP10 = 0xb9,
-
-    // zerocoin
-    OP_ZEROCOINMINT = 0xc1,
-    OP_ZEROCOINSPEND = 0xc2,
-    OP_ZEROCOINPUBLICSPEND = 0xc3,
 
     // template matching params
     OP_SMALLINTEGER = 0xfa,
@@ -599,10 +595,6 @@ public:
 
     bool IsNormalPaymentScript() const;
     bool IsPayToScriptHash() const;
-    bool StartsWithOpcode(const opcodetype opcode) const;
-    bool IsZerocoinMint() const;
-    bool IsZerocoinSpend() const;
-    bool IsZerocoinPublicSpend() const;
 
     /** Called by IsStandardTx and P2SH/BIP62 VerifyScript (which makes it consensus-critical). */
     bool IsPushOnly(const_iterator pc) const;

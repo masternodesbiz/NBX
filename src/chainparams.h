@@ -2,6 +2,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,7 +15,6 @@
 #include "protocol.h"
 #include "uint256.h"
 
-#include "libzerocoin/Params.h"
 #include <vector>
 
 typedef unsigned char MessageStartChars[MESSAGE_START_SIZE];
@@ -40,7 +40,6 @@ public:
         SECRET_KEY,     // BIP16
         EXT_PUBLIC_KEY, // BIP32
         EXT_SECRET_KEY, // BIP32
-        EXT_COIN_TYPE,  // BIP44
 
         MAX_BASE58_TYPES
     };
@@ -50,11 +49,7 @@ public:
     const std::vector<unsigned char>& AlertKey() const { return vAlertPubKey; }
     int GetDefaultPort() const { return nDefaultPort; }
     const uint256& ProofOfWorkLimit() const { return bnProofOfWorkLimit; }
-    int SubsidyHalvingInterval() const { return nSubsidyHalvingInterval; }
     /** Used to check majorities for block version upgrade */
-    int EnforceBlockUpgradeMajority() const { return nEnforceBlockUpgradeMajority; }
-    int RejectBlockOutdatedMajority() const { return nRejectBlockOutdatedMajority; }
-    int ToCheckBlockUpgradeMajority() const { return nToCheckBlockUpgradeMajority; }
     int MaxReorganizationDepth() const { return nMaxReorganizationDepth; }
 
     /** Used if GenerateBitcoins is called with a negative number of threads */
@@ -90,53 +85,18 @@ public:
     const std::vector<CAddress>& FixedSeeds() const { return vFixedSeeds; }
     virtual const Checkpoints::CCheckpointData& Checkpoints() const = 0;
     int PoolMaxTransactions() const { return nPoolMaxTransactions; }
-    /** Return the number of blocks in a budget cycle */
-    int GetBudgetCycleBlocks() const { return nBudgetCycleBlocks; }
-    int64_t GetProposalEstablishmentTime() const { return nProposalEstablishmentTime; }
 
     /** Spork key and Masternode Handling **/
-    std::string SporkKey() const { return strSporkKey; }
-    std::string SporkKeyOld() const { return strSporkKeyOld; }
-    int64_t NewSporkStart() const { return nEnforceNewSporkKey; }
-    int64_t RejectOldSporkKey() const { return nRejectOldSporkKey; }
+    const std::vector<unsigned char>& SporkKey() const { return vSporkKey; }
     std::string ObfuscationPoolDummyAddress() const { return strObfuscationPoolDummyAddress; }
-    int64_t StartMasternodePayments() const { return nStartMasternodePayments; }
-    int64_t Budget_Fee_Confirmations() const { return nBudget_Fee_Confirmations; }
+
+    std::string ActivityAddress() const { return activityAddress; }
+    std::string TeamAddress() const { return  teamAddress; }
 
     CBaseChainParams::Network NetworkID() const { return networkID; }
 
-    /** Zerocoin **/
-    std::string Zerocoin_Modulus() const { return zerocoinModulus; }
-    libzerocoin::ZerocoinParams* Zerocoin_Params(bool useModulusV1) const;
-    int Zerocoin_MaxSpendsPerTransaction() const { return nMaxZerocoinSpendsPerTransaction; }
-    int Zerocoin_MaxPublicSpendsPerTransaction() const { return nMaxZerocoinPublicSpendsPerTransaction; }
-    CAmount Zerocoin_MintFee() const { return nMinZerocoinMintFee; }
-    int Zerocoin_MintRequiredConfirmations() const { return nMintRequiredConfirmations; }
-    int Zerocoin_RequiredAccumulation() const { return nRequiredAccumulation; }
-    int Zerocoin_DefaultSpendSecurity() const { return nDefaultSecurityLevel; }
-    int Zerocoin_HeaderVersion() const { return nZerocoinHeaderVersion; }
-    int Zerocoin_RequiredStakeDepth() const { return nZerocoinRequiredStakeDepth; }
-
     /** Height or Time Based Activations **/
-    int ModifierUpgradeBlock() const { return nModifierUpdateBlock; }
     int LAST_POW_BLOCK() const { return nLastPOWBlock; }
-    int Zerocoin_StartHeight() const { return nZerocoinStartHeight; }
-    int Zerocoin_Block_EnforceSerialRange() const { return nBlockEnforceSerialRange; }
-    int Zerocoin_Block_RecalculateAccumulators() const { return nBlockRecalculateAccumulators; }
-    int Zerocoin_Block_FirstFraudulent() const { return nBlockFirstFraudulent; }
-    int Zerocoin_Block_LastGoodCheckpoint() const { return nBlockLastGoodCheckpoint; }
-    int Zerocoin_StartTime() const { return nZerocoinStartTime; }
-    int Block_Enforce_Invalid() const { return nBlockEnforceInvalidUTXO; }
-    int Zerocoin_Block_V2_Start() const { return nBlockZerocoinV2; }
-
-    // fake serial attack
-    int Zerocoin_Block_EndFakeSerial() const { return nFakeSerialBlockheightEnd; }
-    CAmount GetSupplyBeforeFakeSerial() const { return nSupplyBeforeFakeSerial; }
-
-    int Zerocoin_Block_Double_Accumulated() const { return nBlockDoubleAccumulated; }
-    CAmount InvalidAmountFiltered() const { return nInvalidAmountFiltered; };
-
-    int Zerocoin_Block_Public_Spend_Enabled() const { return nPublicZCSpends; }
 
 protected:
     CChainParams() {}
@@ -148,16 +108,11 @@ protected:
     int nDefaultPort;
     uint256 bnProofOfWorkLimit;
     int nMaxReorganizationDepth;
-    int nSubsidyHalvingInterval;
-    int nEnforceBlockUpgradeMajority;
-    int nRejectBlockOutdatedMajority;
-    int nToCheckBlockUpgradeMajority;
     int64_t nTargetTimespan;
     int64_t nTargetSpacing;
     int nLastPOWBlock;
     int nMasternodeCountDrift;
     int nMaturity;
-    int nModifierUpdateBlock;
     CAmount nMaxMoneyOut;
     int nMinerThreads;
     std::vector<CDNSSeedData> vSeeds;
@@ -175,40 +130,10 @@ protected:
     bool fTestnetToBeDeprecatedFieldRPC;
     bool fHeadersFirstSyncingActive;
     int nPoolMaxTransactions;
-    int nBudgetCycleBlocks;
-    std::string strSporkKey;
-    std::string strSporkKeyOld;
-    int64_t nEnforceNewSporkKey;
-    int64_t nRejectOldSporkKey;
+    std::vector<unsigned char> vSporkKey;
     std::string strObfuscationPoolDummyAddress;
-    int64_t nStartMasternodePayments;
-    std::string zerocoinModulus;
-    int nMaxZerocoinSpendsPerTransaction;
-    int nMaxZerocoinPublicSpendsPerTransaction;
-    CAmount nMinZerocoinMintFee;
-    CAmount nInvalidAmountFiltered;
-    int nMintRequiredConfirmations;
-    int nRequiredAccumulation;
-    int nDefaultSecurityLevel;
-    int nZerocoinHeaderVersion;
-    int64_t nBudget_Fee_Confirmations;
-    int nZerocoinStartHeight;
-    int nZerocoinStartTime;
-    int nZerocoinRequiredStakeDepth;
-    int64_t nProposalEstablishmentTime;
-
-    int nBlockEnforceSerialRange;
-    int nBlockRecalculateAccumulators;
-    int nBlockFirstFraudulent;
-    int nBlockLastGoodCheckpoint;
-    int nBlockEnforceInvalidUTXO;
-    int nBlockZerocoinV2;
-    int nBlockDoubleAccumulated;
-    int nPublicZCSpends;
-
-    // fake serial attack
-    int nFakeSerialBlockheightEnd = 0;
-    CAmount nSupplyBeforeFakeSerial = 0;
+    std::string activityAddress;
+    std::string teamAddress;
 };
 
 /**
@@ -221,10 +146,6 @@ class CModifiableParams
 {
 public:
     //! Published setters to allow changing values in unit test cases
-    virtual void setSubsidyHalvingInterval(int anSubsidyHalvingInterval) = 0;
-    virtual void setEnforceBlockUpgradeMajority(int anEnforceBlockUpgradeMajority) = 0;
-    virtual void setRejectBlockOutdatedMajority(int anRejectBlockOutdatedMajority) = 0;
-    virtual void setToCheckBlockUpgradeMajority(int anToCheckBlockUpgradeMajority) = 0;
     virtual void setDefaultConsistencyChecks(bool aDefaultConsistencyChecks) = 0;
     virtual void setAllowMinDifficultyBlocks(bool aAllowMinDifficultyBlocks) = 0;
     virtual void setSkipProofOfWorkCheck(bool aSkipProofOfWorkCheck) = 0;
