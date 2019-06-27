@@ -81,7 +81,7 @@ Join us and stay tuned:
 - Discord: https://discord.gg/GCgZZPN
 - Twitter: https://twitter.com/netboxglobal
 - Linkedin: https://www.linkedin.com/company/netboxglobal
-- BitcoinTalk: https://bitcointalk.org/index.php?topic=
+- BitcoinTalk: https://bitcointalk.org/index.php?topic=5159126.0
 - Medium: https://medium.com/@netboxglobal
 - YouTube: https://tinyurl.com/netboxglobal
 
