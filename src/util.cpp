@@ -13,7 +13,9 @@
 #include "util.h"
 
 #include "allocators.h"
+#include "backtrace.h"
 #include "chainparamsbase.h"
+#include "clientversion.h"
 #include "random.h"
 #include "sync.h"
 #include "utilstrencodings.h"
@@ -41,6 +43,7 @@
 
 #include <algorithm>
 #include <fcntl.h>
+#include <signal.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
 
@@ -189,7 +192,7 @@ static void DebugPrintInit()
     assert(mutexDebugLog == NULL);
 
     boost::filesystem::path pathDebug = GetDataDir() / "debug.log";
-    fileout = fopen(pathDebug.string().c_str(), "a");
+    fileout = openFile(pathDebug, "a");
     if (fileout) setbuf(fileout, NULL); // unbuffered
 
     mutexDebugLog = new boost::mutex();
@@ -369,28 +372,102 @@ std::string HelpMessageOpt(const std::string &option, const std::string &message
            std::string("\n\n");
 }
 
-static std::string FormatException(std::exception* pex, const char* pszThread)
-{
 #ifdef WIN32
-    char pszModule[MAX_PATH] = "";
-    GetModuleFileNameA(NULL, pszModule, sizeof(pszModule));
+std::string parseWinException(PEXCEPTION_POINTERS info){
+    std::string exception = "exception 0x" + uint2hex(info->ExceptionRecord->ExceptionCode);
+    switch (info->ExceptionRecord->ExceptionCode){
+        case EXCEPTION_ACCESS_VIOLATION:
+            exception = "Access violation";
+            if (info->ExceptionRecord->NumberParameters >= 1){
+                switch (info->ExceptionRecord->ExceptionInformation[0]){
+                    case 0:
+                        exception += " reading";
+                        break;
+                    case 1:
+                        exception += " writing";
+                        break;
+                    case 8:
+                        exception += " executing";
+                        break;
+                }
+                if (info->ExceptionRecord->NumberParameters >= 2)
+#if defined(_M_X64) || defined(__x86_64__)
+                    exception += " location 0x" + uint2hex(((DWORD*)&info->ExceptionRecord->ExceptionInformation[1])[1]) + uint2hex(((DWORD*)&info->ExceptionRecord->ExceptionInformation[1])[0]);
 #else
-    const char* pszModule = "nbx";
+                    exception += " location 0x" + uint2hex(info->ExceptionRecord->ExceptionInformation[1]);
 #endif
-    if (pex)
-        return strprintf(
-            "EXCEPTION: %s       \n%s       \n%s in %s       \n", typeid(*pex).name(), pex->what(), pszModule, pszThread);
-    else
-        return strprintf(
-            "UNKNOWN EXCEPTION       \n%s in %s       \n", pszModule, pszThread);
+            }
+            break;
+        case EXCEPTION_BREAKPOINT:
+            exception = "Breakpoint exception";
+            break;
+        case EXCEPTION_ILLEGAL_INSTRUCTION:
+            exception = "Illegal instruction exception";
+            break;
+        case EXCEPTION_INT_DIVIDE_BY_ZERO:
+            exception = "Divizion by zero exception";
+            break;
+    }
+    exception += "\n\nBacktrace:\n" + CBacktrace::GetWinBacktrace(info->ContextRecord) + "\n";
+    return exception;
+}
+#else
+std::string parseSegFault(int signum) {
+    std::string exception = "Caught ";
+    switch (signum) {
+        case SIGSEGV:
+            exception += "SIGSEGV";
+            break;
+        case SIGFPE:
+            exception += "SIGFPE";
+            break;
+        case SIGILL:
+            exception += "SIGILL";
+            break;
+        default:
+            exception += "unknown signal";
+    }
+    return exception;
+}
+#endif
+
+static std::string FormatException(std::exception *pex, const std::string &pszThread, bool showBacktrace) {
+    std::string exception = "Netbox.Wallet unexpectedly stopped execution.\nPlease send this message to developers"
+                            #ifdef WIN32
+                            " (you may copy this text by pressing \"Ctrl+C\")"
+                            #endif
+                            ":\n\n";
+    exception += (pex ? pex->what() : "Unknown exception");
+    if (!pszThread.empty())
+        exception += " in " + pszThread;
+    if (showBacktrace) {
+        exception += "\n\nBacktrace:\n";
+#ifdef WIN32
+        exception += CBacktrace::GetWinBacktrace() + "\n";
+#else
+        exception += CBacktrace::GetLinBacktrace();
+#endif
+    }
+    exception += "\nVersion: " + FormatFullVersion() + " (" + CLIENT_DATE + ")";
+    return exception;
 }
 
-void PrintExceptionContinue(std::exception* pex, const char* pszThread)
+void PrintExceptionContinue(std::exception* pex, const char* pszThread, bool showBacktrace)
 {
-    std::string message = FormatException(pex, pszThread);
+    std::string message = FormatException(pex, pszThread, showBacktrace);
     LogPrintf("\n\n************************\n%s\n", message);
     fprintf(stderr, "\n\n************************\n%s\n", message.c_str());
     strMiscWarning = message;
+}
+
+FILE * openFile(const boost::filesystem::path &filename, const char * mode){
+#ifdef WIN32
+    std::string modeS(mode);
+    std::wstring modeW(modeS.begin(),modeS.end());
+    return _wfopen(filename.wstring().c_str(), modeW.c_str());
+#else
+    return fopen(filename.string().c_str(), mode);
+#endif
 }
 
 boost::filesystem::path GetDefaultDataDir()
@@ -424,6 +501,8 @@ boost::filesystem::path GetDefaultDataDir()
 
 static boost::filesystem::path pathCached;
 static boost::filesystem::path pathCachedNetSpecific;
+static std::string pathCachedForDb;
+static std::string pathCachedNetSpecificForDb;
 static CCriticalSection csPathCached;
 
 const boost::filesystem::path& GetDataDir(bool fNetSpecific)
@@ -456,10 +535,26 @@ const boost::filesystem::path& GetDataDir(bool fNetSpecific)
     return path;
 }
 
+const std::string &GetDataDirForDb(bool fNetSpecific) {
+    LOCK(csPathCached);
+    std::string &path = fNetSpecific ? pathCachedNetSpecificForDb : pathCachedForDb;
+    if (!path.empty())
+        return path;
+#ifdef WIN32
+    path = std::string(".");
+#else
+    path = GetDataDir(fNetSpecific).string();
+#endif
+    path += boost::filesystem::path::preferred_separator;
+    return path;
+}
+
 void ClearDatadirCache()
 {
     pathCached = boost::filesystem::path();
     pathCachedNetSpecific = boost::filesystem::path();
+    pathCachedForDb.clear();
+    pathCachedNetSpecificForDb.clear();
 }
 
 boost::filesystem::path GetConfigFile()
@@ -484,7 +579,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
     boost::filesystem::ifstream streamConfig(GetConfigFile());
     if (!streamConfig.good()) {
         // Create empty nbx.conf if it does not exist
-        FILE* configFile = fopen(GetConfigFile().string().c_str(), "a");
+        FILE* configFile = openFile(GetConfigFile(), "a");
         if (configFile != NULL)
             fclose(configFile);
         return; // Nothing to read, so just return
@@ -515,7 +610,7 @@ boost::filesystem::path GetPidFile()
 
 void CreatePidFile(const boost::filesystem::path& path, pid_t pid)
 {
-    FILE* file = fopen(path.string().c_str(), "w");
+    FILE* file = openFile(path, "w");
     if (file) {
         fprintf(file, "%d\n", pid);
         fclose(file);
@@ -525,24 +620,13 @@ void CreatePidFile(const boost::filesystem::path& path, pid_t pid)
 pid_t ReadPidFile(const boost::filesystem::path& path)
 {
     pid_t pid = 0;
-    FILE* file = fopen(path.string().c_str(), "r");
+    FILE* file = openFile(path, "r");
     if (file) {
         if (!fscanf(file, "%d", &pid))
             pid = 0;
         fclose(file);
     }
     return pid;
-}
-
-bool RenameOver(boost::filesystem::path src, boost::filesystem::path dest)
-{
-#ifdef WIN32
-    return MoveFileExA(src.string().c_str(), dest.string().c_str(),
-               MOVEFILE_REPLACE_EXISTING) != 0;
-#else
-    int rc = std::rename(src.string().c_str(), dest.string().c_str());
-    return (rc == 0);
-#endif /* WIN32 */
 }
 
 /**
@@ -664,7 +748,7 @@ void ShrinkDebugFile()
 {
     // Scroll debug.log if it's getting too big
     boost::filesystem::path pathLog = GetDataDir() / "debug.log";
-    FILE* file = fopen(pathLog.string().c_str(), "r");
+    FILE* file = openFile(pathLog, "r");
     if (file && boost::filesystem::file_size(pathLog) > 10 * 1000000) {
         // Restart the file with some of the end
         std::vector<char> vch(200000, 0);
@@ -672,7 +756,7 @@ void ShrinkDebugFile()
         int nBytes = fread(vch.data(), 1, vch.size(), file);
         fclose(file);
 
-        file = fopen(pathLog.string().c_str(), "w");
+        file = openFile(pathLog, "w");
         if (file) {
             fwrite(vch.data(), 1, nBytes, file);
             fclose(file);
@@ -686,38 +770,20 @@ boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate)
 {
     namespace fs = boost::filesystem;
 
-    char pszPath[MAX_PATH] = "";
+    wchar_t pszPath[MAX_PATH] = L"";
 
-    if (SHGetSpecialFolderPathA(NULL, pszPath, nFolder, fCreate)) {
+    if (SHGetSpecialFolderPathW(NULL, pszPath, nFolder, fCreate)) {
         return fs::path(pszPath);
     }
 
-    LogPrintf("SHGetSpecialFolderPathA() failed, could not obtain requested path.\n");
+    LogPrintf("SHGetSpecialFolderPathW() failed, could not obtain requested path.\n");
     return fs::path("");
 }
 #endif
 
 boost::filesystem::path GetTempPath()
 {
-#if BOOST_FILESYSTEM_VERSION == 3
     return boost::filesystem::temp_directory_path();
-#else
-    // TODO: remove when we don't support filesystem v2 anymore
-    boost::filesystem::path path;
-#ifdef WIN32
-    char pszPath[MAX_PATH] = "";
-
-    if (GetTempPathA(MAX_PATH, pszPath))
-        path = boost::filesystem::path(pszPath);
-#else
-    path = boost::filesystem::path("/tmp");
-#endif
-    if (path.empty() || !boost::filesystem::is_directory(path)) {
-        LogPrintf("GetTempPath(): failed to find temp path\n");
-        return boost::filesystem::path("");
-    }
-    return path;
-#endif
 }
 
 double double_safe_addition(double fValue, double fIncrement)
@@ -745,6 +811,23 @@ void runCommand(std::string strCommand)
     int nErr = ::system(strCommand.c_str());
     if (nErr)
         LogPrintf("runCommand error: system(%s) returned %d\n", strCommand, nErr);
+}
+
+std::string uint2hex(unsigned int num, bool showZeros){
+    const char* alpha = "0123456789abcdef";
+    std::string res;
+    res.reserve(8);
+    for (int i = 3; i >= 0; i--){
+        char c = alpha[((unsigned char*)&num)[i] >> 4];
+        if (!res.empty() || showZeros || c != '0')
+            res += c;
+        c = alpha[((unsigned char*)&num)[i] & 0xf];
+        if (!res.empty() || showZeros || c != '0')
+            res += c;
+    }
+    if (res.empty())
+        res = '0';
+    return res;
 }
 
 void RenameThread(const char* name)

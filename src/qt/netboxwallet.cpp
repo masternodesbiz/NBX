@@ -38,6 +38,7 @@
 #include "wallet/wallet.h"
 #endif
 
+#include <signal.h>
 #include <stdint.h>
 
 #include <boost/filesystem/operations.hpp>
@@ -475,10 +476,18 @@ void BitcoinApplication::shutdownResult(int retval)
     quit(); // Exit main loop after shutdown finished
 }
 
+void showErrorMessage(const QString& message){
+#ifdef WIN32
+    MessageBoxW(0, message.toStdWString().c_str(), L"Netbox.Wallet exception", 0);
+#else
+    QMessageBox::critical(0, "Netbox.Wallet exception", message);
+#endif
+}
+
 void BitcoinApplication::handleRunawayException(const QString& message)
 {
-    QMessageBox::critical(0, "Runaway exception", BitcoinGUI::tr("A fatal error occurred. Netbox.Wallet can no longer continue safely and will quit.") + QString("\n\n") + message);
-    ::exit(1);
+    showErrorMessage(message);
+    exit(EXIT_FAILURE);
 }
 
 WId BitcoinApplication::getMainWinId() const
@@ -488,6 +497,24 @@ WId BitcoinApplication::getMainWinId() const
 
     return window->winId();
 }
+
+#ifdef WIN32
+LONG WINAPI exceptionHandlerGui(PEXCEPTION_POINTERS ExceptionInfo)
+{
+    std::runtime_error exception(parseWinException(ExceptionInfo));
+    PrintExceptionContinue(&exception, "", false);
+    showErrorMessage(QString::fromStdString(strMiscWarning));
+    ExitProcess(EXIT_FAILURE);
+}
+#else
+void segFaultHandlerGui(int signum)
+{
+    std::runtime_error exception(parseSegFault(signum));
+    PrintExceptionContinue(&exception, "");
+    showErrorMessage(QString::fromStdString(strMiscWarning));
+    _exit(EXIT_FAILURE);
+}
+#endif
 
 #ifdef WIN32
 BOOL CALLBACK EnumWalletWindows(HWND hwnd, LPARAM lParam) {
@@ -506,7 +533,13 @@ BOOL CALLBACK EnumWalletWindows(HWND hwnd, LPARAM lParam) {
 	GetWindowThreadProcessId(hwnd, &windowPid);
 	if (windowPid != ((pid_t*)lParam)[0])
 		return TRUE;
-	ShowWindow(hwnd, SW_SHOW);
+	if (IsWindowVisible(hwnd)){
+        WINDOWPLACEMENT place = { sizeof(WINDOWPLACEMENT) };
+        GetWindowPlacement(hwnd, &place);
+        if (SW_SHOWMINIMIZED == place.showCmd)
+            ShowWindow(hwnd, SW_RESTORE);
+	} else
+	    ShowWindow(hwnd, SW_SHOW);
 	SetForegroundWindow(hwnd);
 	((pid_t*)lParam)[1] = 1;
 	return FALSE;
@@ -516,6 +549,21 @@ BOOL CALLBACK EnumWalletWindows(HWND hwnd, LPARAM lParam) {
 #ifndef BITCOIN_QT_TEST
 int main(int argc, char* argv[])
 {
+    // set exception handling
+#ifdef WIN32
+    SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
+    SetUnhandledExceptionFilter(exceptionHandlerGui);
+#else
+    // catch SIGSEGV
+    struct sigaction sa_segv;
+    sa_segv.sa_handler = segFaultHandlerGui;
+    sigemptyset(&sa_segv.sa_mask);
+    sa_segv.sa_flags = 0;
+    sigaction(SIGSEGV, &sa_segv, NULL);
+    sigaction(SIGFPE, &sa_segv, NULL);
+    sigaction(SIGILL, &sa_segv, NULL);
+#endif
+
     SetupEnvironment();
 
     /// 1. Parse command-line options. These take precedence over anything else.
@@ -677,10 +725,10 @@ int main(int argc, char* argv[])
         app.requestShutdown();
         app.exec();
     } catch (std::exception& e) {
-        PrintExceptionContinue(&e, "Runaway exception");
+        PrintExceptionContinue(&e, "main");
         app.handleRunawayException(QString::fromStdString(strMiscWarning));
     } catch (...) {
-        PrintExceptionContinue(NULL, "Runaway exception");
+        PrintExceptionContinue(NULL, "main");
         app.handleRunawayException(QString::fromStdString(strMiscWarning));
     }
     return app.getReturnValue();

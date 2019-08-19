@@ -4,7 +4,7 @@
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 # call $nbx-cli for RPC
-_pivx_rpc() {
+_nbx_rpc() {
     # determine already specified args necessary for RPC
     local rpcargs=()
     for i in ${COMP_LINE}; do
@@ -18,9 +18,9 @@ _pivx_rpc() {
 }
 
 # Add wallet accounts to COMPREPLY
-_pivx_accounts() {
+_nbx_accounts() {
     local accounts
-    accounts=$(_pivx_rpc listaccounts | awk -F '"' '{ print $2 }')
+    accounts=$(_nbx_rpc listaccounts | awk -F '"' '{ print $2 }')
     COMPREPLY=( "${COMPREPLY[@]}" $( compgen -W "$accounts" -- "$cur" ) )
 }
 
@@ -60,7 +60,7 @@ _nbx_cli() {
     if ((cword > 3)); then
         case ${words[cword-3]} in
             addmultisigaddress)
-                _pivx_accounts
+                _nbx_accounts
                 return 0
                 ;;
             getbalance|gettxout|listreceivedbyaccount|listreceivedbyaddress|listsinceblock)
@@ -85,7 +85,7 @@ _nbx_cli() {
                 return 0
                 ;;
             move|setaccount)
-                _pivx_accounts
+                _nbx_accounts
                 return 0
                 ;;
         esac
@@ -101,7 +101,7 @@ _nbx_cli() {
             return 0
             ;;
         getaccountaddress|getaddressesbyaccount|getbalance|getnewaddress|getreceivedbyaccount|listtransactions|move|sendfrom|sendmany)
-            _pivx_accounts
+            _nbx_accounts
             return 0
             ;;
     esac
@@ -130,7 +130,7 @@ _nbx_cli() {
 
             # only parse help if senseful
             if [[ -z "$cur" || "$cur" =~ ^[a-z] ]]; then
-                commands=$(_pivx_rpc help 2>/dev/null | awk '$1 ~ /^[a-z]/ { print $1; }')
+                commands=$(_nbx_rpc help 2>/dev/null | awk '$1 ~ /^[a-z]/ { print $1; }')
             fi
 
             COMPREPLY=( $( compgen -W "$helpopts $commands" -- "$cur" ) )

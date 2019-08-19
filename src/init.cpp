@@ -73,6 +73,7 @@ CWallet* pwalletMain = NULL;
 int nWalletBackups = 10;
 #endif
 bool walletLoaded = false;
+bool lockFailed = false;
 volatile bool fFeeEstimatesInitialized = false;
 volatile bool fRestartRequested = false; // true: restart false: shutdown
 extern std::list<uint256> listAccCheckpointsNoDB;
@@ -216,7 +217,7 @@ void PrepareShutdown()
 
     if (fFeeEstimatesInitialized) {
         boost::filesystem::path est_path = GetDataDir() / FEE_ESTIMATES_FILENAME;
-        CAutoFile est_fileout(fopen(est_path.string().c_str(), "wb"), SER_DISK, CLIENT_VERSION);
+        CAutoFile est_fileout(openFile(est_path, "wb"), SER_DISK, CLIENT_VERSION);
         if (!est_fileout.IsNull())
             mempool.WriteFeeEstimates(est_fileout);
         else
@@ -256,10 +257,18 @@ void PrepareShutdown()
     }
 #endif
 
-    try {
-        boost::filesystem::remove(GetPidFile());
-    } catch (const boost::filesystem::filesystem_error& e) {
-        LogPrintf("%s: Unable to remove pidfile: %s\n", __func__, e.what());
+    if (!lockFailed) {
+        try {
+            boost::filesystem::remove(GetPidFile());
+        } catch (const boost::filesystem::filesystem_error &e) {
+            LogPrintf("%s: Unable to remove pidfile: %s\n", __func__, e.what());
+        }
+        DeleteAuthCookie();
+        try {
+            boost::filesystem::remove(GetDataDir() / ".lock");
+        } catch (const boost::filesystem::filesystem_error& e) {
+            LogPrintf("%s: Unable to remove .lock file: %s\n", __func__, e.what());
+        }
     }
     UnregisterAllValidationInterfaces();
 }
@@ -290,6 +299,7 @@ void Shutdown()
     LogPrintf("%s: done\n", __func__);
 }
 
+#ifndef WIN32
 /**
  * Signal handlers are very limited in what they are allowed to do, so:
  */
@@ -302,6 +312,7 @@ void HandleSIGHUP(int)
 {
     fReopenDebugLog = true;
 }
+#endif
 
 bool static InitError(const std::string& str)
 {
@@ -645,13 +656,13 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
     // hardcoded $DATADIR/bootstrap.dat
     filesystem::path pathBootstrap = GetDataDir() / "bootstrap.dat";
     if (filesystem::exists(pathBootstrap)) {
-        FILE* file = fopen(pathBootstrap.string().c_str(), "rb");
+        FILE* file = openFile(pathBootstrap, "rb");
         if (file) {
             CImportingNow imp;
             filesystem::path pathBootstrapOld = GetDataDir() / "bootstrap.dat.old";
             LogPrintf("Importing bootstrap.dat...\n");
             LoadExternalBlockFile(file);
-            RenameOver(pathBootstrap, pathBootstrapOld);
+            boost::filesystem::rename(pathBootstrap, pathBootstrapOld);
         } else {
             LogPrintf("Warning: Could not open bootstrap file %s\n", pathBootstrap.string());
         }
@@ -659,7 +670,7 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
 
     // -loadblock=
     for (boost::filesystem::path& path : vImportFiles) {
-        FILE* file = fopen(path.string().c_str(), "rb");
+        FILE* file = openFile(path, "rb");
         if (file) {
             CImportingNow imp;
             LogPrintf("Importing blocks file %s...\n", path.string());
@@ -709,6 +720,29 @@ bool AppInitServers()
     return true;
 }
 
+bool lockFile(const boost::filesystem::path &filename, const boost::posix_time::ptime &abs_time) {
+#ifdef WIN32
+    assert(abs_time != boost::posix_time::pos_infin);
+    HANDLE lock = CreateFileW(filename.wstring().c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+    if (INVALID_HANDLE_VALUE == lock)
+        return false;
+    OVERLAPPED overlapped = {};
+    while (boost::posix_time::microsec_clock::universal_time() < abs_time){
+        boost::interprocess::spin_wait swait;
+        if (LockFileEx(lock, LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY, 0, -1, -1, &overlapped)) {
+            CloseHandle(lock);
+            return true;
+        }
+        swait.yield();
+    }
+    CloseHandle(lock);
+    return false;
+#else
+    boost::interprocess::file_lock lock(filename.string().c_str());
+    return lock.timed_lock(abs_time);
+#endif
+}
+
 /** Initialize.
  *  @pre Parameters should be parsed and config file should be read.
  */
@@ -725,12 +759,12 @@ bool AppInit2()
     _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
 #endif
 #ifdef WIN32
-// Enable Data Execution Prevention (DEP)
-// Minimum supported OS versions: WinXP SP3, WinVista >= SP1, Win Server 2008
-// A failure is non-critical and needs no further attention!
+    // Enable Data Execution Prevention (DEP)
+    // Minimum supported OS versions: WinXP SP3, WinVista >= SP1, Win Server 2008
+    // A failure is non-critical and needs no further attention!
 #ifndef PROCESS_DEP_ENABLE
-// We define this here, because GCCs winbase.h limits this to _WIN32_WINNT >= 0x0601 (Windows 7),
-// which is not correct. Can be removed, when GCCs winbase.h is fixed!
+    // We define this here, because GCCs winbase.h limits this to _WIN32_WINNT >= 0x0601 (Windows 7),
+    // which is not correct. Can be removed, when GCCs winbase.h is fixed!
 #define PROCESS_DEP_ENABLE 0x00000001
 #endif
     typedef BOOL(WINAPI * PSETPROCDEPPOL)(DWORD);
@@ -750,7 +784,6 @@ bool AppInit2()
     } else {
         umask(077);
     }
-
 
     // Clean shutdown on SIGTERM
     struct sigaction sa;
@@ -976,6 +1009,10 @@ bool AppInit2()
 
     // ********************************************************* Step 4: application initialization: dir lock, daemonize, pidfile, debug log
 
+#ifdef WIN32
+    SetCurrentDirectoryW(GetDataDir().wstring().c_str());
+#endif
+
     // Initialize elliptic curve code
     ECC_Start();
     globalVerifyHandle.reset(new ECCVerifyHandle());
@@ -992,13 +1029,14 @@ bool AppInit2()
 #endif
     // Make sure only a single process is using the data directory.
     boost::filesystem::path pathLockFile = GetDataDir() / ".lock";
-    FILE* file = fopen(pathLockFile.string().c_str(), "a"); // empty lock file; created if it doesn't exist.
+    FILE* file = openFile(pathLockFile, "a"); // empty lock file; created if it doesn't exist.
     if (file) fclose(file);
-    static boost::interprocess::file_lock lock(pathLockFile.string().c_str());
 
     // Wait maximum 10 seconds if an old wallet is still running. Avoids lockup during restart
-    if (!lock.timed_lock(boost::get_system_time() + boost::posix_time::seconds(10)))
+    if (!lockFile(pathLockFile, boost::get_system_time() + boost::posix_time::seconds(10))) {
+        lockFailed = true;
         return InitError(strprintf(_("Cannot obtain a lock on data directory %s. Netbox.Wallet is probably already running."), strDataDir));
+    }
 
     CreatePidFile(GetPidFile(), getpid());
     if (GetBoolArg("-shrinkdebugfile", !fDebug))
@@ -1052,6 +1090,7 @@ bool AppInit2()
 #ifdef ENABLE_WALLET
         if (!fDisableWallet) {
             filesystem::path backupDir = GetDataDir() / "backups";
+            backupDir.make_preferred();
             if (!filesystem::exists(backupDir)) {
                 // Always create backup folder to not confuse the operating system's file browser
                 filesystem::create_directories(backupDir);
@@ -1061,13 +1100,8 @@ bool AppInit2()
             if (nWalletBackups > 0) {
                 if (filesystem::exists(backupDir)) {
                     // Create backup of the wallet
-                    std::string dateTimeStr = DateTimeStrFormat(".%Y-%m-%d-%H-%M", GetTime());
-                    std::string backupPathStr = backupDir.string();
-                    backupPathStr += "/" + strWalletFile;
-                    std::string sourcePathStr = GetDataDir().string();
-                    sourcePathStr += "/" + strWalletFile;
-                    boost::filesystem::path sourceFile = sourcePathStr;
-                    boost::filesystem::path backupFile = backupPathStr + dateTimeStr;
+                    boost::filesystem::path sourceFile = GetDataDir() / strWalletFile;
+                    boost::filesystem::path backupFile = backupDir / (strWalletFile + DateTimeStrFormat(".%Y-%m-%d-%H-%M", GetTime()));
                     sourceFile.make_preferred();
                     backupFile.make_preferred();
                     if (boost::filesystem::exists(sourceFile)) {
@@ -1088,11 +1122,9 @@ bool AppInit2()
                     typedef std::multimap<std::time_t, boost::filesystem::path> folder_set_t;
                     folder_set_t folder_set;
                     boost::filesystem::directory_iterator end_iter;
-                    boost::filesystem::path backupFolder = backupDir.string();
-                    backupFolder.make_preferred();
                     // Build map of backup files for current(!) wallet sorted by last write time
                     boost::filesystem::path currentFile;
-                    for (boost::filesystem::directory_iterator dir_iter(backupFolder); dir_iter != end_iter; ++dir_iter) {
+                    for (boost::filesystem::directory_iterator dir_iter(backupDir); dir_iter != end_iter; ++dir_iter) {
                         // Only check regular files
                         if (boost::filesystem::is_regular_file(dir_iter->status())) {
                             currentFile = dir_iter->path().filename();
@@ -1151,7 +1183,7 @@ bool AppInit2()
             LogPrintf("Using wallet %s\n", strWalletFile);
             uiInterface.InitMessage(_("Verifying wallet..."));
 
-            if (!bitdb.Open(GetDataDir())) {
+            if (!bitdb.Open(GetDataDirForDb())) {
                 // try moving the database env out of the way
                 boost::filesystem::path pathDatabase = GetDataDir() / "database";
                 boost::filesystem::path pathDatabaseBak = GetDataDir() / strprintf("database.%d.bak", GetTime());
@@ -1163,7 +1195,7 @@ bool AppInit2()
                 }
 
                 // try again
-                if (!bitdb.Open(GetDataDir())) {
+                if (!bitdb.Open(GetDataDirForDb())) {
                     // if it still fails, it probably means we can't even create the database env
                     string msg = strprintf(_("Error initializing wallet database environment %s!"), strDataDir);
                     return InitError(msg);
@@ -1495,7 +1527,7 @@ bool AppInit2()
         LogPrintf(" block index %15dms\n", GetTimeMillis() - nStart);
 
         boost::filesystem::path est_path = GetDataDir() / FEE_ESTIMATES_FILENAME;
-        CAutoFile est_filein(fopen(est_path.string().c_str(), "rb"), SER_DISK, CLIENT_VERSION);
+        CAutoFile est_filein(openFile(est_path, "rb"), SER_DISK, CLIENT_VERSION);
         // Allowed to fail as this file IS missing on first startup.
         if (!est_filein.IsNull())
             mempool.ReadFeeEstimates(est_filein);
@@ -1773,7 +1805,7 @@ bool AppInit2()
 
     RandAddSeedPerfmon();
 
-    //// debug print
+    // debug print
     LogPrintf("mapBlockIndex.size() = %u\n", mapBlockIndex.size());
     LogPrintf("chainActive.Height() = %d\n", chainActive.Height());
 #ifdef ENABLE_WALLET

@@ -67,8 +67,8 @@ void OptionsModel::Init()
     nDisplayUnit = settings.value("nDisplayUnit").toInt();
 
     if (!settings.contains("strThirdPartyTxUrls"))
-        settings.setValue("strThirdPartyTxUrls", "");
-    strThirdPartyTxUrls = settings.value("strThirdPartyTxUrls", "").toString();
+        settings.setValue("strThirdPartyTxUrls", "https://explorer.netbox.global/tx/%s");
+    strThirdPartyTxUrls = settings.value("strThirdPartyTxUrls", "https://explorer.netbox.global/tx/%s").toString();
 
     if (!settings.contains("fHideZeroBalances"))
         settings.setValue("fHideZeroBalances", true);

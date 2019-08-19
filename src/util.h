@@ -116,16 +116,22 @@ static inline bool error(const char* format)
 
 double double_safe_addition(double fValue, double fIncrement);
 double double_safe_multiplication(double fValue, double fmultiplicator);
-void PrintExceptionContinue(std::exception* pex, const char* pszThread);
+#ifdef WIN32
+std::string parseWinException(PEXCEPTION_POINTERS info);
+#else
+std::string parseSegFault(int signum);
+#endif
+void PrintExceptionContinue(std::exception* pex, const char* pszThread, bool showBacktrace = true);
 void ParseParameters(int argc, const char* const argv[]);
 void FileCommit(FILE* fileout);
 bool TruncateFile(FILE* file, unsigned int length);
 int RaiseFileDescriptorLimit(int nMinFD);
 void AllocateFileRange(FILE* file, unsigned int offset, unsigned int length);
-bool RenameOver(boost::filesystem::path src, boost::filesystem::path dest);
 bool TryCreateDirectory(const boost::filesystem::path& p);
+FILE * openFile(const boost::filesystem::path &filename, const char * mode);
 boost::filesystem::path GetDefaultDataDir();
 const boost::filesystem::path &GetDataDir(bool fNetSpecific = true);
+const std::string& GetDataDirForDb(bool fNetSpecific = true);
 void ClearDatadirCache();
 boost::filesystem::path GetConfigFile();
 boost::filesystem::path GetMasternodeConfigFile();
@@ -139,6 +145,7 @@ boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate = true);
 boost::filesystem::path GetTempPath();
 void ShrinkDebugFile();
 void runCommand(std::string strCommand);
+std::string uint2hex(unsigned int num, bool showZeros = true);
 
 inline bool IsSwitchChar(char c)
 {
@@ -220,7 +227,7 @@ void RenameThread(const char* name);
 template <typename Callable>
 void TraceThread(const char* name, Callable func)
 {
-    std::string s = strprintf("pivx-%s", name);
+    std::string s = strprintf("nbx-%s", name);
     RenameThread(s.c_str());
     try {
         LogPrintf("%s thread start\n", name);

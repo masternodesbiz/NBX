@@ -1021,7 +1021,7 @@ void BitcoinGUI::message(const QString& title, const QString& message, unsigned 
             break;
         }
     }
-    // Append title to "PIVX - "
+    // Append title to "Netbox.Wallet - "
     if (!msgType.isEmpty())
         strTitle += " - " + msgType;
 

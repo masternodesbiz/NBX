@@ -40,7 +40,7 @@ if [ "${BITCOIN_GENBUILD_NO_GIT}" != "1" -a -e "$(which git 2>/dev/null)" -a "$(
     git diff-index --quiet HEAD -- || SUFFIX="$SUFFIX-dirty"
 
     # get a string like "2012-04-10 16:27:19 +0200"
-    LAST_COMMIT_DATE="$(git log -n 1 --format="%ci")"
+    LAST_COMMIT_DATE="$(TZ=UTC git log -n 1 --format="%cd" --date=local)"
 fi
 
 if [ -n "$DESC" ]; then

@@ -79,7 +79,7 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
                 entry.push_back(Pair("blocktime", pindex->GetBlockTime()));
             }
             else
-                entry.push_back(Pair("confirmations", 0));
+                entry.push_back(Pair("confirmations", -1));
         }
     }
 }

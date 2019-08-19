@@ -214,6 +214,7 @@ bool CSporkManager::UpdateSpork(int nSporkID, int64_t nValue)
         Relay(msg);
         mapSporks[msg.GetHash()] = msg;
         mapSporksActive[nSporkID] = msg;
+        pSporkDB->WriteSpork(nSporkID, msg);
         return true;
     }
 

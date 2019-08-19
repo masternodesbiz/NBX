@@ -44,42 +44,67 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet* 
     std::map<std::string, std::string> mapValue = wtx.mapValue;
 
     if (wtx.IsCoinStake()) {
-        TransactionRecord sub(hash, nTime);
 
-        if (wallet->IsMine(wtx.vout[1])) {
-            // NBX stake reward
-            CTxDestination address;
-            if (!ExtractDestination(wtx.vout[1].scriptPubKey, address))
-                return parts;
-            sub.type = TransactionRecord::StakeMint;
-            sub.address = CBitcoinAddress(address).ToString();
-            sub.credit = nNet;
-        } else if (wallet->IsMine(wtx.vout[2])) {
-            //Masternode reward
-            CTxDestination destMN;
-            if (ExtractDestination(wtx.vout[2].scriptPubKey, destMN) && IsMine(*wallet, destMN)) {
-                sub.type = TransactionRecord::MNReward;
-                sub.address = CBitcoinAddress(destMN).ToString();
-                sub.credit = wtx.vout[2].nValue;
+        // get input address if there is only one address
+        CTxDestination fromAddress = CNoDestination();
+        for (unsigned int i = 0; i < wtx.vin.size(); ++i) {
+            const CTxIn &txin = wtx.vin[i];
+            CTransaction tx;
+            uint256 hash_block;
+            CTxDestination tmpAddress;
+            if (GetTransaction(txin.prevout.hash, tx, hash_block, true) && ExtractDestination(tx.vout[txin.prevout.n].scriptPubKey, tmpAddress)) {
+                if (fromAddress.type() == typeid(CNoDestination)) {
+                    fromAddress = tmpAddress;
+                } else if (fromAddress != tmpAddress) {
+                    fromAddress = CNoDestination();
+                    break;
+                }
             }
-        } else {
-            sub.type = TransactionRecord::RecvFromOther;
-            sub.credit = 0;
         }
 
-        parts.append(sub);
+        CAmount nStakeAmount = 0;
+        int nStakeVout = -1;
+        for (int i = 1; i < (int) wtx.vout.size(); ++i) {
+            if (wallet->IsMine(wtx.vout[i])) {
+                CTxDestination address;
+                if (ExtractDestination(wtx.vout[i].scriptPubKey, address)) {
+                    // calculate stake amount
+                    if (address == fromAddress) {
+                        nStakeAmount += wtx.vout[i].nValue;
+                        if (nStakeVout == -1)
+                            nStakeVout = i;
+                        continue;
+                    }
+                } else
+                    address = CNoDestination();
+                TransactionRecord sub(hash, nTime);
+                sub.type = TransactionRecord::MNReward;
+                sub.address = CBitcoinAddress(address).ToString();
+                sub.credit = wtx.vout[i].nValue;
+                sub.idx = i;
+                parts.append(sub);
+            }
+        }
+        if (nStakeVout >= 0) {
+            TransactionRecord sub(hash, nTime);
+            sub.type = TransactionRecord::StakeMint;
+            sub.address = CBitcoinAddress(fromAddress).ToString();
+            sub.credit = nStakeAmount - nDebit;
+            sub.idx = nStakeVout;
+            parts.append(sub);
+        }
     } else if (nNet > 0 || wtx.IsCoinBase()) {
         //
         // Credit
         //
-        for (const CTxOut& txout : wtx.vout) {
-            isminetype mine = wallet->IsMine(txout);
+        for (unsigned int i = 1; i < wtx.vout.size(); ++i) {
+            isminetype mine = wallet->IsMine(wtx.vout[i]);
             if (mine) {
                 TransactionRecord sub(hash, nTime);
                 CTxDestination address;
-                sub.idx = parts.size(); // sequence number
-                sub.credit = txout.nValue;
-                if (ExtractDestination(txout.scriptPubKey, address) && IsMine(*wallet, address)) {
+                sub.idx = i;
+                sub.credit = wtx.vout[i].nValue;
+                if (ExtractDestination(wtx.vout[i].scriptPubKey, address) && IsMine(*wallet, address)) {
                     // Received by Address
                     sub.type = TransactionRecord::RecvWithAddress;
                     sub.address = CBitcoinAddress(address).ToString();
@@ -134,7 +159,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet* 
             for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++) {
                 const CTxOut& txout = wtx.vout[nOut];
                 TransactionRecord sub(hash, nTime);
-                sub.idx = parts.size();
+                sub.idx = nOut;
 
                 if (wallet->IsMine(txout)) {
                     // Ignore parts sent to self, as this is usually the change

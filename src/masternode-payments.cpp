@@ -48,7 +48,7 @@ bool CMasternodePaymentDB::Write(const CMasternodePayments& objToSave)
     ssObj << hash;
 
     // open output file, and associate with CAutoFile
-    FILE* file = fopen(pathDB.string().c_str(), "wb");
+    FILE* file = openFile(pathDB, "wb");
     CAutoFile fileout(file, SER_DISK, CLIENT_VERSION);
     if (fileout.IsNull())
         return error("%s : Failed to open file %s", __func__, pathDB.string());
@@ -70,7 +70,7 @@ CMasternodePaymentDB::ReadResult CMasternodePaymentDB::Read(CMasternodePayments&
 {
     int64_t nStart = GetTimeMillis();
     // open input file, and associate with CAutoFile
-    FILE* file = fopen(pathDB.string().c_str(), "rb");
+    FILE* file = openFile(pathDB, "rb");
     CAutoFile filein(file, SER_DISK, CLIENT_VERSION);
     if (filein.IsNull()) {
         error("%s : Failed to open file %s", __func__, pathDB.string());
@@ -298,18 +298,25 @@ bool CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
         if (winningNode) {
             payee = GetScriptForDestination(winningNode->pubKeyCollateralAddress.GetID());
         } else {
-            LogPrint("masternode","CreateNewBlock: Failed to detect masternode to pay\n");
+            LogPrint("masternode","FillBlockPayee: Failed to detect masternode to pay\n");
             return false;
         }
     }
 
     CAmount blockValue = GetBlockValue(pindexPrev->nHeight + 1);
-    CAmount masternodePayment = GetMasternodePayment(pindexPrev->nHeight + 1, blockValue, 0);
+    CAmount masternodePayment = GetMasternodePayment(pindexPrev->nHeight + 1, blockValue);
     CAmount activityPayment = GetActivityPayment(pindexPrev->nHeight + 1, blockValue);
     CAmount teamPayment = GetTeamPayment(pindexPrev->nHeight + 1, blockValue);
 
     unsigned int voutSize = fProofOfStake ? txNew.vout.size() : 1;
     txNew.vout.resize(voutSize + 3);
+
+    // if stake splitted
+    if (voutSize - 1 != 1) {
+        CAmount diff = (masternodePayment + activityPayment + teamPayment) / 2;
+        txNew.vout[1].nValue -= diff;
+        txNew.vout[voutSize - 1].nValue += diff;
+    }
 
     // masternode payment
     txNew.vout[voutSize].scriptPubKey = payee;
@@ -518,16 +525,12 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
     LOCK(cs_vecPayments);
 
     int nMaxSignatures = 0;
-    int nMasternode_Drift_Count = 0;
 
     std::string strPayeesPossible = "";
 
     CAmount nReward = GetBlockValue(nBlockHeight);
 
-    // Get a stable number of masternodes by ignoring newly activated (< 8000 sec old) masternodes
-    nMasternode_Drift_Count = mnodeman.stable_size() + Params().MasternodeCountDrift();
-
-    CAmount requiredMasternodePayment = GetMasternodePayment(nBlockHeight, nReward, nMasternode_Drift_Count);
+    CAmount requiredMasternodePayment = GetMasternodePayment(nBlockHeight, nReward);
 
     //require at least 6 signatures
     for (CMasternodePayee& payee : vecPayments)

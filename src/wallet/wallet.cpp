@@ -795,7 +795,7 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet)
             }
         }
 
-        //// debug print
+        // debug print
         LogPrintf("AddToWallet %s  %s%s\n", wtxIn.GetHash().ToString(), (fInsertedNew ? "new" : ""), (fUpdated ? "update" : ""));
 
         // Write to disk
@@ -1237,16 +1237,32 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
     }
 
     if (IsCoinStake()) {
-        if (pwallet->IsMine(vout[1])) {
-            if (!ExtractDestination(vout[1].scriptPubKey, address))
-                address = CNoDestination();
-            COutputEntry output = {address, fromAddress, GetCredit() - nDebit, 1};
-            listReceived.push_back(output);
-        } else if (pwallet->IsMine(vout[2])) {
-            if (!ExtractDestination(vout[1].scriptPubKey, address))
-                address = CNoDestination();
-            COutputEntry output = {address, fromAddress, vout[2].nValue, 2};
-            listReceived.push_back(output);
+        CAmount nStakeAmount = 0;
+        int nStakeVout = -1;
+        for (int i = 1; i < (int) vout.size(); ++i) {
+            if (pwallet->IsMine(vout[i])) {
+                if (ExtractDestination(vout[i].scriptPubKey, address)) {
+                    // calculate stake amount
+                    if (address == fromAddress) {
+                        nStakeAmount += vout[i].nValue;
+                        if (nStakeVout == -1)
+                            nStakeVout = i;
+                        continue;
+                    }
+                } else
+                    address = CNoDestination();
+                COutputEntry output = {address, fromAddress, vout[i].nValue, i};
+                listReceived.push_back(output);
+            }
+        }
+        if (nStakeVout >= 0) {
+            CAmount net = nStakeAmount - nDebit;
+            COutputEntry output = {fromAddress, fromAddress, net, nStakeVout};
+            if (net < 0) {
+                output.amount = -output.amount;
+                listSent.push_back(output);
+            } else
+                listReceived.push_back(output);
         }
     } else {
         // Compute fee:
@@ -1991,7 +2007,7 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, CAmount> >& vecSend,
                 if (nChange > 0) {
                     // Fill a vout to ourself
                     // TODO: pass in scriptChange instead of reservekey so
-                    // change transaction isn't always pay-to-pivx-address
+                    // change transaction isn't always pay-to-nbx-address
                     CScript scriptChange;
                     bool combineChange = false;
 
@@ -2207,7 +2223,7 @@ bool CWallet::CreateCoinStake(
             CAmount nMinFee = 0;
             // Set output amount
             if (txNew.vout.size() == 3) {
-                txNew.vout[1].nValue = ((nCredit - nMinFee) / 2 / CENT) * CENT;
+                txNew.vout[1].nValue = (nCredit - nMinFee) / 2;
                 txNew.vout[2].nValue = nCredit - nMinFee - txNew.vout[1].nValue;
             } else
                 txNew.vout[1].nValue = nCredit - nMinFee;

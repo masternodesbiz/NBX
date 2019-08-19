@@ -21,6 +21,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 
+#include <signal.h>
 #include <stdio.h>
 
 /* Introduction text for doxygen: */
@@ -52,6 +53,22 @@ void WaitForShutdown()
     Interrupt();
 }
 
+#ifdef WIN32
+LONG WINAPI exceptionHandler(PEXCEPTION_POINTERS ExceptionInfo)
+{
+    std::runtime_error exception(parseWinException(ExceptionInfo));
+    PrintExceptionContinue(&exception, "", false);
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+#else
+void segFaultHandler(int signum)
+{
+    std::runtime_error exception(parseSegFault(signum));
+    PrintExceptionContinue(&exception, "");
+    _exit(EXIT_FAILURE);
+}
+#endif
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Start
@@ -59,6 +76,21 @@ void WaitForShutdown()
 bool AppInit(int argc, char* argv[])
 {
     bool fRet = false;
+
+    // set exception handling
+#ifdef WIN32
+    SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX | SEM_NOOPENFILEERRORBOX);
+	SetUnhandledExceptionFilter(exceptionHandler);
+#else
+    // catch SIGSEGV
+    struct sigaction sa_segv;
+    sa_segv.sa_handler = segFaultHandler;
+    sigemptyset(&sa_segv.sa_mask);
+    sa_segv.sa_flags = 0;
+    sigaction(SIGSEGV, &sa_segv, NULL);
+    sigaction(SIGFPE, &sa_segv, NULL);
+    sigaction(SIGILL, &sa_segv, NULL);
+#endif
 
     //
     // Parameters

@@ -62,6 +62,7 @@ HEADERS += src/activemasternode.h \
            src/allocators.h \
            src/amount.h \
            src/attributes.h \
+           src/backtrace.h \
            src/base58.h \
            src/bloom.h \
            src/chain.h \
@@ -362,6 +363,7 @@ SOURCES += src/activemasternode.cpp \
            src/alert.cpp \
            src/allocators.cpp \
            src/amount.cpp \
+           src/backtrace.cpp \
            src/base58.cpp \
            src/bloom.cpp \
            src/chain.cpp \

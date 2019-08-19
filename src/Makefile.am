@@ -80,6 +80,7 @@ BITCOIN_CORE_H = \
   allocators.h \
   amount.h \
   attributes.h \
+  backtrace.h \
   base58.h \
   bloom.h \
   blocksignature.h \
@@ -335,6 +336,7 @@ libbitcoin_util_a_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES)
 libbitcoin_util_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_util_a_SOURCES = \
   allocators.cpp \
+  backtrace.cpp \
   chainparamsbase.cpp \
   clientversion.cpp \
   compat/glibc_sanity.cpp \

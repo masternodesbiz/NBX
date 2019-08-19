@@ -429,6 +429,7 @@ add_library(COMMON_A STATIC ${BitcoinHeaders} ${COMMON_SOURCES})
 
 set(UTIL_SOURCES
         ./src/allocators.cpp
+        ./src/backtrace.cpp
         ./src/compat/strnlen.cpp
         ./src/compat/glibc_sanity.cpp
         ./src/compat/glibcxx_sanity.cpp
