@@ -433,7 +433,7 @@ void BitcoinGUI::createActions(const NetworkStyle* networkStyle)
     showHelpMessageAction->setMenuRole(QAction::NoRole);
     showHelpMessageAction->setStatusTip(tr("Show the Netbox.Wallet help message to get a list with possible command-line options"));
 
-    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+    connect(quitAction, SIGNAL(triggered()), this, SLOT(requestShutdown()));
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(aboutClicked()));
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     connect(optionsAction, SIGNAL(triggered()), this, SLOT(optionsClicked()));
@@ -1035,7 +1035,7 @@ void BitcoinGUI::message(const QString& title, const QString& message, unsigned 
     }
 
     // Display message
-    if (style & CClientUIInterface::MODAL) {
+    if (style & CClientUIInterface::MODAL || !notificator) {
         // Check for buttons, use OK as default, if none was supplied
         QMessageBox::StandardButton buttons;
         if (!(buttons = (QMessageBox::StandardButton)(style & CClientUIInterface::BTN_MASK)))
@@ -1071,7 +1071,7 @@ void BitcoinGUI::closeEvent(QCloseEvent* event)
 #ifndef Q_OS_MAC // Ignored on Mac
     if (clientModel && clientModel->getOptionsModel()) {
         if (!clientModel->getOptionsModel()->getMinimizeOnClose() && !GetBoolArg("-hide", false)) {
-            QApplication::quit();
+            StartShutdown();
         }
     }
 #endif
@@ -1269,7 +1269,7 @@ void BitcoinGUI::detectShutdown()
     if (ShutdownRequested()) {
         if (rpcConsole)
             rpcConsole->hide();
-        qApp->quit();
+        emit requestedShutdown();
     }
 }
 
@@ -1318,6 +1318,12 @@ void BitcoinGUI::unsubscribeFromCoreSignals()
 {
     // Disconnect signals from client
     uiInterface.ThreadSafeMessageBox.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
+}
+
+/** Start shutdown process */
+void BitcoinGUI::requestShutdown(){
+    if (!ShutdownRequested())
+        emit requestedShutdown();
 }
 
 /** Get restart command-line parameters and request restart */

@@ -245,6 +245,9 @@ UniValue masternodedebug (const UniValue& params, bool fHelp)
             "\nExamples:\n" +
             HelpExampleCli("masternodedebug", "") + HelpExampleRpc("masternodedebug", ""));
 
+    if (!fMasterNode)
+        throw runtime_error("This is not a masternode");
+
     if (activeMasternode.status != ACTIVE_MASTERNODE_INITIAL || !masternodeSync.IsSynced())
         return activeMasternode.GetStatus();
 

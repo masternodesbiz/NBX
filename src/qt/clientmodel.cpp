@@ -230,7 +230,7 @@ QString ClientModel::formatFullVersion() const
 
 QString ClientModel::formatBuildDate() const
 {
-    return QString::fromStdString(CLIENT_DATE);
+    return QString(CLIENT_DATE);
 }
 
 bool ClientModel::isReleaseVersion() const
@@ -240,7 +240,7 @@ bool ClientModel::isReleaseVersion() const
 
 QString ClientModel::clientName() const
 {
-    return QString::fromStdString(CLIENT_NAME);
+    return QString(CLIENT_NAME);
 }
 
 QString ClientModel::formatClientStartupTime() const

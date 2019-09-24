@@ -16,7 +16,6 @@
 #include "mnemonic.h"
 #include "net.h"
 #include "primitives/transaction.h"
-#include "script/descriptor.h"
 #include "script/script.h"
 #include "script/sign.h"
 #include "spork.h"
@@ -74,15 +73,50 @@ std::string COutput::ToString() const
     return strprintf("COutput(%s, %d, %d) [%s]", tx->GetHash().ToString(), i, nDepth, FormatMoney(tx->vout[i].nValue));
 }
 
-std::vector<CKeyID> GetAffectedKeys(const CScript& spk, const SigningProvider& provider)
+std::vector <CKeyID> GetAffectedKeys(const CKeyStore &keystore, const CScript &scriptPubKey)
 {
-    std::vector<CScript> dummy;
-    FlatSigningProvider out;
-    InferDescriptor(spk, provider)->Expand(0, DUMMY_SIGNING_PROVIDER, dummy, out);
-    std::vector<CKeyID> ret;
-    for (const auto& entry : out.pubkeys) {
-        ret.push_back(entry.first);
+    std::vector <CKeyID> ret;
+    vector <valtype> vSolutions;
+    txnouttype whichType;
+    if (!Solver(scriptPubKey, whichType, vSolutions))
+        return ret;
+
+    CKeyID keyID;
+    switch (whichType) {
+        case TX_NONSTANDARD:
+        case TX_NULL_DATA:
+            break;
+        case TX_PUBKEY:
+            keyID = CPubKey(vSolutions[0]).GetID();
+            if (keystore.HaveKey(keyID))
+                ret.push_back(keyID);
+            break;
+        case TX_PUBKEYHASH:
+            keyID = CKeyID(uint160(vSolutions[0]));
+            if (keystore.HaveKey(keyID))
+                ret.push_back(keyID);
+            break;
+        case TX_SCRIPTHASH: {
+            CScriptID scriptID = CScriptID(uint160(vSolutions[0]));
+            CScript subscript;
+            if (keystore.GetCScript(scriptID, subscript)) {
+                for (const auto &keyid : GetAffectedKeys(keystore, subscript)) {
+                    ret.push_back(keyid);
+                }
+            }
+            break;
+        }
+        case TX_MULTISIG: {
+            vector <valtype> keys(vSolutions.begin() + 1, vSolutions.begin() + vSolutions.size() - 1);
+            for (const valtype &pubkey : keys) {
+                CKeyID keyID = CPubKey(pubkey).GetID();
+                if (keystore.HaveKey(keyID))
+                    ret.push_back(keyID);
+            }
+            break;
+        }
     }
+
     return ret;
 }
 
@@ -842,7 +876,7 @@ bool CWallet::AddToWalletIfInvolvingMe(const CTransaction& tx, const CBlock* pbl
             // loop though all outputs
             for (const CTxOut& txout: tx.vout) {
                 // extract addresses and check if they match with an unused keypool key
-                for (const auto& keyid : GetAffectedKeys(txout.scriptPubKey , *this)) {
+                for (const auto& keyid : GetAffectedKeys(*this, txout.scriptPubKey)) {
                     std::map<CKeyID, int64_t>::const_iterator mi = m_pool_key_to_index.find(keyid);
                     if (mi != m_pool_key_to_index.end()) {
                         LogPrintf("%s: Detected a used keypool key, mark all keypool key up to this key as used\n", __func__);

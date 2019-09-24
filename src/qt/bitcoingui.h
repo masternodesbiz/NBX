@@ -165,6 +165,8 @@ private:
 signals:
     /** Signal raised when a URI was entered or dragged to the GUI */
     void receivedURI(const QString& uri);
+    /** Shutdown handling */
+    void requestedShutdown();
     /** Restart handling */
     void requestedRestart(QStringList args);
 
@@ -173,6 +175,8 @@ public slots:
     void setNumConnections(int count);
     /** Set number of blocks shown in the UI */
     void setNumBlocks(int count);
+    /** Start shutdown process */
+    void requestShutdown();
     /** Get restart command-line parameters and request restart */
     void handleRestart(QStringList args);
 

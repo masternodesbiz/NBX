@@ -3,7 +3,7 @@ AC_PREREQ([2.60])
 define(_CLIENT_VERSION_MAJOR, 3)
 define(_CLIENT_VERSION_MINOR, 3)
 define(_CLIENT_VERSION_REVISION, 0)
-define(_CLIENT_VERSION_BUILD, 3)
+define(_CLIENT_VERSION_BUILD, 7)
 define(_CLIENT_VERSION_IS_RELEASE, true)
 define(_COPYRIGHT_YEAR, 2019)
 AC_INIT([Netbox.Global],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_REVISION],[netbox.global],[nbx])
@@ -113,8 +113,8 @@ AC_ARG_WITH([miniupnpc],
   [use_upnp=auto])
 
 AC_ARG_ENABLE([upnp-default],
-  [AS_HELP_STRING([--enable-upnp-default],
-  [if UPNP is enabled, turn it on at startup (default is yes)])],
+  [AS_HELP_STRING([--disable-upnp-default],
+  [disable UPNP (enabled by default)])],
   [use_upnp_default=$enableval],
   [use_upnp_default=yes])
 

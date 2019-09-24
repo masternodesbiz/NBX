@@ -97,9 +97,6 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, std::
  */
 CScript GetScriptForDestination(const CTxDestination& dest);
 
-/** Generate a P2PK script for the given pubkey. */
-CScript GetScriptForRawPubKey(const CPubKey& pubkey);
-
 /** Generate a multisig script. */
 CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys);
 

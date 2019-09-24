@@ -23,6 +23,7 @@ extern bool walletLoaded;
 
 void StartShutdown();
 bool ShutdownRequested();
+bool ResyncNeeded();
 /** Interrupt threads */
 void Interrupt();
 void Shutdown();

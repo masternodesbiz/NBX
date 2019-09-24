@@ -18,6 +18,7 @@
 #include "net.h"
 #include "networkstyle.h"
 #include "optionsmodel.h"
+#include "rpcconsole.h"
 #include "splashscreen.h"
 #include "utilitydialog.h"
 #include "winshutdownmonitor.h"
@@ -163,7 +164,6 @@ public slots:
 
 signals:
     void initializeResult(int retval);
-    void shutdownResult(int retval);
     void runawayException(const QString& message);
 
 private:
@@ -195,8 +195,6 @@ public:
 
     /// Request core initialization
     void requestInitialize();
-    /// Request core shutdown
-    void requestShutdown();
 
     /// Get process return value
     int getReturnValue() { return returnValue; }
@@ -204,11 +202,17 @@ public:
     /// Get window identifier of QMainWindow (BitcoinGUI)
     WId getMainWinId() const;
 
+#if defined(Q_OS_WIN)
+    /// Set shutdown monitor
+    void setShutdownMonitor(WinShutdownMonitor* shutdownMonitor);
+#endif
+
 public slots:
     void initializeResult(int retval);
-    void shutdownResult(int retval);
     /// Handle runaway exceptions. Shows a message box with the problem and quits the program.
     void handleRunawayException(const QString& message);
+    /// Request core shutdown
+    void requestShutdown();
 
 signals:
     void requestedInitialize();
@@ -223,10 +227,14 @@ private:
     ClientModel* clientModel;
     BitcoinGUI* window;
     QTimer* pollShutdownTimer;
+#if defined(Q_OS_WIN)
+    WinShutdownMonitor* shutdownMonitor;
+#endif
 #ifdef ENABLE_WALLET
     PaymentServer* paymentServer;
     WalletModel* walletModel;
 #endif
+    bool shutdownAllowed;
     int returnValue;
 
     void startThread();
@@ -251,7 +259,11 @@ void BitcoinCore::initialize()
     try {
         qDebug() << __func__ << ": Running AppInit2 in thread";
         int rv = AppInit2();
-        emit initializeResult(rv);
+        if (ResyncNeeded()) {
+            if (!ShutdownRequested())
+                restart(RPCConsole::buildParameterlist("-resync"));
+        } else
+            emit initializeResult(rv);
     } catch (std::exception& e) {
         handleRunawayException(&e);
     } catch (...) {
@@ -268,11 +280,14 @@ void BitcoinCore::restart(QStringList args)
             Interrupt();
             PrepareShutdown();
             qDebug() << __func__ << ": Shutdown finished";
-            emit shutdownResult(1);
             CExplicitNetCleanup::callCleanup();
             QProcess::startDetached(QApplication::applicationFilePath(), args);
             qDebug() << __func__ << ": Restart initiated...";
-            QApplication::quit();
+            qDebug() << __func__ << ": Shutdown result: " << 1;
+            qApp->quit(); // Exit main loop after shutdown finished
+#if defined(Q_OS_WIN)
+            WinShutdownMonitor::shutdownCompleted();
+#endif
         } catch (std::exception& e) {
             handleRunawayException(&e);
         } catch (...) {
@@ -288,7 +303,11 @@ void BitcoinCore::shutdown()
         Interrupt();
         Shutdown();
         qDebug() << __func__ << ": Shutdown finished";
-        emit shutdownResult(1);
+        qDebug() << __func__ << ": Shutdown result: " << 1;
+        qApp->quit(); // Exit main loop after shutdown finished
+#if defined(Q_OS_WIN)
+        WinShutdownMonitor::shutdownCompleted();
+#endif
     } catch (std::exception& e) {
         handleRunawayException(&e);
     } catch (...) {
@@ -302,10 +321,14 @@ BitcoinApplication::BitcoinApplication(int& argc, char** argv) : QApplication(ar
                                                                  clientModel(0),
                                                                  window(0),
                                                                  pollShutdownTimer(0),
+#if defined(Q_OS_WIN)
+                                                                 shutdownMonitor(0),
+#endif
 #ifdef ENABLE_WALLET
                                                                  paymentServer(0),
                                                                  walletModel(0),
 #endif
+                                                                 shutdownAllowed(true),
                                                                  returnValue(0)
 {
     setQuitOnLastWindowClosed(false);
@@ -354,6 +377,10 @@ void BitcoinApplication::createWindow(const NetworkStyle* networkStyle)
 
     pollShutdownTimer = new QTimer(window);
     connect(pollShutdownTimer, SIGNAL(timeout()), window, SLOT(detectShutdown()));
+    connect(window, SIGNAL(requestedShutdown()), this, SLOT(requestShutdown()));
+#if defined(Q_OS_WIN)
+    connect(shutdownMonitor, SIGNAL(requestedShutdown()), window, SLOT(requestShutdown()));
+#endif
     pollShutdownTimer->start(200);
 }
 
@@ -377,7 +404,6 @@ void BitcoinApplication::startThread()
 
     /*  communication to and from thread */
     connect(executor, SIGNAL(initializeResult(int)), this, SLOT(initializeResult(int)));
-    connect(executor, SIGNAL(shutdownResult(int)), this, SLOT(shutdownResult(int)));
     connect(executor, SIGNAL(runawayException(QString)), this, SLOT(handleRunawayException(QString)));
     connect(this, SIGNAL(requestedInitialize()), executor, SLOT(initialize()));
     connect(this, SIGNAL(requestedShutdown()), executor, SLOT(shutdown()));
@@ -399,6 +425,12 @@ void BitcoinApplication::requestInitialize()
 void BitcoinApplication::requestShutdown()
 {
     qDebug() << __func__ << ": Requesting shutdown";
+
+    while (!shutdownAllowed) {
+        processEvents();
+        MilliSleep(100);
+    }
+
     startThread();
     window->hide();
     window->setClientModel(0);
@@ -413,7 +445,14 @@ void BitcoinApplication::requestShutdown()
     clientModel = 0;
 
     // Show a simple window indicating shutdown status
+#if defined(Q_OS_WIN)
+    if (!WinShutdownMonitor::isShuttingDown())
+        ShutdownWindow::showShutdownWindow(window);
+    else
+        LogPrintf("System shutdown\n");
+#else
     ShutdownWindow::showShutdownWindow(window);
+#endif
 
     // Request shutdown from core thread
     emit requestedShutdown();
@@ -421,6 +460,13 @@ void BitcoinApplication::requestShutdown()
 
 void BitcoinApplication::initializeResult(int retval)
 {
+    shutdownAllowed = false;
+
+    if (ShutdownRequested()) {
+        shutdownAllowed = true;
+        return;
+    }
+
     qDebug() << __func__ << ": Initialization result: " << retval;
     // Set exit result: 0 if successful, 1 if failure
     returnValue = retval ? 0 : 1;
@@ -466,14 +512,9 @@ void BitcoinApplication::initializeResult(int retval)
         QTimer::singleShot(100, paymentServer, SLOT(uiReady()));
 #endif
     } else {
-        quit(); // Exit main loop
+        StartShutdown();
     }
-}
-
-void BitcoinApplication::shutdownResult(int retval)
-{
-    qDebug() << __func__ << ": Shutdown result: " << retval;
-    quit(); // Exit main loop after shutdown finished
+    shutdownAllowed = true;
 }
 
 void showErrorMessage(const QString& message){
@@ -497,6 +538,13 @@ WId BitcoinApplication::getMainWinId() const
 
     return window->winId();
 }
+
+#if defined(Q_OS_WIN)
+void BitcoinApplication::setShutdownMonitor(WinShutdownMonitor* shutdownMonitor)
+{
+    this->shutdownMonitor = shutdownMonitor;
+}
+#endif
 
 #ifdef WIN32
 LONG WINAPI exceptionHandlerGui(PEXCEPTION_POINTERS ExceptionInfo)
@@ -537,9 +585,9 @@ BOOL CALLBACK EnumWalletWindows(HWND hwnd, LPARAM lParam) {
         WINDOWPLACEMENT place = { sizeof(WINDOWPLACEMENT) };
         GetWindowPlacement(hwnd, &place);
         if (SW_SHOWMINIMIZED == place.showCmd)
-            ShowWindow(hwnd, SW_RESTORE);
+            ShowWindowAsync(hwnd, SW_RESTORE);
 	} else
-	    ShowWindow(hwnd, SW_SHOW);
+	    ShowWindowAsync(hwnd, SW_SHOW);
 	SetForegroundWindow(hwnd);
 	((pid_t*)lParam)[1] = 1;
 	return FALSE;
@@ -702,7 +750,9 @@ int main(int argc, char* argv[])
     app.installEventFilter(new GUIUtil::ToolTipToRichTextFilter(TOOLTIP_WRAP_THRESHOLD, &app));
 #if defined(Q_OS_WIN)
     // Install global event filter for processing Windows session related Windows messages (WM_QUERYENDSESSION and WM_ENDSESSION)
-    qApp->installNativeEventFilter(new WinShutdownMonitor());
+    WinShutdownMonitor* shutdownMonitor = new WinShutdownMonitor();
+    app.setShutdownMonitor(shutdownMonitor);
+    qApp->installNativeEventFilter(shutdownMonitor);
 #endif
     // Install qDebug() message handler to route to debug.log
     qInstallMessageHandler(DebugMessageHandler);
@@ -721,8 +771,6 @@ int main(int argc, char* argv[])
 #if defined(Q_OS_WIN)
         WinShutdownMonitor::registerShutdownBlockReason(QObject::tr("Netbox.Wallet didn't yet exit safely..."), (HWND)app.getMainWinId());
 #endif
-        app.exec();
-        app.requestShutdown();
         app.exec();
     } catch (std::exception& e) {
         PrintExceptionContinue(&e, "main");

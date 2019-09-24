@@ -1,6 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2015-2019 The PIVX developers
+// Copyright (c) 2018-2019 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -58,7 +59,7 @@ static const bool DEFAULT_LISTEN = true;
 #ifdef USE_UPNP
 static const bool DEFAULT_UPNP = USE_UPNP;
 #else
-static const bool DEFAULT_UPNP = false;
+static const bool DEFAULT_UPNP = true;
 #endif
 /** The maximum number of entries in mapAskFor */
 static const size_t MAPASKFOR_MAX_SZ = MAX_INV_SZ;

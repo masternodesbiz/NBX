@@ -7,20 +7,36 @@
 
 #ifdef WIN32
 #include <QByteArray>
+#include <QObject>
 #include <QString>
 
 #include <windef.h> // for HWND
 
 #include <QAbstractNativeEventFilter>
 
-class WinShutdownMonitor : public QAbstractNativeEventFilter
+class WinShutdownMonitor : public QObject, public QAbstractNativeEventFilter
 {
+    Q_OBJECT
+
 public:
     /** Implements QAbstractNativeEventFilter interface for processing Windows messages */
     bool nativeEventFilter(const QByteArray& eventType, void* pMessage, long* pnResult);
 
     /** Register the reason for blocking shutdown on Windows to allow clean client exit */
     static void registerShutdownBlockReason(const QString& strReason, const HWND& mainWinId);
+
+    /** Check whether Windows is shutting down */
+    static bool isShuttingDown();
+
+    /** Stop waiting for shutdown */
+    static void shutdownCompleted();
+
+signals:
+    /** Shutdown handling */
+    void requestedShutdown();
+
+private:
+    static bool bShutdownCompleted;
 };
 #endif
 

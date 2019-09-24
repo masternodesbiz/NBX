@@ -14,7 +14,7 @@
  * for both nbxd and netboxwallet, to make it harder for attackers to
  * target servers or GUI users specifically.
  */
-const std::string CLIENT_NAME("Netbox.Wallet");
+const char* CLIENT_NAME = "Netbox.Wallet";
 
 /**
  * Client version number
@@ -76,8 +76,8 @@ const std::string CLIENT_NAME("Netbox.Wallet");
 #endif
 #endif
 
-const std::string CLIENT_BUILD(BUILD_DESC CLIENT_VERSION_SUFFIX);
-const std::string CLIENT_DATE(BUILD_DATE);
+const char* CLIENT_BUILD = BUILD_DESC CLIENT_VERSION_SUFFIX;
+const char* CLIENT_DATE = BUILD_DATE;
 
 static std::string FormatVersion(int nVersion)
 {

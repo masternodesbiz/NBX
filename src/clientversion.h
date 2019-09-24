@@ -43,9 +43,9 @@ static const int CLIENT_VERSION =
     + 100 * CLIENT_VERSION_REVISION ///
     + 1 * CLIENT_VERSION_BUILD;
 
-extern const std::string CLIENT_NAME;
-extern const std::string CLIENT_BUILD;
-extern const std::string CLIENT_DATE;
+extern const char* CLIENT_NAME;
+extern const char* CLIENT_BUILD;
+extern const char* CLIENT_DATE;
 
 
 std::string FormatFullVersion();

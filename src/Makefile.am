@@ -79,7 +79,6 @@ BITCOIN_CORE_H = \
   alert.h \
   allocators.h \
   amount.h \
-  attributes.h \
   backtrace.h \
   base58.h \
   bloom.h \
@@ -140,7 +139,6 @@ BITCOIN_CORE_H = \
   rpc/protocol.h \
   rpc/server.h \
   scheduler.h \
-  script/descriptor.h \
   script/interpreter.h \
   script/script.h \
   script/sigcache.h \
@@ -149,7 +147,6 @@ BITCOIN_CORE_H = \
   script/script_error.h \
   secure_string.h \
   serialize.h \
-  span.h \
   spork.h \
   sporkdb.h \
   stakeinput.h \
@@ -172,7 +169,6 @@ BITCOIN_CORE_H = \
   validationinterface.h \
   version.h \
   util/bip32.h \
-  util/memory.h \
   wallet/wallet.h \
   wallet/wallet_ismine.h \
   wallet/walletdb.h \
@@ -251,7 +247,6 @@ libbitcoin_wallet_a_SOURCES = \
   masternodeman.cpp \
   mnemonic.cpp \
   mnemonic_en.cpp \
-  script/descriptor.cpp \
   secure_string.cpp \
   kernel.cpp \
   util/bip32.cpp \

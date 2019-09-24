@@ -37,6 +37,9 @@ public:
     explicit RPCConsole(QWidget* parent);
     ~RPCConsole();
 
+    /** Build parameter list for restart */
+    static QStringList buildParameterlist(QString arg);
+
     void setClientModel(ClientModel* model);
 
     enum MessageClass {
@@ -133,8 +136,6 @@ private:
     static QString FormatBytes(quint64 bytes);
     void startExecutor();
     void setTrafficGraphRange(int mins);
-    /** Build parameter list for restart */
-    void buildParameterlist(QString arg);
     /** show detailed information on ui about selected node */
     void updateNodeDetail(const CNodeCombinedStats* stats);
 

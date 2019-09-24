@@ -61,7 +61,6 @@ HEADERS += src/activemasternode.h \
            src/alert.h \
            src/allocators.h \
            src/amount.h \
-           src/attributes.h \
            src/backtrace.h \
            src/base58.h \
            src/bloom.h \
@@ -113,7 +112,6 @@ HEADERS += src/activemasternode.h \
            src/rpcserver.h \
            src/secure_string.h \
            src/serialize.h \
-           src/span.h \
            src/spork.h \
            src/streams.h \
            src/sync.h \
@@ -218,7 +216,6 @@ HEADERS += src/activemasternode.h \
            src/qt/walletview.h \
            src/qt/winshutdownmonitor.h \
            src/script/bitcoinconsensus.h \
-           src/script/descriptor.h \
            src/script/interpreter.h \
            src/script/script.h \
            src/script/script_error.h \
@@ -228,7 +225,6 @@ HEADERS += src/activemasternode.h \
            src/univalue/univalue.h \
            src/univalue/univalue_escapes.h \
            src/util/bip32.h \
-           src/util/memory.h \
            src/leveldb/db/builder.h \
            src/leveldb/db/db_impl.h \
            src/leveldb/db/db_iter.h \
@@ -511,7 +507,6 @@ SOURCES += src/activemasternode.cpp \
            src/qt/walletview.cpp \
            src/qt/winshutdownmonitor.cpp \
            src/script/bitcoinconsensus.cpp \
-           src/script/descriptor.cpp \
            src/script/interpreter.cpp \
            src/script/script.cpp \
            src/script/script_error.cpp \

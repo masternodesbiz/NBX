@@ -11,7 +11,6 @@
 #include "key.h"
 #include "pubkey.h"
 #include "sync.h"
-#include "script/sign.h"
 
 #include <boost/signals2/signal.hpp>
 
@@ -19,7 +18,7 @@ class CScript;
 class CScriptID;
 
 /** A virtual base class for key stores */
-class CKeyStore : public SigningProvider
+class CKeyStore
 {
 protected:
     mutable CCriticalSection cs_KeyStore;

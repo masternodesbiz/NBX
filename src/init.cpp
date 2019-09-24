@@ -76,6 +76,7 @@ bool walletLoaded = false;
 bool lockFailed = false;
 volatile bool fFeeEstimatesInitialized = false;
 volatile bool fRestartRequested = false; // true: restart false: shutdown
+volatile bool fNeedResync = false;
 extern std::list<uint256> listAccCheckpointsNoDB;
 
 #if ENABLE_ZMQ
@@ -141,6 +142,10 @@ void StartShutdown()
 bool ShutdownRequested()
 {
     return fRequestShutdown || fRestartRequested;
+}
+
+bool ResyncNeeded(){
+    return fNeedResync;
 }
 
 class CCoinsViewErrorCatcher : public CCoinsViewBacked
@@ -430,7 +435,7 @@ std::string HelpMessage(HelpMessageMode mode)
 #if USE_UPNP
     strUsage += HelpMessageOpt("-upnp", _("Use UPnP to map the listening port (default: 1 when listening)"));
 #else
-    strUsage += HelpMessageOpt("-upnp", strprintf(_("Use UPnP to map the listening port (default: %u)"), 0));
+    strUsage += HelpMessageOpt("-upnp", strprintf(_("Use UPnP to map the listening port (default: %u)"), 1));
 #endif
 #endif
     strUsage += HelpMessageOpt("-whitebind=<addr>", _("Bind to given address and whitelist peers connecting to it. Use [host]:port notation for IPv6"));
@@ -649,6 +654,9 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
         pblocktree->WriteReindexing(false);
         fReindex = false;
         LogPrintf("Reindexing finished\n");
+        // check if reindex failed
+        if (chainActive.Tip() == NULL)
+            fNeedResync = true;
         // To avoid ending up in a situation without genesis block, re-try initializing (no-op if reindexing worked):
         InitBlockIndex();
     }
@@ -1072,6 +1080,7 @@ bool AppInit2()
     threadGroup.create_thread(boost::bind(&TraceThread<CScheduler::Function>, "scheduler", serviceLoop));
 
     int64_t nStart;
+    bool fTipFound = false;
     {
         LOCK(cs_main);
 
@@ -1472,11 +1481,17 @@ bool AppInit2()
 
                         {
                             CBlockIndex *tip = chainActive[chainActive.Height()];
+                            if (!tip) {
+                                strLoadError = _("Unknown error while loading block database");
+                                fVerifyingBlocks = false;
+                                break;
+                            }
                             RPCNotifyBlockChange(tip->GetBlockHash());
-                            if (tip && tip->nTime > GetAdjustedTime() + 2 * 60 * 60) {
-                                strLoadError = _("The block database contains a block which appears to be from the future. "
-                                                 "This may be due to your computer's date and time being set incorrectly. "
-                                                 "Only rebuild the block database if you are sure that your computer's date and time are correct");
+                            if (tip->nTime > GetAdjustedTime() + 2 * 60 * 60) {
+                                strLoadError = _(
+                                        "The block database contains a block which appears to be from the future. "
+                                        "This may be due to your computer's date and time being set incorrectly. "
+                                        "Only rebuild the block database if you are sure that your computer's date and time are correct");
                                 break;
                             }
                         }
@@ -1501,7 +1516,7 @@ bool AppInit2()
             if (!fLoaded) {
                 // first suggest a reindex
                 if (!fReset) {
-                    bool fRet = uiInterface.ThreadSafeMessageBox(
+                    bool fRet = GetBoolArg("-hide", false) || uiInterface.ThreadSafeMessageBox(
                         strLoadError + ".\n\n" + _("Do you want to rebuild the block database now?"),
                         "", CClientUIInterface::MSG_ERROR | CClientUIInterface::BTN_ABORT);
                     if (fRet) {
@@ -1546,17 +1561,35 @@ bool AppInit2()
         if (!ActivateBestChain(state))
             strErrors << "Failed to connect best block";
 
-        std::vector<boost::filesystem::path> vImportFiles;
+        fTipFound = chainActive.Tip() != NULL;
+    }
+    {
+        std::vector <boost::filesystem::path> vImportFiles;
         if (mapArgs.count("-loadblock")) {
             for (string strFile : mapMultiArgs["-loadblock"])
-            vImportFiles.push_back(strFile);
+                vImportFiles.push_back(strFile);
         }
         threadGroup.create_thread(boost::bind(&ThreadImport, vImportFiles));
-        if (chainActive.Tip() == NULL) {
-            LogPrintf("Waiting for genesis block to be imported...\n");
-            while (!fRequestShutdown && chainActive.Tip() == NULL)
-                MilliSleep(10);
+    }
+    if (!fTipFound) {
+        LogPrintf("Waiting for genesis block to be imported...\n");
+        while (!fRequestShutdown && !fTipFound && !fNeedResync) {
+            MilliSleep(10);
+            {
+                LOCK(cs_main);
+                fTipFound = chainActive.Tip() != NULL;
+            }
         }
+    }
+    if (fNeedResync) {
+        bool fRet = (!GetBoolArg("-resync", false) && GetBoolArg("-hide", false)) || uiInterface.ThreadSafeMessageBox(
+                "Can't reindex block database.\n\n" + _("Do you want to resync it now?"),
+                "", CClientUIInterface::MSG_ERROR | CClientUIInterface::BTN_ABORT);
+        if (!fRet) {
+            fNeedResync = false;
+            LogPrintf("Aborted block database resync. Exiting.\n");
+        }
+        return false;
     }
 
 // ********************************************************* Step 9: load wallet
@@ -1622,6 +1655,8 @@ bool AppInit2()
         if (fFirstRun) {
             // Create new keyUser and set as default key
             RandAddSeedPerfmon();
+
+            LOCK(pwalletMain->cs_wallet);
 
             if (pwalletMain->CanSupportFeature(FEATURE_HD)) {
                 LogPrintf("Setting wallet to HD\n");

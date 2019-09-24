@@ -212,16 +212,17 @@ AC_DEFUN([BITCOIN_QT_CONFIGURE],[
   MOC_DEFS='-DHAVE_CONFIG_H -I$(srcdir)'
   case $host in
     *darwin*)
-     BITCOIN_QT_CHECK([
-       MOC_DEFS="${MOC_DEFS} -DQ_OS_MAC"
-       base_frameworks="-framework Foundation -framework ApplicationServices -framework AppKit"
-       AX_CHECK_LINK_FLAG([[$base_frameworks]],[QT_LIBS="$QT_LIBS $base_frameworks"],[AC_MSG_ERROR(could not find base frameworks)])
-     ])
+      BITCOIN_QT_CHECK([
+        MOC_DEFS="${MOC_DEFS} -DQ_OS_MAC"
+        base_frameworks="-framework Foundation -framework ApplicationServices -framework AppKit"
+        AX_CHECK_LINK_FLAG([[$base_frameworks]],[QT_LIBS="$QT_LIBS $base_frameworks"],[AC_MSG_ERROR(could not find base frameworks)])
+      ])
     ;;
     *mingw*)
-       BITCOIN_QT_CHECK([
-         AX_CHECK_LINK_FLAG([[-mwindows]],[QT_LDFLAGS="$QT_LDFLAGS -mwindows"],[AC_MSG_WARN(-mwindows linker support not detected)])
-       ])
+      BITCOIN_QT_CHECK([
+        MOC_DEFS="${MOC_DEFS} -DWIN32 -DQ_OS_WIN"
+        AX_CHECK_LINK_FLAG([[-mwindows]],[QT_LDFLAGS="$QT_LDFLAGS -mwindows"],[AC_MSG_WARN(-mwindows linker support not detected)])
+      ])
   esac
 
 

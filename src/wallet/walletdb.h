@@ -9,9 +9,10 @@
 #define BITCOIN_WALLETDB_H
 
 #include "amount.h"
-#include "wallet/db.h"
 #include "key.h"
 #include "keystore.h"
+#include "script/sign.h"
+#include "wallet/db.h"
 
 #include <list>
 #include <stdint.h>
