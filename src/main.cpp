@@ -1132,7 +1132,9 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransa
 
         // do we already have it?
         if (view.HaveCoins(hash))
-            return false;
+            return state.Invalid(
+                    error("AcceptToMemoryPool: already have output coins"),
+                    REJECT_INVALID, "tx-have-output-coins");
 
         // do all inputs exist?
         // Note that this does not check for the presence of actual outputs (see the next check for that),
@@ -1141,7 +1143,9 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransa
             if (!view.HaveCoins(txin.prevout.hash)) {
                 if (pfMissingInputs)
                     *pfMissingInputs = true;
-                return false;
+                return state.Invalid(
+                        error("AcceptToMemoryPool: inputs not found"),
+                        REJECT_INVALID, "bad-txns-inputs-not-found");
             }
         }
 

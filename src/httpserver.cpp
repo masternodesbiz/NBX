@@ -9,6 +9,7 @@
 #include "chainparamsbase.h"
 #include "compat.h"
 #include "util.h"
+#include "init.h"
 #include "netbase.h"
 #include "rpc/protocol.h" // For HTTP status codes
 #include "sync.h"
@@ -21,7 +22,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
-#include <future>
 
 #include <event2/event.h>
 #include <event2/http.h>
@@ -441,16 +441,13 @@ bool InitHTTPServer()
 }
 
 std::thread threadHTTP;
-std::future<bool> threadResult;
 
 bool StartHTTPServer()
 {
     LogPrint("http", "Starting HTTP server\n");
     int rpcThreads = std::max((long)GetArg("-rpcthreads", DEFAULT_HTTP_THREADS), 1L);
     LogPrintf("HTTP: starting %d worker threads\n", rpcThreads);
-    std::packaged_task<bool(event_base*, evhttp*)> task(ThreadHTTP);
-    threadResult = task.get_future();
-    threadHTTP = std::thread(std::move(task), eventBase, eventHTTP);
+    threadHTTP = std::thread(ThreadHTTP, eventBase, eventHTTP);
 
     for (int i = 0; i < rpcThreads; i++) {
         std::thread rpc_worker(HTTPWorkQueueRun, workQueue);
@@ -463,9 +460,7 @@ void InterruptHTTPServer()
 {
     LogPrint("http", "Interrupting HTTP server\n");
     if (eventHTTP) {
-        for (evhttp_bound_socket *socket : boundSockets) {
-            evhttp_del_accept_socket(eventHTTP, socket);
-        }
+        // Reject requests on current connections
         evhttp_set_gencb(eventHTTP, http_reject_request_cb, NULL);
     }
     if (workQueue)
@@ -480,20 +475,14 @@ void StopHTTPServer()
         workQueue->WaitExit();
         delete workQueue;
     }
-    MilliSleep(500); // Avoid race condition while the last HTTP-thread is exiting
+    // Unlisten sockets, these are what make the event loop running, which means
+    // that after this and all connections are closed the event loop will quit.
+    for (evhttp_bound_socket *socket : boundSockets) {
+        evhttp_del_accept_socket(eventHTTP, socket);
+    }
+    boundSockets.clear();
     if (eventBase) {
         LogPrint("http", "Waiting for HTTP event thread to exit\n");
-        // Give event loop a few seconds to exit (to send back last RPC responses), then break it
-        // Before this was solved with event_base_loopexit, but that didn't work as expected in
-        // at least libevent 2.0.21 and always introduced a delay. In libevent
-        // master that appears to be solved, so in the future that solution
-        // could be used again (if desirable).
-        // (see discussion in https://github.com/bitcoin/bitcoin/pull/6990)
-        if (threadResult.valid() && threadResult.wait_for(std::chrono::milliseconds(2000)) == std::future_status::timeout) {
-            LogPrintf("HTTP event loop did not exit within allotted time, sending loopbreak\n");
-            event_base_loopbreak(eventBase);
-
-        }
         threadHTTP.join();
     }
     if (eventHTTP) {
@@ -598,6 +587,9 @@ void HTTPRequest::WriteHeader(const std::string& hdr, const std::string& value)
 void HTTPRequest::WriteReply(int nStatus, const std::string& strReply)
 {
     assert(!replySent && req);
+    if (ShutdownRequested()) {
+        WriteHeader("Connection", "close");
+    }
     // Send event to main http thread to send reply message
     struct evbuffer* evb = evhttp_request_get_output_buffer(req);
     assert(evb);

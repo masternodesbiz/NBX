@@ -566,7 +566,7 @@ void segFaultHandlerGui(int signum)
 
 #ifdef WIN32
 BOOL CALLBACK EnumWalletWindows(HWND hwnd, LPARAM lParam) {
-    if (GetWindow(hwnd, GW_OWNER))
+    if (!hwnd || GetWindow(hwnd, GW_OWNER))
         return TRUE;
 	char buf[17];
 	if (GetClassNameA(hwnd, buf, 16) != 14)
@@ -589,7 +589,7 @@ BOOL CALLBACK EnumWalletWindows(HWND hwnd, LPARAM lParam) {
 	} else
 	    ShowWindowAsync(hwnd, SW_SHOW);
 	SetForegroundWindow(hwnd);
-	((pid_t*)lParam)[1] = 1;
+	((pid_t*)lParam)[1] = (pid_t)hwnd;
 	return FALSE;
 }
 #endif
@@ -697,17 +697,7 @@ int main(int argc, char* argv[])
     }
 
 #ifdef WIN32
-    // check if we already running
-    {
-        pid_t pid[2]; // second value is a flag for exit
-        pid[0] = ReadPidFile(GetPidFile());
-        if (pid[0]) {
-            pid[1] = 0;
-            EnumWindows(EnumWalletWindows, (LPARAM)pid);
-            if (pid[1])
-                return 0;
-        }
-    }
+    AllowSetForegroundWindow(ASFW_ANY);
 #endif
 
 #ifdef ENABLE_WALLET
@@ -739,7 +729,23 @@ int main(int argc, char* argv[])
     // translated properly.
     if (PaymentServer::ipcSendCommandLine())
         exit(0);
+#endif
 
+#ifdef WIN32
+    // check if we already running
+    {
+        pid_t pid[2]; // second value is a window hwnd
+        pid[0] = ReadPidFile(GetPidFile());
+        if (pid[0]) {
+            pid[1] = 0;
+            EnumWindows(EnumWalletWindows, (LPARAM)pid);
+            if (pid[1])
+                return 0;
+        }
+    }
+#endif
+
+#ifdef ENABLE_WALLET
     // Start up the payment server early, too, so impatient users that click on
     // nbx: links repeatedly have their payment requests routed to this process:
     app.createPaymentServer();

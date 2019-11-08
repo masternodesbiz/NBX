@@ -393,7 +393,7 @@ UniValue getrawmempool(const UniValue& params, bool fHelp)
             "{                           (json object)\n"
             "  \"transactionid\" : {       (json object)\n"
             "    \"size\" : n,             (numeric) transaction size in bytes\n"
-            "    \"fee\" : n,              (numeric) transaction fee in pivx\n"
+            "    \"fee\" : n,              (numeric) transaction fee in nbx\n"
             "    \"time\" : n,             (numeric) local time transaction entered pool in seconds since 1 Jan 1970 GMT\n"
             "    \"height\" : n,           (numeric) block height when transaction entered pool\n"
             "    \"startingpriority\" : n, (numeric) priority when transaction entered pool\n"
@@ -414,6 +414,24 @@ UniValue getrawmempool(const UniValue& params, bool fHelp)
         fVerbose = params[0].get_bool();
 
     return mempoolToJSON(fVerbose);
+}
+
+UniValue clearmempool(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+            "clearmempool\n"
+            "\nClears all transactions in memory pool.\n"
+
+            "\nExamples:\n"
+            + HelpExampleCli("clearmempool", "")
+            + HelpExampleRpc("clearmempool", ""));
+
+    LOCK(mempool.cs);
+
+    mempool.clear();
+
+    return NullUniValue;
 }
 
 UniValue getblockhash(const UniValue& params, bool fHelp)

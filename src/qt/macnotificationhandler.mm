@@ -14,7 +14,7 @@
 - (NSString *)__bundleIdentifier
 {
     if (self == [NSBundle mainBundle]) {
-        return @"io.pivx.Pivx-Qt";
+        return @"global.netbox.NetboxWallet";
     } else {
         return [self __bundleIdentifier];
     }

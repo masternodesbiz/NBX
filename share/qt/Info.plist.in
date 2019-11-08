@@ -38,7 +38,7 @@
   <true/>
 
   <key>CFBundleIdentifier</key>
-  <string>io.pivx.Pivx-Qt</string>
+  <string>global.netbox.NetboxWallet</string>
 
   <key>CFBundleURLTypes</key>
   <array>
