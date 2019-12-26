@@ -13,6 +13,7 @@
 #include "guiinterface.h"
 #include "util.h"
 #ifdef ENABLE_WALLET
+#include "dappstore/dappstore.h"
 #include "wallet/db.h"
 #include "wallet/wallet.h"
 #endif
@@ -21,6 +22,7 @@
 
 CClientUIInterface uiInterface;
 CWallet* pwalletMain;
+DAppStore* pdAppStore;
 bool walletLoaded = true;
 
 extern bool fPrintToConsole;

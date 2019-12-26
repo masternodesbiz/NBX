@@ -160,6 +160,7 @@ public:
 
         activityAddress = "NV8C9AYfmoiU8Sd2dBPCsqWchmnh8F6yry";
         teamAddress = "NYkDC3hHouRaCSAMNsSxFj5Xv1h5etPzGT";
+        dAppAddress = "Ncx5oHTq7B2eZ1deLfn9XBGBbiZ5tEs3wu";
     }
 
     const Checkpoints::CCheckpointData& Checkpoints() const
@@ -228,6 +229,7 @@ public:
 
         activityAddress = "n5q6183ZL3FJsYQfR4NLwRQqP1oas2SdZw";
         teamAddress = "nEnRsJtxh9k4fTtiQrt7TKpphT42asgLhZ";
+        dAppAddress = "nFFVKie4qhKd9zwrxCBCnQyM1FhfAV4k51";
     }
     const Checkpoints::CCheckpointData& Checkpoints() const
     {

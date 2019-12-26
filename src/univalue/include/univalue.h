@@ -73,6 +73,7 @@ public:
     const UniValue& operator[](const std::string& key) const;
     const UniValue& operator[](size_t index) const;
     bool exists(const std::string& key) const { size_t i; return findKey(key, i); }
+    bool findKey(const std::string& key, size_t& retIdx) const;
 
     bool isNull() const { return (typ == VNULL); }
     bool isTrue() const { return (typ == VBOOL) && (val == "1"); }
@@ -148,7 +149,6 @@ private:
     std::vector<std::string> keys;
     std::vector<UniValue> values;
 
-    bool findKey(const std::string& key, size_t& retIdx) const;
     void writeArray(unsigned int prettyIndent, unsigned int indentLevel, std::string& s) const;
     void writeObject(unsigned int prettyIndent, unsigned int indentLevel, std::string& s) const;
 

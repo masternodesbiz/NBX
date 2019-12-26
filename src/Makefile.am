@@ -97,6 +97,9 @@ BITCOIN_CORE_H = \
   compat/endian.h \
   compat/sanity.h \
   compressor.h \
+  dappstore\dapp.h \
+  dappstore\dappstore.h \
+  dappstore\dappstoredb.h \
   primitives/block.h \
   primitives/transaction.h \
   core_io.h \
@@ -206,6 +209,7 @@ libbitcoin_server_a_SOURCES = \
   pow.cpp \
   rest.cpp \
   rpc/blockchain.cpp \
+  rpc/dappstore.cpp \
   rpc/masternode.cpp \
   rpc/mining.cpp \
   rpc/misc.cpp \
@@ -239,6 +243,9 @@ libbitcoin_wallet_a_SOURCES = \
   obfuscation.cpp \
   wallet/db.cpp \
   crypter.cpp \
+  dappstore/dapp.cpp \
+  dappstore/dappstore.cpp \
+  dappstore/dappstoredb.cpp \
   swifttx.cpp \
   masternode.cpp \
   masternode-payments.cpp \
@@ -385,7 +392,7 @@ nbxd_LDADD = \
   $(LIBMEMENV) \
   $(LIBSECP256K1)
 
-nbxd_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
+nbxd_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(SSL_LIBS) $(ZLIB_LIBS) $(CRYPTO_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
 
 # nbx-cli binary #
 nbx_cli_SOURCES = nbx-cli.cpp

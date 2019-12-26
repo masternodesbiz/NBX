@@ -19,3 +19,5 @@ RUN CONFIG_SITE=$PWD/depends/x86_64-pc-linux-gnu/share/config.site ./configure
 RUN make -j$(nproc)
 
 RUN strip $PWD/src/qt/netboxwallet $PWD/src/nbxd $PWD/src/nbx-cli $PWD/src/nbx-tx
+
+ENTRYPOINT ["/bin/bash", "-c", "cp /netboxwallet/src/{qt/netboxwallet,nbxd,nbx-cli,nbx-tx} /netboxwallet/output/lin64/"]

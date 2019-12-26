@@ -203,8 +203,7 @@ const CScript& GetActivityPubKey() {
     if (!activityPubKey) {
         CBitcoinAddress activityAddress;
         assert(activityAddress.SetString(Params().ActivityAddress()));
-        CScript *newActivityPubKey = new CScript(GetScriptForDestination(activityAddress.Get()));
-        activityPubKey = newActivityPubKey;
+        activityPubKey = new CScript(GetScriptForDestination(activityAddress.Get()));
     }
     return *activityPubKey;
 }
@@ -214,8 +213,7 @@ const CScript& GetTeamPubKey() {
     if (!teamPubKey) {
         CBitcoinAddress teamAddress;
         assert(teamAddress.SetString(Params().TeamAddress()));
-        CScript *newTeamPubKey = new CScript(GetScriptForDestination(teamAddress.Get()));
-        teamPubKey = newTeamPubKey;
+        teamPubKey = new CScript(GetScriptForDestination(teamAddress.Get()));
     }
     return *teamPubKey;
 }

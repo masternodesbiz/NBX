@@ -813,6 +813,15 @@ void runCommand(std::string strCommand)
         LogPrintf("runCommand error: system(%s) returned %d\n", strCommand, nErr);
 }
 
+std::string bin2hex(const std::string &data, const char * alpha){
+    std::string res;
+    for (size_t i = 0; i < data.size(); i++){
+        res += alpha[(data[i] >> 4) & 0xf];
+        res += alpha[data[i] & 0xf];
+    }
+    return res;
+}
+
 std::string uint2hex(unsigned int num, bool showZeros){
     const char* alpha = "0123456789abcdef";
     std::string res;

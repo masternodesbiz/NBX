@@ -310,6 +310,7 @@ set(SERVER_SOURCES
         ./src/pow.cpp
         ./src/rest.cpp
         ./src/rpc/blockchain.cpp
+        ./src/rpc/dappstore.cpp
         ./src/rpc/masternode.cpp
         ./src/rpc/budget.cpp
         ./src/rpc/mining.cpp
@@ -339,6 +340,9 @@ endif()
 set(WALLET_SOURCES
         ./src/activemasternode.cpp
         ./src/bip38.cpp
+        ./src/dappstore/dapp.cpp
+        ./src/dappstore/dappstore.cpp
+        ./src/dappstore/dappstoredb.cpp
         ./src/denomination_functions.cpp
         ./src/obfuscation.cpp
         ./src/obfuscation-relay.cpp

@@ -250,6 +250,14 @@ extern UniValue autocombinerewards(const UniValue& params, bool fHelp);
 extern UniValue gethdseed(const UniValue& params, bool fHelp);
 extern UniValue sethdseed(const UniValue& params, bool fHelp);
 
+extern UniValue addnewdapp(const UniValue& params, bool fHelp); // in rpc/dappstore.cpp
+extern UniValue dappdelete(const UniValue& params, bool fHelp);
+extern UniValue dappupdate(const UniValue& params, bool fHelp);
+extern UniValue getdapp(const UniValue& params, bool fHelp);
+extern UniValue getdappprice(const UniValue& params, bool fHelp);
+extern UniValue listdapps(const UniValue& params, bool fHelp);
+extern UniValue listmydapps(const UniValue& params, bool fHelp);
+
 extern UniValue getrawtransaction(const UniValue& params, bool fHelp); // in rpc/rawtransaction.cpp
 extern UniValue listunspent(const UniValue& params, bool fHelp);
 extern UniValue lockunspent(const UniValue& params, bool fHelp);

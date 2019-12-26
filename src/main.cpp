@@ -14,6 +14,7 @@
 #include "chainparams.h"
 #include "checkpoints.h"
 #include "checkqueue.h"
+#include "dappstore/dappstore.h"
 #include "init.h"
 #include "kernel.h"
 #include "masternode-payments.h"
@@ -75,6 +76,8 @@ bool fVerifyingBlocks = false;
 unsigned int nCoinCacheSize = 5000;
 bool fAlerts = DEFAULT_ALERTS;
 bool fPreventBestBlockSaving = false;
+
+extern DAppStore* pdAppStore;
 
 /* If the tip is older than this (in seconds), the node is considered to be in initial block download. */
 int64_t nMaxTipAge = DEFAULT_MAX_TIP_AGE;
@@ -2341,6 +2344,8 @@ bool static DisconnectTip(CValidationState& state)
     for (const CTransaction& tx : block.vtx) {
         SyncWithWallets(tx, NULL);
     }
+    if (pdAppStore)
+        pdAppStore->CancelVtx(block.vtx);
     return true;
 }
 
@@ -2420,6 +2425,9 @@ bool static ConnectTip(CValidationState& state, CBlockIndex* pindexNew, CBlock* 
     for (const CTransaction& tx : pblock->vtx) {
         SyncWithWallets(tx, pblock);
     }
+
+    if (pdAppStore)
+        pdAppStore->ParseVtx(pblock->vtx, pblock->nTime);
 
     int64_t nTime6 = GetTimeMicros();
     nTimePostConnect += nTime6 - nTime5;

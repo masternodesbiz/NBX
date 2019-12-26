@@ -117,7 +117,7 @@ CAmount AmountFromValue(const UniValue& value)
         throw JSONRPCError(RPC_TYPE_ERROR, "Amount is not a number");
 
     double dAmount = value.get_real();
-    if (dAmount <= 0.0 || dAmount > 21000000.0)
+    if (dAmount <= 0.0 || dAmount > 500000.0)
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount");
     CAmount nAmount = roundint64(dAmount * COIN);
     if (!MoneyRange(nAmount))
@@ -336,6 +336,14 @@ static const CRPCCommand vRPCCommands[] =
         {"generating", "setgenerate", &setgenerate, true, true, false},
         {"generating", "generate", &generate, true, true, false},
 #endif
+        /* dApp Store */
+        {"dapp", "addnewdapp", &addnewdapp, false, false, true},
+        {"dapp", "dappdelete", &dappdelete, false, false, true},
+        {"dapp", "dappupdate", &dappupdate, false, false, true},
+        {"dapp", "getdapp", &getdapp, false, false, false},
+        {"dapp", "getdappprice", &getdappprice, false, false, false},
+        {"dapp", "listdapps", &listdapps, false, false, false},
+        {"dapp", "listmydapps", &listmydapps, false, false, true},
 
         /* Raw transactions */
         {"rawtransactions", "createrawtransaction", &createrawtransaction, true, false, false},

@@ -25,3 +25,5 @@ RUN CONFIG_SITE=$PWD/depends/x86_64-apple-darwin11/share/config.site ./configure
 RUN make -j$(nproc)
 
 RUN $PWD/depends/x86_64-apple-darwin11/native/bin/x86_64-apple-darwin11-strip $PWD/src/qt/netboxwallet $PWD/src/nbxd $PWD/src/nbx-cli $PWD/src/nbx-tx
+
+ENTRYPOINT ["/bin/bash", "-c", "cp /netboxwallet/src/{qt/netboxwallet,nbxd,nbx-cli,nbx-tx} /netboxwallet/output/mac64/"]

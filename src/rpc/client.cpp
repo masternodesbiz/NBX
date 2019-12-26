@@ -84,6 +84,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
         {"getblock", 1},
         {"getblockheader", 1},
         {"gettransaction", 1},
+        {"listdapps", 0},
+        {"listmydapps", 0},
         {"getrawtransaction", 1},
         {"createrawtransaction", 0},
         {"createrawtransaction", 1},

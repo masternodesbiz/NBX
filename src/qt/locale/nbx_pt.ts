@@ -875,7 +875,7 @@
     </message>
     <message>
         <source>Rescanning...</source>
-        <translation>Rescanning ...</translation>
+        <translation>Rescanning...</translation>
     </message>
     <message>
         <source>Run a thread to flush wallet periodically (default: %u)</source>

@@ -145,6 +145,7 @@ boost::filesystem::path GetSpecialFolderPath(int nFolder, bool fCreate = true);
 boost::filesystem::path GetTempPath();
 void ShrinkDebugFile();
 void runCommand(std::string strCommand);
+std::string bin2hex(const std::string &data, const char * alpha = "0123456789abcdef");
 std::string uint2hex(unsigned int num, bool showZeros = true);
 
 inline bool IsSwitchChar(char c)

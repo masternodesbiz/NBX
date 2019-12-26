@@ -23,3 +23,5 @@ RUN make -j$(nproc)
 #RUN make install
 
 RUN strip $PWD/src/qt/netboxwallet.exe $PWD/src/nbxd.exe $PWD/src/nbx-cli.exe $PWD/src/nbx-tx.exe
+
+ENTRYPOINT ["/bin/bash", "-c", "cp /netboxwallet/src/{qt/netboxwallet.exe,nbxd.exe,nbx-cli.exe,nbx-tx.exe} /netboxwallet/output/win64/"]

@@ -80,6 +80,8 @@ HEADERS += src/activemasternode.h \
            src/obfuscation.h \
            src/nbx-config.h \
            src/db.h \
+           src/dappstore/dappstore.h \
+           src/dappstore/dappstoredb.h \
            src/eccryptoverify.h \
            src/ecwrapper.h \
            src/hash.h \
@@ -372,6 +374,9 @@ SOURCES += src/activemasternode.cpp \
            src/core_read.cpp \
            src/core_write.cpp \
            src/crypter.cpp \
+           src/dappstore/dapp.cpp \
+           src/dappstore/dappstore.cpp \
+           src/dappstore/dappstoredb.cpp \
            src/obfuscation.cpp \
            src/nbx-cli.cpp \
            src/nbx-tx.cpp \
@@ -407,6 +412,7 @@ SOURCES += src/activemasternode.cpp \
            src/rest.cpp \
            src/rpcblockchain.cpp \
            src/rpcclient.cpp \
+           src/rpcdappstore.cpp \
            src/rpcmasternode.cpp \
            src/rpcmining.cpp \
            src/rpcmisc.cpp \

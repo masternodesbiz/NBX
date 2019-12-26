@@ -45,22 +45,22 @@ build_windows:
 	docker build -f Dockerfile_windows --compress --force-rm --pull -t "${APP}-windows:${TAG}" .
 
 run_windows:
-	docker run --rm -it --name "${APP}-windows" "${APP}-windows:${TAG}"
+	docker run --rm -v "$(shell pwd)/output/win32:/netboxwallet/output/win32" "${APP}-windows:${TAG}"
 
 build_windows_x64:
 	docker build -f Dockerfile_windows_x64 --compress --force-rm --pull -t "${APP}-windows-x64:${TAG}" .
 
 run_windows_x64:
-	docker run --rm -it --name "${APP}-windows-x64" "${APP}-windows-x64:${TAG}"
+	docker run --rm -v "$(shell pwd)/output/win64:/netboxwallet/output/win64" "${APP}-windows-x64:${TAG}"
 
 build_static:
 	docker build -f Dockerfile_static --compress --force-rm --pull -t "${APP}-static:${TAG}" .
 
 run_static:
-	docker run --rm -it --name "${APP}-static" "${APP}-static:${TAG}"
+	docker run --rm -v "$(shell pwd)/output/lin64:/netboxwallet/output/lin64" "${APP}-static:${TAG}"
 
 build_osx:
 	docker build -f Dockerfile_osx --compress --force-rm --pull -t "${APP}-osx:${TAG}" .
 
 run_osx:
-	docker run --rm -it --name "${APP}-osx" "${APP}-osx:${TAG}"
+	docker run --rm -v "$(shell pwd)/output/mac64:/netboxwallet/output/mac64" "${APP}-osx:${TAG}"

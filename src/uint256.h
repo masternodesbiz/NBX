@@ -363,6 +363,13 @@ public:
     uint64_t GetHash(const uint256& salt) const;
 };
 
+namespace std {
+    template<>
+    struct hash<uint256> {
+        size_t operator()(const uint256& hash) const { return hash.GetLow64(); }
+    };
+}
+
 /* uint256 from const char *.
  * This is a separate function because the constructor uint256(const char*) can result
  * in dangerously catching uint256(0).

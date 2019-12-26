@@ -91,7 +91,8 @@ public:
     std::string ObfuscationPoolDummyAddress() const { return strObfuscationPoolDummyAddress; }
 
     std::string ActivityAddress() const { return activityAddress; }
-    std::string TeamAddress() const { return  teamAddress; }
+    std::string TeamAddress() const { return teamAddress; }
+    std::string DAppAddress() const { return dAppAddress; }
 
     CBaseChainParams::Network NetworkID() const { return networkID; }
 
@@ -134,6 +135,7 @@ protected:
     std::string strObfuscationPoolDummyAddress;
     std::string activityAddress;
     std::string teamAddress;
+    std::string dAppAddress;
 };
 
 /**

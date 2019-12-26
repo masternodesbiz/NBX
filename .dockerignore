@@ -8,6 +8,7 @@ Dockerfile*
 Makefile_docker
 .dockerignore
 docker-compose.yml
+/output
 .gitignore
 .gitattributes
 .gitlab-ci.yml

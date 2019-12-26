@@ -2016,11 +2016,10 @@ bool CAddrDB::Read(CAddrMan& addr)
         return error("%s : Failed to open file %s", __func__, pathAddr.string());
 
     // use file size to size memory buffer
-    uint64_t fileSize = boost::filesystem::file_size(pathAddr);
-    uint64_t dataSize = fileSize - sizeof(uint256);
+    uint64_t dataSize = boost::filesystem::file_size(pathAddr);
     // Don't try to resize to a negative number if file is small
-    if (fileSize >= sizeof(uint256))
-        dataSize = fileSize - sizeof(uint256);
+    if (dataSize >= sizeof(uint256))
+        dataSize -= sizeof(uint256);
     vector<unsigned char> vchData;
     vchData.resize(dataSize);
     uint256 hashIn;
@@ -2270,11 +2269,10 @@ bool CBanDB::Read(banmap_t& banSet)
         return error("%s: Failed to open file %s", __func__, pathBanlist.string());
 
     // use file size to size memory buffer
-    uint64_t fileSize = boost::filesystem::file_size(pathBanlist);
-    uint64_t dataSize = 0;
+    uint64_t dataSize = boost::filesystem::file_size(pathBanlist);
     // Don't try to resize to a negative number if file is small
-    if (fileSize >= sizeof(uint256))
-        dataSize = fileSize - sizeof(uint256);
+    if (dataSize >= sizeof(uint256))
+        dataSize -= sizeof(uint256);
     vector<unsigned char> vchData;
     vchData.resize(dataSize);
     uint256 hashIn;

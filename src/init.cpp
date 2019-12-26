@@ -17,6 +17,7 @@
 #include "amount.h"
 #include "checkpoints.h"
 #include "compat/sanity.h"
+#include "dappstore/dappstore.h"
 #include "httpserver.h"
 #include "httprpc.h"
 #include "key.h"
@@ -70,6 +71,7 @@ using namespace std;
 
 #ifdef ENABLE_WALLET
 CWallet* pwalletMain = NULL;
+DAppStore* pdAppStore = NULL;
 int nWalletBackups = 10;
 #endif
 bool walletLoaded = false;
@@ -142,6 +144,10 @@ void StartShutdown()
 bool ShutdownRequested()
 {
     return fRequestShutdown || fRestartRequested;
+}
+bool RestartRequested()
+{
+    return fRestartRequested;
 }
 
 bool ResyncNeeded(){
@@ -298,6 +304,10 @@ void Shutdown()
 #ifdef ENABLE_WALLET
     delete pwalletMain;
     pwalletMain = NULL;
+    if (pdAppStore) {
+        delete pdAppStore;
+        pdAppStore = NULL;
+    }
 #endif
     globalVerifyHandle.reset();
     ECC_Stop();
@@ -1592,7 +1602,7 @@ bool AppInit2()
         return false;
     }
 
-// ********************************************************* Step 9: load wallet
+    // ********************************************************* Step 9: load wallet
 #ifdef ENABLE_WALLET
     if (fDisableWallet) {
         pwalletMain = NULL;
@@ -1620,6 +1630,7 @@ bool AppInit2()
         nStart = GetTimeMillis();
         bool fFirstRun = true;
         pwalletMain = new CWallet(strWalletFile);
+
         DBErrors nLoadWalletRet = pwalletMain->LoadWallet(fFirstRun);
         if (nLoadWalletRet != DB_LOAD_OK) {
             if (nLoadWalletRet == DB_CORRUPT)
@@ -1684,7 +1695,7 @@ bool AppInit2()
 
         RegisterValidationInterface(pwalletMain);
 
-        CBlockIndex* pindexRescan = chainActive.Tip();
+        CBlockIndex* pindexRescan;
         if (fFirstRun || GetBoolArg("-rescan", false))
             pindexRescan = chainActive.Genesis();
         else {
@@ -1732,7 +1743,34 @@ bool AppInit2()
 #endif // !ENABLE_WALLET
     walletLoaded = true;
 
-    // ********************************************************* Step 10: setup ObfuScation
+    // ********************************************************* Step 10: load dApp Store
+    {
+        LOCK(cs_main);
+        uiInterface.InitMessage(_("Loading dApp Store..."));
+        if (GetBoolArg("-dappstore", false))
+            pdAppStore = new DAppStore("dappstore.dat");
+
+        if (pdAppStore) {
+            CBlockIndex *pindexDAppRescan;
+            if (GetBoolArg("-rescan", false))
+                pindexDAppRescan = chainActive.Genesis();
+            else {
+                CBlockLocator dAppLocator = pdAppStore->GetBestBlock();
+                pindexDAppRescan = FindForkInGlobalIndex(chainActive, dAppLocator);
+            }
+
+            if (chainActive.Tip() && chainActive.Tip() != pindexDAppRescan) {
+                uiInterface.InitMessage(_("Rescanning dApps Store..."));
+                LogPrintf("Rescanning last %i blocks for dApp Store (from block %i)...\n", chainActive.Height() - pindexDAppRescan->nHeight, pindexDAppRescan->nHeight);
+                nStart = GetTimeMillis();
+                pdAppStore->ScanForTransactions(pindexDAppRescan);
+                LogPrintf(" rescan      %15dms\n", GetTimeMillis() - nStart);
+                pdAppStore->SetBestBlock(chainActive.GetLocator());
+            }
+        }
+    }
+
+    // ********************************************************* Step 11: setup ObfuScation
 
     uiInterface.InitMessage(_("Loading masternode cache..."));
 
@@ -1830,7 +1868,7 @@ bool AppInit2()
 
     threadGroup.create_thread(boost::bind(&ThreadCheckObfuScationPool));
 
-    // ********************************************************* Step 11: start node
+    // ********************************************************* Step 12: start node
 
     if (!CheckDiskSpace())
         return false;
@@ -1860,7 +1898,7 @@ bool AppInit2()
         GenerateBitcoins(GetBoolArg("-gen", false), pwalletMain, GetArg("-genproclimit", 1));
 #endif
 
-    // ********************************************************* Step 12: finished
+    // ********************************************************* Step 13: finished
 
     SetRPCWarmupFinished();
     uiInterface.InitMessage(_("Done loading"));
