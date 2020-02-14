@@ -4762,10 +4762,6 @@ Onvolwassen: bevestigd, maar minder dan 1 mint van dezelfde denominatie nadat he
         <translation>Voer op de achtergrond uit als een daemon en accepteer commando's</translation>
     </message>
     <message>
-        <source>Send transactions as zero-fee transactions if possible (default: %u)</source>
-        <translation>Zend transacties als zero fee transacties indien mogelijk (standaard: %u)</translation>
-    </message>
-    <message>
         <source>Session not complete!</source>
         <translation>Sessie niet voltooid!</translation>
     </message>

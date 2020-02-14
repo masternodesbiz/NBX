@@ -1350,10 +1350,6 @@
         <translation>Sinkronizacija je na čekanju...</translation>
     </message>
     <message>
-        <source>Synchronizing budgets...</source>
-        <translation>Usklađivanje proračuna...</translation>
-    </message>
-    <message>
         <source>This is experimental software.</source>
         <translation>Ovo je eksperimentalan softver.</translation>
     </message>

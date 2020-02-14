@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 
 #include <QtGlobal>
 
@@ -8,7 +8,7 @@
 #else
 #define UNUSED
 #endif
-static const char UNUSED *pivx_strings[] = {
+static const char UNUSED *nbx_strings[] = {
 QT_TRANSLATE_NOOP("core", " mints deleted\n"),
 QT_TRANSLATE_NOOP("core", " mints updated, "),
 QT_TRANSLATE_NOOP("core", " unconfirmed transactions removed\n"),
@@ -391,7 +391,6 @@ QT_TRANSLATE_NOOP("core", "Rescan the block chain for missing wallet transaction
 QT_TRANSLATE_NOOP("core", "Rescanning..."),
 QT_TRANSLATE_NOOP("core", "Run a thread to flush wallet periodically (default: %u)"),
 QT_TRANSLATE_NOOP("core", "Run in the background as a daemon and accept commands"),
-QT_TRANSLATE_NOOP("core", "Send transactions as zero-fee transactions if possible (default: %u)"),
 QT_TRANSLATE_NOOP("core", "Session not complete!"),
 QT_TRANSLATE_NOOP("core", "Session timed out."),
 QT_TRANSLATE_NOOP("core", "Set database cache size in megabytes (%d to %d, default: %d)"),

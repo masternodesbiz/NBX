@@ -4786,10 +4786,6 @@ Omogna: bekräftade men under 1 myntning av samma valör efter den blev präglad
         <translation>Kör i bakgrunden som en daemon och acceptera kommandon</translation>
     </message>
     <message>
-        <source>Send transactions as zero-fee transactions if possible (default: %u)</source>
-        <translation>Skicka transaktioner som avgiftsfria transaktioner om möjligt (standard: %u)</translation>
-    </message>
-    <message>
         <source>Session not complete!</source>
         <translation>Sessionen är inte klar</translation>
     </message>

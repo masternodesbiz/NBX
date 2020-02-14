@@ -3595,10 +3595,6 @@ https://www.transifex.com/pivx-project/pivx-project-translations</translation>
         <translation>Reescaneando...</translation>
     </message>
     <message>
-        <source>Send transactions as zero-fee transactions if possible (default: %u)</source>
-        <translation>Enviar transações com taxa zero se possível (padrão: %u)</translation>
-    </message>
-    <message>
         <source>Session not complete!</source>
         <translation>Sessão não está completa!</translation>
     </message>

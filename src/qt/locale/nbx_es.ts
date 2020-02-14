@@ -4686,10 +4686,6 @@ Inmaduro: confirmado, pero menos de 1 acuñación de la misma denominación desp
         <translation>Ejecutar en segundo plano como demonio y aceptar comandos</translation>
     </message>
     <message>
-        <source>Send transactions as zero-fee transactions if possible (default: %u)</source>
-        <translation>Enviar transacciones como transacciones cero-comisión si es posible (predeterminado: %u)</translation>
-    </message>
-    <message>
         <source>Session not complete!</source>
         <translation>Sesión no completa!</translation>
     </message>

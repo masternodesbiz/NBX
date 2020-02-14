@@ -17,7 +17,7 @@
 
 extern DAppStore* pdAppStore;
 
-extern CAmount GetAccountBalance(const string &strAccount, int nMinDepth);
+extern CAmount GetAccountBalance(const std::string &strAccount, int nMinDepth);
 
 extern void SendMoney(const CTxDestination &address, CAmount nValue, CWalletTx &wtxNew, bool fUseIX = false, bool fAllowZero = false);
 
@@ -142,7 +142,7 @@ uint256 SendMessage(const std::string &type, const std::string &method, const Un
 
 UniValue addnewdapp(const UniValue &params, bool fHelp) {
     if (fHelp || params.size() < 5 || params.size() > 6)
-        throw runtime_error(
+        throw std::runtime_error(
                 "addnewdapp \"name\" \"url\" \"blockchain\" \"description\" \"image\" ( \"fromaccount\" )\n"
 
                 "\nNOTE: By default this function only works sometimes. This is when the tx is in the mempool\n"
@@ -169,10 +169,10 @@ UniValue addnewdapp(const UniValue &params, bool fHelp) {
         );
 
     if (!pdAppStore)
-        throw runtime_error("DApp Store is disabled. Start with -dappstore to enable it");
+        throw std::runtime_error("DApp Store is disabled. Start with -dappstore to enable it");
 
     if (!masternodeSync.IsBlockchainSynced())
-        throw runtime_error("Blockchain is not synced yet");
+        throw std::runtime_error("Blockchain is not synced yet");
 
     // check data
     DApp newDApp(params[0].get_str(), params[1].get_str(), params[2].get_str(), params[3].get_str(), params[4].get_str());
@@ -250,7 +250,7 @@ UniValue dAppToJson(const uint256 &txid, const DAppExt &dApp, bool hide = false)
 
 UniValue dappdelete(const UniValue &params, bool fHelp) {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
                 "dappdelete \"txid\"\n"
 
                 "\nNOTE: By default this function only works sometimes. This is when the tx is in the mempool\n"
@@ -271,10 +271,10 @@ UniValue dappdelete(const UniValue &params, bool fHelp) {
         );
 
     if (!pdAppStore)
-        throw runtime_error("DApp Store is disabled. Start with -dappstore to enable it");
+        throw std::runtime_error("DApp Store is disabled. Start with -dappstore to enable it");
 
     if (!masternodeSync.IsBlockchainSynced())
-        throw runtime_error("Blockchain is not synced yet");
+        throw std::runtime_error("Blockchain is not synced yet");
 
     uint256 txid = ParseHashV(params[0], "txid");
 
@@ -291,12 +291,12 @@ UniValue dappdelete(const UniValue &params, bool fHelp) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "DApp not found or it is not mine");
 
     if (dApp->deleted)
-        throw runtime_error("DApp is already deleted");
+        throw std::runtime_error("DApp is already deleted");
 
     // prepare data
     CTxDestination address;
     if (!ExtractDestination(dApp->script, address))
-        throw runtime_error("Can't extract destination from previous script");
+        throw std::runtime_error("Can't extract destination from previous script");
     UniValue dAppData(UniValue::VOBJ);
     dAppData.push_back(Pair("txid", txid.GetHex()));
 
@@ -307,7 +307,7 @@ UniValue dappdelete(const UniValue &params, bool fHelp) {
 
 UniValue dappupdate(const UniValue &params, bool fHelp) {
     if (fHelp || params.size() != 6)
-        throw runtime_error(
+        throw std::runtime_error(
                 "dappupdate \"txid\" \"name\" \"url\" \"blockchain\" \"description\" \"image\"\n"
 
                 "\nNOTE: By default this function only works sometimes. This is when the tx is in the mempool\n"
@@ -333,10 +333,10 @@ UniValue dappupdate(const UniValue &params, bool fHelp) {
         );
 
     if (!pdAppStore)
-        throw runtime_error("DApp Store is disabled. Start with -dappstore to enable it");
+        throw std::runtime_error("DApp Store is disabled. Start with -dappstore to enable it");
 
     if (!masternodeSync.IsBlockchainSynced())
-        throw runtime_error("Blockchain is not synced yet");
+        throw std::runtime_error("Blockchain is not synced yet");
 
     uint256 txid = ParseHashV(params[0], "txid");
 
@@ -361,13 +361,13 @@ UniValue dappupdate(const UniValue &params, bool fHelp) {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "DApp not found or it is not mine");
 
     if (dApp->deleted)
-        throw runtime_error("DApp is deleted");
+        throw std::runtime_error("DApp is deleted");
 
     // prepare data
     UniValue dAppData(UniValue::VOBJ);
     CTxDestination address;
     if (!ExtractDestination(dApp->script, address))
-        throw runtime_error("Can't extract destination from previous script");
+        throw std::runtime_error("Can't extract destination from previous script");
     dAppData.push_back(Pair("txid", txid.GetHex()));
     bool changed = false;
     if (newDApp.name != dApp->name) {
@@ -392,7 +392,7 @@ UniValue dappupdate(const UniValue &params, bool fHelp) {
     }
 
     if(!changed)
-        throw runtime_error("DApp is not changed");
+        throw std::runtime_error("DApp is not changed");
 
     txid = SendMessage("dapp", "upd", dAppData, DAPPSTORE_COMISSION_UPDATE * pdAppStore->GetPrice(), address);
 
@@ -401,7 +401,7 @@ UniValue dappupdate(const UniValue &params, bool fHelp) {
 
 UniValue getdapp(const UniValue &params, bool fHelp) {
     if (fHelp || params.size() != 1)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getdapp \"txid\"\n"
 
                 "\nGet dApp info.\n"
@@ -426,7 +426,7 @@ UniValue getdapp(const UniValue &params, bool fHelp) {
         );
 
     if (!pdAppStore)
-        throw runtime_error("DApp Store is disabled. Start with -dappstore to enable it");
+        throw std::runtime_error("DApp Store is disabled. Start with -dappstore to enable it");
 
     uint256 dAppTx = ParseHashV(params[0], "txid");
 
@@ -440,7 +440,7 @@ UniValue getdapp(const UniValue &params, bool fHelp) {
 
 UniValue getdappprice(const UniValue &params, bool fHelp) {
     if (fHelp || params.size() != 0)
-        throw runtime_error(
+        throw std::runtime_error(
                 "getdappprice\n"
 
                 "\nGet dApp creating/modifying prices.\n"
@@ -457,7 +457,7 @@ UniValue getdappprice(const UniValue &params, bool fHelp) {
         );
 
     if (!pdAppStore)
-        throw runtime_error("DApp Store is disabled. Start with -dappstore to enable it");
+        throw std::runtime_error("DApp Store is disabled. Start with -dappstore to enable it");
 
     LOCK(cs_main);
 
@@ -470,7 +470,7 @@ UniValue getdappprice(const UniValue &params, bool fHelp) {
 
 UniValue listdapps(const UniValue &params, bool fHelp) {
     if (fHelp || params.size() > 1)
-        throw runtime_error(
+        throw std::runtime_error(
                 "listdapps ( verbose )\n"
 
                 "\nLists all dApp's in dApp Store.\n"
@@ -502,7 +502,7 @@ UniValue listdapps(const UniValue &params, bool fHelp) {
         );
 
     if (!pdAppStore)
-        throw runtime_error("DApp Store is disabled. Start with -dappstore to enable it");
+        throw std::runtime_error("DApp Store is disabled. Start with -dappstore to enable it");
 
     int fVerbose = 0;
     if (!params[0].isNull())
@@ -524,7 +524,7 @@ UniValue listdapps(const UniValue &params, bool fHelp) {
 
 UniValue listmydapps(const UniValue &params, bool fHelp) {
     if (fHelp || params.size() > 1)
-        throw runtime_error(
+        throw std::runtime_error(
                 "listmydapps ( verbose )\n"
 
                 "\nLists my dApp's.\n"
@@ -556,7 +556,7 @@ UniValue listmydapps(const UniValue &params, bool fHelp) {
         );
 
     if (!pdAppStore)
-        throw runtime_error("DApp Store is disabled. Start with -dappstore to enable it");
+        throw std::runtime_error("DApp Store is disabled. Start with -dappstore to enable it");
 
     int fVerbose = 0;
     if (!params[0].isNull())

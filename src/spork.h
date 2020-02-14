@@ -1,6 +1,6 @@
 // Copyright (c) 2014-2016 The Dash developers
 // Copyright (c) 2016-2018 The PIVX developers
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -17,9 +17,6 @@
 #include "obfuscation.h"
 #include "protocol.h"
 
-using namespace std;
-using namespace boost;
-
 /*
     Don't ever reuse these IDs for other sporks
     - This would result in old clients getting confused about which spork is for what
@@ -35,7 +32,7 @@ using namespace boost;
 #define SPORK_1_SWIFTTX_DEFAULT 0
 #define SPORK_2_MAX_VALUE_DEFAULT 1000
 #define SPORK_3_MASTERNODE_PAY_UPDATED_NODES_DEFAULT 1
-#define SPORK_4_NEW_PROTOCOL_ENFORCEMENT_DEFAULT 1
+#define SPORK_4_NEW_PROTOCOL_ENFORCEMENT_DEFAULT -1
 
 class CSporkMessage;
 class CSporkManager;
@@ -97,7 +94,7 @@ public:
     int GetSporkIDByName(std::string strName);
     bool UpdateSpork(int nSporkID, int64_t nValue);
     bool SetPrivKey(std::string strPrivKey);
-    bool CheckSignature(CSporkMessage& spork, bool fCheckSigner = false);
+    bool CheckSignature(CSporkMessage& spork);
     bool Sign(CSporkMessage& spork);
     void Relay(CSporkMessage& msg);
 };

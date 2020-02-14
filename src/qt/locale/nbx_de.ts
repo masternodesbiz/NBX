@@ -4619,10 +4619,6 @@ Unreif: Bestätigt, aber keine Prägung in der selben Stückelung seit erfolgter
         <translation>Als Hintergrundprozess ausführen und Eingaben akzeptieren</translation>
     </message>
     <message>
-        <source>Send transactions as zero-fee transactions if possible (default: %u)</source>
-        <translation>Sende die Transaktion als gebührenfreie Transaktion, falls möglich (Standard: %u)</translation>
-    </message>
-    <message>
         <source>Session not complete!</source>
         <translation>Sitzung unvollständig!</translation>
     </message>

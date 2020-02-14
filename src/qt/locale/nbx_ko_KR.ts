@@ -4626,10 +4626,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
         <translation>백그라운드에서 상주하며 실행하고 명령을 받습니다</translation>
     </message>
     <message>
-        <source>Send transactions as zero-fee transactions if possible (default: %u)</source>
-        <translation>무료 수수료 트랜잭션이 가능할 경우 무료 수수료로 트랜잭션을 전송합니다 (기본값: %u)</translation>
-    </message>
-    <message>
         <source>Session not complete!</source>
         <translation>세션이 완료되지 않았습니다!</translation>
     </message>

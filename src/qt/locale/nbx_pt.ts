@@ -886,10 +886,6 @@
         <translation>Executar em segundo plano como um daemon e aceitar comandos</translation>
     </message>
     <message>
-        <source>Send transactions as zero-fee transactions if possible (default: %u)</source>
-        <translation>Enviar transações como transações de taxa zero, se possível (padrão:%u)</translation>
-    </message>
-    <message>
         <source>Session not complete!</source>
         <translation>Sessão não concluída!</translation>
     </message>

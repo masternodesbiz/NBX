@@ -38,7 +38,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: peer-to-peer network based digital currency - daemon
  Netbox.Wallet is a free open source peer-to-peer electronic cash system that
  is completely decentralized, without the need for a central server or
- trusted parties.  Users hold the crypto keys to their own money and
+ trusted parties.  Users hold the crypto keys to their own coins and
  transact directly with each other, with the help of a P2P network to
  check for double-spending.
  .
@@ -54,7 +54,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: peer-to-peer network based digital currency - Qt GUI
  Netbox.Wallet is a free open source peer-to-peer electronic cash system that
  is completely decentralized, without the need for a central server or
- trusted parties.  Users hold the crypto keys to their own money and
+ trusted parties.  Users hold the crypto keys to their own coins and
  transact directly with each other, with the help of a P2P network to
  check for double-spending.
  .

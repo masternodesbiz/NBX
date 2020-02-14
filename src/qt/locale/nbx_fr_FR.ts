@@ -3830,10 +3830,6 @@ Immature: confirmé, mais moins de 1 monnaie de la même dénomination après sa
         <translation>Impossible de vérouiller le répertoire de données %s. Netbox.Wallet est probablement déjà en cours d'exécution.</translation>
     </message>
     <message>
-        <source>Change automatic finalized budget voting behavior. mode=auto: Vote for only exact finalized budget match to my generated budget. (string, default: auto)</source>
-        <translation>Modifier le comportement du vote budgétaire automatique. mode = auto: ne votez que pour une correspondance exacte avec votre budget généré. (chaîne, par défaut: auto)</translation>
-    </message>
-    <message>
         <source>Continuously rate-limit free transactions to &lt;n&gt;*1000 bytes per minute (default:%u)</source>
         <translation>Limiter continuellement les transactions gratuites à &lt;n&gt;* 1000 octets par minute (par défaut: %u)</translation>
     </message>
@@ -4783,10 +4779,6 @@ Immature: confirmé, mais moins de 1 monnaie de la même dénomination après sa
         <translation>Exécuter en arrière-plan en tant que démon et accepter les commandes</translation>
     </message>
     <message>
-        <source>Send transactions as zero-fee transactions if possible (default: %u)</source>
-        <translation>Envoyer des transaction sans frais si possible (défaut: %u)</translation>
-    </message>
-    <message>
         <source>Session not complete!</source>
         <translation>Session incomplète!</translation>
     </message>
@@ -4917,10 +4909,6 @@ Immature: confirmé, mais moins de 1 monnaie de la même dénomination après sa
     <message>
         <source>Synchronization pending...</source>
         <translation>Synchronisation en attente...</translation>
-    </message>
-    <message>
-        <source>Synchronizing budgets...</source>
-        <translation>Synchronisation des budgets...</translation>
     </message>
     <message>
         <source>Synchronizing masternode winners...</source>

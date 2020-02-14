@@ -96,12 +96,12 @@ CLEAN_BITCOIN_TEST = test/*.gcda test/*.gcno $(GENERATED_TEST_FILES)
 
 CLEANFILES += $(CLEAN_BITCOIN_TEST)
 
-pivx_test: $(TEST_BINARY)
+nbx_test: $(TEST_BINARY)
 
-pivx_test_check: $(TEST_BINARY) FORCE
+nbx_test_check: $(TEST_BINARY) FORCE
 	$(MAKE) check-TESTS TESTS=$^
 
-pivx_test_clean : FORCE
+nbx_test_clean : FORCE
 	rm -f $(CLEAN_BITCOIN_TEST) $(test_test_nbx_OBJECTS) $(TEST_BINARY)
 
 check-local: $(BITCOIN_TESTS:.cpp=.cpp.test)

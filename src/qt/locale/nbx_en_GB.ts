@@ -3890,10 +3890,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
         <translation>Cannot obtain a lock on data directory %s. Netbox.Wallet is probably already running.</translation>
     </message>
     <message>
-        <source>Change automatic finalized budget voting behavior. mode=auto: Vote for only exact finalized budget match to my generated budget. (string, default: auto)</source>
-        <translation>Change automatic finalised budget voting behaviour. mode=auto: Vote for only exact finalised budget match to my generated budget. (string, default: auto)</translation>
-    </message>
-    <message>
         <source>Continuously rate-limit free transactions to &lt;n&gt;*1000 bytes per minute (default:%u)</source>
         <translation>Continuously rate-limit free transactions to &lt;n&gt;*1000 bytes per minute (default:%u)</translation>
     </message>
@@ -4630,10 +4626,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
         <translation>Loading block index...</translation>
     </message>
     <message>
-        <source>Loading budget cache...</source>
-        <translation>Loading budget cache...</translation>
-    </message>
-    <message>
         <source>Loading masternode cache...</source>
         <translation>Loading masternode cache...</translation>
     </message>
@@ -4846,10 +4838,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
         <translation>Run in the background as a daemon and accept commands</translation>
     </message>
     <message>
-        <source>Send transactions as zero-fee transactions if possible (default: %u)</source>
-        <translation>Send transactions as zero-fee transactions if possible (default: %u)</translation>
-    </message>
-    <message>
         <source>Session not complete!</source>
         <translation>Session not complete!</translation>
     </message>
@@ -4980,10 +4968,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
     <message>
         <source>Synchronization pending...</source>
         <translation>Synchronisation pending...</translation>
-    </message>
-    <message>
-        <source>Synchronizing budgets...</source>
-        <translation>Synchronising budgets...</translation>
     </message>
     <message>
         <source>Synchronizing masternode winners...</source>

@@ -4416,10 +4416,6 @@ for example: alertnotify=echo %%s | mail -s "NBX Alert" admin@foo.com
         <translation>Run in the background as a daemon and accept commands</translation>
     </message>
     <message>
-        <source>Send transactions as zero-fee transactions if possible (default: %u)</source>
-        <translation>Send transactions as zero-fee transactions if possible (default: %u)</translation>
-    </message>
-    <message>
         <source>Server certificate file (default: %s)</source>
         <translation>Server certificate file (default: %s)</translation>
     </message>

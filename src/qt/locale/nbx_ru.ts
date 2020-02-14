@@ -4633,10 +4633,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
         <translation>Запускать в фоновом режиме в качестве демона и принимать команды</translation>
     </message>
     <message>
-        <source>Send transactions as zero-fee transactions if possible (default: %u)</source>
-        <translation>Отправлять транзакции как транзакции с нулевой оплатой, если это возможно (по умолчанию: %u)</translation>
-    </message>
-    <message>
         <source>Session not complete!</source>
         <translation>Сессия не завершена!</translation>
     </message>

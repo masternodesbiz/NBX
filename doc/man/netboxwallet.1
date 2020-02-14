@@ -260,10 +260,6 @@ Rescan the block chain for missing wallet transactions on startup
 .IP
 Attempt to recover private keys from a corrupt wallet.dat on startup
 .HP
-\fB\-sendfreetransactions\fR
-.IP
-Send transactions as zero\-fee transactions if possible (default: 0)
-.HP
 \fB\-spendzeroconfchange\fR
 .IP
 Spend unconfirmed change when sending transactions (default: 1)
@@ -339,7 +335,7 @@ Output debugging information (default: 0, supplying <category> is
 optional). If <category> is not supplied, output all debugging
 information.<category> can be: addrman, alert, bench, coindb, db, lock,
 rand, rpc, selectcoins, tor, mempool, net, proxy, http, libevent, nbx,
-(obfuscation, swiftx, masternode, mnpayments, mnbudget, zero), qt.
+(swiftx, masternode, mnpayments), qt.
 .HP
 \fB\-gen\fR
 .IP
@@ -416,12 +412,6 @@ Set the masternode private key
 .IP
 Set external address:port to get to this masternode (example:
 128.127.106.235:28734)
-.HP
-\fB\-budgetvotemode=\fR<mode>
-.IP
-Change automatic finalized budget voting behavior. mode=auto: Vote for
-only exact finalized budget match to my generated budget. (string,
-default: auto)
 .PP
 SwiftX options:
 .HP

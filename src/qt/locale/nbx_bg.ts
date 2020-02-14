@@ -4616,10 +4616,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
         <translation>Върши го на заден план като невидим процес и приемай командите</translation>
     </message>
     <message>
-        <source>Send transactions as zero-fee transactions if possible (default: %u)</source>
-        <translation>Ако е възможно, изпращай транзакциите като нулево-таксуван превод (по подразбиране: %u)</translation>
-    </message>
-    <message>
         <source>Session not complete!</source>
         <translation>Недовърешна сесия!</translation>
     </message>

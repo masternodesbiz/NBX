@@ -4930,7 +4930,7 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
 <context>
     <name>core</name>
     <message>
-        <location filename="../pivxstrings.cpp" line="+15"/>
+        <location filename="../nbxstrings.cpp" line="+15"/>
         <source>(1 = keep tx meta data e.g. account owner and payment request information, 2 = drop tx meta data)</source>
         <translation type="unfinished">(1 = keep tx meta data e.g. account owner and payment request information, 2 = drop tx meta data)</translation>
     </message>
@@ -6175,11 +6175,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
         <location line="+1"/>
         <source>Run in the background as a daemon and accept commands</source>
         <translation type="unfinished">Run in the background as a daemon and accept commands</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Send transactions as zero-fee transactions if possible (default: %u)</source>
-        <translation type="unfinished">Send transactions as zero-fee transactions if possible (default: %u)</translation>
     </message>
     <message>
         <location line="+1"/>

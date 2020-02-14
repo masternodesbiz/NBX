@@ -4687,10 +4687,6 @@ Uplettet: bekræftet, men mindre end 1 minutter med samme betegnelse, efter at d
         <translation>Kør en tråd i baggrunden som en særlig service og tag imod kommandoer </translation>
     </message>
     <message>
-        <source>Send transactions as zero-fee transactions if possible (default: %u)</source>
-        <translation>Send transaktioner som nugebyrstransaktioner hvis muligt (default: %u)</translation>
-    </message>
-    <message>
         <source>Session not complete!</source>
         <translation>Sessionen blev ikke færdiggjort!</translation>
     </message>

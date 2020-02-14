@@ -3895,10 +3895,6 @@ Niedojrzały: potwierdzony, ale mniej niż 1 mint o tym samym nominale po wybici
         <translation>Nie można uzyskać dostępu do katalogu danych %s. Netbox.Wallet prawdopodobnie już działa.</translation>
     </message>
     <message>
-        <source>Change automatic finalized budget voting behavior. mode=auto: Vote for only exact finalized budget match to my generated budget. (string, default: auto)</source>
-        <translation>Zmień zachowanie automatycznego głosowania w budżecie finalizowanym. mode=auto: Głosuj tylko na dokładne sfinalizowane dopasowanie budżetu do mojego wygenerowanego budżetu. (ciąg, domyślny: auto)</translation>
-    </message>
-    <message>
         <source>Continuously rate-limit free transactions to &lt;n&gt;*1000 bytes per minute (default:%u)</source>
         <translation>Limit bezpłatnych transakcji do &lt;n&gt;* 1000 bajtów na minutę (domyślnie:%u)</translation>
     </message>
@@ -4299,10 +4295,6 @@ Niedojrzały: potwierdzony, ale mniej niż 1 mint o tym samym nominale po wybici
         <translation>Ładowanie indeksu bloków ...</translation>
     </message>
     <message>
-        <source>Loading budget cache...</source>
-        <translation>Ładowanie cache budżetu ...</translation>
-    </message>
-    <message>
         <source>Loading sporks...</source>
         <translation>Ładowanie sporks ...</translation>
     </message>
@@ -4437,10 +4429,6 @@ Niedojrzały: potwierdzony, ale mniej niż 1 mint o tym samym nominale po wybici
     <message>
         <source>Synchronization pending...</source>
         <translation>Trwa synchronizacja ...</translation>
-    </message>
-    <message>
-        <source>Synchronizing budgets...</source>
-        <translation>Synchronizowanie budżetów ...</translation>
     </message>
     <message>
         <source>Synchronizing masternode winners...</source>

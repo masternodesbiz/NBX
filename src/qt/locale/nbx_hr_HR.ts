@@ -4627,10 +4627,6 @@ Nezreli: potvrđeno, ali manje od 1 minta iste denominacije nakon mintanja</tran
         <translation>Radi u pozadini kao daemon i prihvatite naredbe</translation>
     </message>
     <message>
-        <source>Send transactions as zero-fee transactions if possible (default: %u)</source>
-        <translation>Ako je moguće, pošaljite transakcije kao transakcije s nultom naknadom (zadano: %u)</translation>
-    </message>
-    <message>
         <source>Session not complete!</source>
         <translation>Sjednica nije dovršena!</translation>
     </message>

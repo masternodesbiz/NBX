@@ -2,7 +2,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,9 +14,7 @@
 #include <assert.h>
 
 #include <boost/assign/list_of.hpp>
-
-using namespace std;
-using namespace boost::assign;
+#include <limits>
 
 struct SeedSpec6 {
     uint8_t addr[16];
@@ -80,6 +78,17 @@ static const Checkpoints::CCheckpointData dataRegtest = {
     0,
     100};
 
+bool CChainParams::HasStakeMinAgeOrDepth(const int contextHeight, const uint32_t contextTime,
+                                         const int utxoFromBlockHeight, const uint32_t utxoFromBlockTime) const
+{
+    // before stake modifier V2, the age required was 60 * 60 (1 hour) / not required on regtest
+    if (!IsStakeModifierV2(contextHeight))
+        return (NetworkID() == CBaseChainParams::REGTEST || (utxoFromBlockTime + 3600 <= contextTime));
+
+    // after stake modifier V2, we require the utxo to be nStakeMinDepth deep in the chain
+    return (contextHeight - utxoFromBlockHeight >= nStakeMinDepth);
+}
+
 class CMainParams : public CChainParams
 {
 public:
@@ -101,14 +110,18 @@ public:
         bnProofOfWorkLimit = ~uint256(0) >> 20;
         nMaxReorganizationDepth = 100;
         nMinerThreads = 0;
-        nTargetTimespan = 1 * 60; // 1 day
-        nTargetSpacing = 1 * 60;  // 1 minute
+
+        nTargetSpacing = 1 * 60;   // 1 minute
         nMaturity = 100;
+        nStakeMinDepth = 600;
+        nFutureTimeDriftPoW = 7200;
+        nFutureTimeDriftPoS = 180;
         nMasternodeCountDrift = 20;
         nMaxMoneyOut = 500000 * COIN;
 
         /** Height or Time Based Activations **/
         nLastPOWBlock = 200;
+        nBlockStakeModifierlV2 = 347000;
 
         /**
          * Build the genesis block. Note that the output of the genesis coinbase cannot
@@ -118,7 +131,7 @@ public:
         CMutableTransaction txNew;
         txNew.vin.resize(1);
         txNew.vout.resize(1);
-        txNew.vin[0].scriptSig = CScript() << 0x1e0ffff0 << CScriptNum(4) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
+        txNew.vin[0].scriptSig = CScript() << 0x1e0ffff0 << CScriptNum(4) << std::vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
         txNew.vout[0].SetEmpty();
         genesis.vtx.push_back(txNew);
         genesis.hashPrevBlock = 0;
@@ -187,12 +200,13 @@ public:
         vAlertPubKey = ParseHex("0491bc8bf683ecfd94ccd5c97ef0b7ecb5c35d2e84347eb7bd44594d7cb6c78ad4fde7da6af4897d08fb9a7c4b4a2fc2028b44c2df9cda60dad5168768526ed491");
         nDefaultPort = 28754;
         nMinerThreads = 0;
-        nTargetTimespan = 1 * 60; // 1 day
         nTargetSpacing = 1 * 60;  // 1 minute
         nLastPOWBlock = 200;
         nMaturity = 15;
+        nStakeMinDepth = 100;
         nMasternodeCountDrift = 4;
         nMaxMoneyOut = 500000 * COIN;
+        nBlockStakeModifierlV2 = 326000;
 
         //! Modify the testnet genesis block so the timestamp is valid for a later start.
         genesis.nTime = 1560246000;
@@ -253,13 +267,14 @@ public:
         pchMessageStart[2] = 0x54;
         pchMessageStart[3] = 0x9e;
         nMinerThreads = 1;
-        nTargetTimespan = 24 * 60 * 60; // 1 day
         nTargetSpacing = 1 * 60;        // 1 minutes
         bnProofOfWorkLimit = ~uint256(0) >> 1;
-        nLastPOWBlock = 250;
+        nLastPOWBlock = 200;
         nMaturity = 100;
+        nStakeMinDepth = 0;
         nMasternodeCountDrift = 4;
         nMaxMoneyOut = 43199500 * COIN;
+        nBlockStakeModifierlV2 = std::numeric_limits<int>::max(); // max integer value (never switch on regtest)
 
         //! Modify the regtest genesis block so the timestamp is valid for a later start.
         genesis.nTime = 1560246000;
@@ -320,7 +335,6 @@ public:
     virtual void setSkipProofOfWorkCheck(bool afSkipProofOfWorkCheck) { fSkipProofOfWorkCheck = afSkipProofOfWorkCheck; }
 };
 static CUnitTestParams unitTestParams;
-
 
 static CChainParams* pCurrentParams = 0;
 

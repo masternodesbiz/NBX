@@ -312,7 +312,6 @@ set(SERVER_SOURCES
         ./src/rpc/blockchain.cpp
         ./src/rpc/dappstore.cpp
         ./src/rpc/masternode.cpp
-        ./src/rpc/budget.cpp
         ./src/rpc/mining.cpp
         ./src/rpc/misc.cpp
         ./src/rpc/net.cpp
@@ -350,7 +349,6 @@ set(WALLET_SOURCES
         ./src/crypter.cpp
         ./src/swifttx.cpp
         ./src/masternode.cpp
-        ./src/masternode-budget.cpp
         ./src/masternode-payments.cpp
         ./src/masternode-sync.cpp
         ./src/masternodeconfig.cpp
@@ -362,7 +360,6 @@ set(WALLET_SOURCES
         ./src/wallet/wallet_ismine.cpp
         ./src/wallet/walletdb.cpp
         ./src/stakeinput.cpp
-        ./src/genwit.cpp
         )
 add_library(WALLET_A STATIC ${BitcoinHeaders} ${WALLET_SOURCES})
 

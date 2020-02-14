@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -50,6 +50,7 @@ void HdSeedDialog::accept()
         QStringList args = QApplication::arguments();
         args.removeFirst();
         emit model->needRestart(args);
+        QDialog::accept(); // Success
     } catch (const std::runtime_error &e) {
         QMessageBox::critical(this, tr("Setting mnemonic phrase failed"), tr(e.what()));
     }
