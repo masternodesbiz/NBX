@@ -300,7 +300,7 @@ UniValue dappdelete(const UniValue &params, bool fHelp) {
     UniValue dAppData(UniValue::VOBJ);
     dAppData.push_back(Pair("txid", txid.GetHex()));
 
-    txid = SendMessage("dapp", "del", dAppData, 0, address);
+    txid = SendMessage("dapp", "del", dAppData, 0.0001 * COIN, address);
 
     return txid.GetHex();
 }

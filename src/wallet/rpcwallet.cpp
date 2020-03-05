@@ -1326,6 +1326,18 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
                 WalletTxToJSON(wtx, entry);
             ret.push_back(entry);
         }
+        if (listSent.empty() && nFee != 0) {
+            UniValue entry(UniValue::VOBJ);
+            entry.push_back(Pair("account", strSentAccount));
+            entry.push_back(Pair("category", "send"));
+            entry.push_back(Pair("amount", 0));
+            entry.push_back(Pair("vout", 0));
+            entry.push_back(Pair("fee", ValueFromAmount(fFeeListed ? 0 : -nFee)));
+            fFeeListed = true;
+            if (fLong)
+                WalletTxToJSON(wtx, entry);
+            ret.push_back(entry);
+        }
     }
 
     // Received

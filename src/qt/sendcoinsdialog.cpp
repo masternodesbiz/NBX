@@ -134,8 +134,9 @@ SendCoinsDialog::SendCoinsDialog(QWidget* parent) : QDialog(parent, Qt::WindowSy
     ui->checkBoxMinimumFee->setChecked(settings.value("fPayOnlyMinFee").toBool());
 
     minimizeFeeSection(settings.value("fFeeSectionMinimized").toBool());
-    // If SwiftX activated hide button 'Choose'. Show otherwise.
-    ui->buttonChooseFee->setVisible(!useSwiftTX);
+    // If SwiftX activated hide button 'Choose'
+    if (useSwiftTX)
+        ui->buttonChooseFee->setVisible(false);
 }
 
 void SendCoinsDialog::setClientModel(ClientModel* clientModel)

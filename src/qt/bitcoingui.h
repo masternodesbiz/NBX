@@ -177,6 +177,8 @@ public slots:
     void setNumBlocks(int count);
     /** Start shutdown process */
     void requestShutdown();
+    /** Aplication initialized */
+    void applicationInitialized();
     /** Get restart command-line parameters and request restart */
     void handleRestart(QStringList args);
 

@@ -220,6 +220,7 @@ signals:
     void requestedShutdown();
     void stopThread();
     void splashFinished(QWidget* window);
+    void applicationInitialized();
 
 private:
     QThread* coreThread;
@@ -407,6 +408,7 @@ void BitcoinApplication::startThread()
     /*  communication to and from thread */
     connect(executor, SIGNAL(initializeResult(int)), this, SLOT(initializeResult(int)));
     connect(executor, SIGNAL(runawayException(QString)), this, SLOT(handleRunawayException(QString)));
+    connect(this, SIGNAL(applicationInitialized()), window, SLOT(applicationInitialized()));
     connect(this, SIGNAL(requestedInitialize()), executor, SLOT(initialize()));
     connect(this, SIGNAL(requestedShutdown()), executor, SLOT(shutdown()));
     connect(window, SIGNAL(requestedRestart(QStringList)), executor, SLOT(restart(QStringList)));
@@ -492,6 +494,8 @@ void BitcoinApplication::initializeResult(int retval)
                 paymentServer, SLOT(fetchPaymentACK(CWallet*, const SendCoinsRecipient&, QByteArray)));
         }
 #endif
+
+        emit applicationInitialized();
 
         // If -min option passed, start window minimized.
         if (GetBoolArg("-min", false)) {

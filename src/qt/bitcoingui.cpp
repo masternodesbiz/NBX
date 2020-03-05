@@ -156,9 +156,6 @@ BitcoinGUI::BitcoinGUI(const NetworkStyle* networkStyle, QWidget* parent) : QMai
     // Needs walletFrame to be initialized
     createActions(networkStyle);
 
-    // Create application menu bar
-    createMenuBar();
-
     // Create the toolbars
     createToolBars();
 
@@ -1324,6 +1321,12 @@ void BitcoinGUI::unsubscribeFromCoreSignals()
 void BitcoinGUI::requestShutdown(){
     if (!ShutdownRequested())
         emit requestedShutdown();
+}
+
+/** Aplication initialized */
+void BitcoinGUI::applicationInitialized(){
+    // Create application menu bar
+    createMenuBar();
 }
 
 /** Get restart command-line parameters and request restart */
