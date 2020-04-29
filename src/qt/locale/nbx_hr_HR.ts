@@ -1614,12 +1614,6 @@ Budite strpljivi nakon što kliknete uvoz.</translation>
         <translation>Ovdje se može postaviti jezik korisničkog sučelja. Ova postavka će stupiti na snagu nakon ponovnog pokretanja Netbox.Wallet-a.</translation>
     </message>
     <message>
-        <source>Language missing or translation incomplete? Help contributing translations here:
-https://www.transifex.com/pivx-project/pivx-project-translations</source>
-        <translation>Jezik nedostaje ili prijevod nije potpun? Pomozite s prijevodima ovdje:
-https://www.transifex.com/pivx-project/pivx-project-translations</translation>
-    </message>
-    <message>
         <source>Map port using &amp;UPnP</source>
         <translation>Karte porta pomoću UPnP</translation>
     </message>

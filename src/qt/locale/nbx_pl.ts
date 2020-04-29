@@ -1711,12 +1711,6 @@ Please be patient after clicking import.</source>
         <translation>Język interfejsu użytkownika może być wybrany tutaj. Ustawienia ulegną zmianie po restarcie Netbox.Wallet</translation>
     </message>
     <message>
-        <source>Language missing or translation incomplete? Help contributing translations here:
-https://www.transifex.com/pivx-project/pivx-project-translations</source>
-        <translation>Brakuje języka bądź nieukończona pełnego tłumaczenia? Pomóż w tłumaczeniu tutaj:
-https://www.transifex.com/pivx-project/pivx-project-translations </translation>
-    </message>
-    <message>
         <source>Map port using &amp;UPnP</source>
         <translation>Mapuj port za pomocą &amp;UPnP</translation>
     </message>

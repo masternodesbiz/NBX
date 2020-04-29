@@ -1682,12 +1682,6 @@ S'il vous plaît soyez patient après avoir cliqué sur l'importation.</translat
         <translation>La langue de l'interface utilisateur peut être définie ici. Ce paramètre prendra effet après le redémarrage de Netbox.Wallet.</translation>
     </message>
     <message>
-        <source>Language missing or translation incomplete? Help contributing translations here:
-https://www.transifex.com/pivx-project/pivx-project-translations</source>
-        <translation>Langue manquante ou traduction incomplète? Aidez-nous à traduire ce projet ici:
-https://www.transifex.com/pivx-project/pivx-project-translations</translation>
-    </message>
-    <message>
         <source>Map port using &amp;UPnP</source>
         <translation>Répertorier les port utilisant UPnP</translation>
     </message>

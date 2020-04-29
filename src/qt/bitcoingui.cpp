@@ -1243,11 +1243,9 @@ void BitcoinGUI::showNormalIfMinimized(bool fToggleHidden)
         return;
 
     // activateWindow() (sometimes) helps with keyboard focus on Windows
-    if (isHidden()) {
+    if (isMinimized() || isHidden()) {
+        setWindowState(windowState() & ~Qt::WindowMinimized | Qt::WindowActive);
         show();
-        activateWindow();
-    } else if (isMinimized()) {
-        showNormal();
         activateWindow();
     } else if (GUIUtil::isObscured(this)) {
         raise();
@@ -1266,6 +1264,8 @@ void BitcoinGUI::detectShutdown()
     if (ShutdownRequested()) {
         if (rpcConsole)
             rpcConsole->hide();
+        if (explorerWindow)
+            explorerWindow->hide();
         emit requestedShutdown();
     }
 }

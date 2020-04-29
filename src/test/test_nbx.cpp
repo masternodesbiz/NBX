@@ -97,6 +97,11 @@ void StartShutdown()
   exit(0);
 }
 
+int rpcShow()
+{
+    return 4;
+}
+
 bool ShutdownRequested()
 {
   return false;

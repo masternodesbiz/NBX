@@ -2156,12 +2156,6 @@ Please be patient after clicking import.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+21"/>
-        <source>Language missing or translation incomplete? Help contributing translations here:
-https://www.transifex.com/pivx-project/pivx-project-translations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location line="-204"/>
         <source>Map port using &amp;UPnP</source>
         <translation>Map port using &amp;UPnP</translation>

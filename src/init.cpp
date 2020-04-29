@@ -72,6 +72,7 @@ DAppStore* pdAppStore = NULL;
 int nWalletBackups = 10;
 #endif
 bool walletLoaded = false;
+bool appInitialized = false;
 bool lockFailed = false;
 volatile bool fFeeEstimatesInitialized = false;
 volatile bool fRestartRequested = false; // true: restart false: shutdown
@@ -209,9 +210,10 @@ void PrepareShutdown()
     StopRPC();
     StopHTTPServer();
 #ifdef ENABLE_WALLET
-    if (pwalletMain)
+    if (pwalletMain) {
         bitdb.Flush(false);
-    GenerateBitcoins(false, NULL, 0);
+        GenerateBitcoins(false, NULL, 0);
+    }
 #endif
     StopNode();
     DumpMasternodes();
@@ -299,8 +301,10 @@ void Shutdown()
     // Shutdown part 2: Stop TOR thread and delete wallet instance
     StopTorControl();
 #ifdef ENABLE_WALLET
-    delete pwalletMain;
-    pwalletMain = NULL;
+    if (pwalletMain) {
+        delete pwalletMain;
+        pwalletMain = NULL;
+    }
     if (pdAppStore) {
         delete pdAppStore;
         pdAppStore = NULL;
@@ -744,7 +748,7 @@ bool lockFile(const boost::filesystem::path &filename, const boost::posix_time::
     while (boost::posix_time::microsec_clock::universal_time() < abs_time){
         boost::interprocess::spin_wait swait;
         if (LockFileEx(lock, LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY, 0, -1, -1, &overlapped)) {
-            CloseHandle(lock);
+            //CloseHandle(lock);
             return true;
         }
         swait.yield();
@@ -752,7 +756,7 @@ bool lockFile(const boost::filesystem::path &filename, const boost::posix_time::
     CloseHandle(lock);
     return false;
 #else
-    boost::interprocess::file_lock lock(filename.string().c_str());
+    static boost::interprocess::file_lock lock(filename.string().c_str());
     return lock.timed_lock(abs_time);
 #endif
 }
@@ -1891,6 +1895,8 @@ bool AppInit2()
         }
     }
 #endif
+
+    appInitialized = true;
 
     return !fRequestShutdown;
 }

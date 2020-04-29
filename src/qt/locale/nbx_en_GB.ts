@@ -1710,12 +1710,6 @@ Please be patient after clicking import.</translation>
         <translation>The user interface language can be set here. This setting will take effect after restarting Netbox.Wallet.</translation>
     </message>
     <message>
-        <source>Language missing or translation incomplete? Help contributing translations here:
-https://www.transifex.com/pivx-project/pivx-project-translations</source>
-        <translation>Language missing or translation incomplete? Help contributing translations here:
-https://www.transifex.com/pivx-project/pivx-project-translations</translation>
-    </message>
-    <message>
         <source>Map port using &amp;UPnP</source>
         <translation>Map port using &amp;UPnP</translation>
     </message>

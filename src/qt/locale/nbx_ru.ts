@@ -1612,12 +1612,6 @@ Please be patient after clicking import.</source>
         <translation>Здесь можно выставить язык интерфейса. Изменения вступят в силу после перезапуска Netbox.Wallet.</translation>
     </message>
     <message>
-        <source>Language missing or translation incomplete? Help contributing translations here:
-https://www.transifex.com/pivx-project/pivx-project-translations</source>
-        <translation>Отсутствует ваш язык или заметили незавершенный перевод? Вы можете помочь нам стать лучше:
-https://www.transifex.com/pivx-project/pivx-project-translations</translation>
-    </message>
-    <message>
         <source>Map port using &amp;UPnP</source>
         <translation>Карта порта, использующего &amp;UPnP</translation>
     </message>

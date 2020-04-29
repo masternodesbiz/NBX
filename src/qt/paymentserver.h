@@ -65,6 +65,11 @@ public:
     // Returns false on error
     static void ipcParseCommandLine(int argc, char* argv[]);
 
+    //
+    // Sending to the server is done synchronously
+    //
+    static bool ipcSendCommand(const QString& command);
+
     // Returns true if there were URIs on the command line
     // which were successfully sent to an already-running
     // process.
@@ -95,6 +100,9 @@ public:
 signals:
     // Fired when a valid payment request is received
     void receivedPaymentRequest(SendCoinsRecipient);
+
+    // Fired when a show message received
+    void receivedShowRequest();
 
     // Fired when a valid PaymentACK is received
     void receivedPaymentACK(const QString& paymentACKMsg);

@@ -1426,12 +1426,6 @@ Muktisendi: %1</translation>
         <translation>La uzanta interfaco lingvo povas esti agordi ĉi tie. Tio agordo efektivigos post rekomenci Netbox.Wallet.</translation>
     </message>
     <message>
-        <source>Language missing or translation incomplete? Help contributing translations here:
-https://www.transifex.com/pivx-project/pivx-project-translations</source>
-        <translation>Ĉu mankas lingvon aŭ nekompleta tradukado? Helpu la  tradukcio ĉi tie:
-https://www.transifex.com/pivx-project/pivx-project-translations</translation>
-    </message>
-    <message>
         <source>Connect to the NBX network through a SOCKS5 proxy.</source>
         <translation>Konekti al la NBX reto per SOCKS5 prokurilo.</translation>
     </message>

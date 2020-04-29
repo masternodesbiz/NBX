@@ -1560,12 +1560,6 @@ MultiSend nebus aktyvuotas, nebent paspausite "Įjungti"</translation>
         <translation>Čia galite nustatyti vartotojo sąsajos kalbą. Šis nustatymas įsigalios iš naujo paleidus Netbox.Wallet.</translation>
     </message>
     <message>
-        <source>Language missing or translation incomplete? Help contributing translations here:
-https://www.transifex.com/pivx-project/pivx-project-translations</source>
-        <translation>Trūksta kalbos arba vertimas nebaigtas? Padėkite prisidėdami prie vertimų čia: 
-https://www.transifex.com/pivx-project/pivx-project-translations</translation>
-    </message>
-    <message>
         <source>Map port using &amp;UPnP</source>
         <translation>Įrašyti prievadą naudojant &amp;UPnP</translation>
     </message>

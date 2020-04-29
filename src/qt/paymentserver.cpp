@@ -78,7 +78,7 @@ namespace // Anon namespace
 //
 static QString ipcServerName()
 {
-    QString name("Netbox.Wallet");
+    QString name("Netbox.Wallet.");
 
     // Append a simple hash of the datadir
     // Note that GetDataDir(true) returns a different path
@@ -224,6 +224,35 @@ void PaymentServer::ipcParseCommandLine(int argc, char* argv[])
 }
 
 //
+// Sending to the server is done synchronously
+//
+bool PaymentServer::ipcSendCommand(const QString& command)
+{
+    QLocalSocket* socket = new QLocalSocket();
+    socket->connectToServer(ipcServerName(), QIODevice::WriteOnly);
+    if (!socket->waitForConnected(BITCOIN_IPC_CONNECT_TIMEOUT)) {
+        delete socket;
+        socket = NULL;
+        return false;
+    }
+
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_4_0);
+    out << command;
+    out.device()->seek(0);
+
+    socket->write(block);
+    socket->flush();
+    socket->waitForBytesWritten(BITCOIN_IPC_CONNECT_TIMEOUT);
+    socket->disconnectFromServer();
+
+    delete socket;
+    socket = NULL;
+    return true;
+}
+
+//
 // Sending to the server is done synchronously, at startup.
 // If the server isn't already running, startup continues,
 // and the items in savedPaymentRequest will be handled
@@ -231,33 +260,14 @@ void PaymentServer::ipcParseCommandLine(int argc, char* argv[])
 //
 bool PaymentServer::ipcSendCommandLine()
 {
-    bool fResult = false;
-    foreach (const QString& r, savedPaymentRequests) {
-        QLocalSocket* socket = new QLocalSocket();
-        socket->connectToServer(ipcServerName(), QIODevice::WriteOnly);
-        if (!socket->waitForConnected(BITCOIN_IPC_CONNECT_TIMEOUT)) {
-            delete socket;
-            socket = NULL;
+    bool fSended = false;
+    foreach (const QString& command, savedPaymentRequests) {
+        if (!ipcSendCommand(command))
             return false;
-        }
-
-        QByteArray block;
-        QDataStream out(&block, QIODevice::WriteOnly);
-        out.setVersion(QDataStream::Qt_4_0);
-        out << r;
-        out.device()->seek(0);
-
-        socket->write(block);
-        socket->flush();
-        socket->waitForBytesWritten(BITCOIN_IPC_CONNECT_TIMEOUT);
-        socket->disconnectFromServer();
-
-        delete socket;
-        socket = NULL;
-        fResult = true;
+        fSended = true;
     }
 
-    return fResult;
+    return fSended;
 }
 
 PaymentServer::PaymentServer(QObject* parent, bool startLocalServer) : QObject(parent),
@@ -389,12 +399,17 @@ void PaymentServer::handleURIOrFile(const QString& s)
         {
             SendCoinsRecipient recipient;
             if (GUIUtil::parseBitcoinURI(s, &recipient)) {
-                CBitcoinAddress address(recipient.address.toStdString());
-                if (!address.IsValid()) {
-                    emit message(tr("URI handling"), tr("Invalid payment address %1").arg(recipient.address),
-                        CClientUIInterface::MSG_ERROR);
-                } else
-                    emit receivedPaymentRequest(recipient);
+                std::string addrStr = recipient.address.toStdString();
+                if (addrStr == "show") {
+                    emit receivedShowRequest();
+                } else {
+                    CBitcoinAddress address(addrStr);
+                    if (!address.IsValid()) {
+                        emit message(tr("URI handling"), tr("Invalid payment address %1").arg(recipient.address),
+                                     CClientUIInterface::MSG_ERROR);
+                    } else
+                        emit receivedPaymentRequest(recipient);
+                }
             } else
                 emit message(tr("URI handling"),
                     tr("URI cannot be parsed! This can be caused by an invalid NBX address or malformed URI parameters."),

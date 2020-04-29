@@ -749,6 +749,7 @@ bool DecodeHexMnb(CMasternodeBroadcast& mnb, std::string strHexMnb) {
 
     return true;
 }
+
 UniValue createmasternodebroadcast(const UniValue& params, bool fHelp)
 {
     std::string strCommand;
@@ -967,4 +968,3 @@ UniValue relaymasternodebroadcast(const UniValue& params, bool fHelp)
 
     return strprintf("Masternode broadcast sent (service %s, vin %s)", mnb.addr.ToString(), mnb.vin.ToString());
 }
-

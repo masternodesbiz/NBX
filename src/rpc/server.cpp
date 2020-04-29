@@ -33,6 +33,8 @@ static bool fRPCInWarmup = true;
 static std::string rpcWarmupStatus("RPC server started");
 static CCriticalSection cs_rpcWarmup;
 
+extern int rpcShow();
+
 /* Timer-creating functions */
 static RPCTimerInterface* timerInterface = NULL;
 /* Map of name to timer.
@@ -258,11 +260,9 @@ UniValue help(const UniValue& params, bool fHelp)
     return tableRPC.help(strCommand);
 }
 
-
 UniValue stop(const UniValue& params, bool fHelp)
 {
-    // Accept the deprecated and ignored 'detach' boolean argument
-    if (fHelp || params.size() > 1)
+    if (fHelp || params.size())
         throw std::runtime_error(
             "stop\n"
             "\nStop Netbox.Wallet server.");
@@ -270,6 +270,38 @@ UniValue stop(const UniValue& params, bool fHelp)
     // this reply will get back to the client.
     StartShutdown();
     return "Netbox.Wallet server stopping";
+}
+
+UniValue show(const UniValue& params, bool fHelp)
+{
+    if (fHelp || params.size())
+        throw std::runtime_error(
+                "show\n"
+                "\nShow Netbox.Wallet window.");
+
+    UniValue ret(UniValue::VOBJ);
+    int code = rpcShow();
+    ret.push_back(Pair("code", code));
+    switch(code){
+        case 0:
+            ret.push_back(Pair("message", "OK"));
+            break;
+        case 1:
+            ret.push_back(Pair("message", "Request queued"));
+            break;
+        case 2:
+            ret.push_back(Pair("message", "Error queuing request"));
+            break;
+        case 3:
+            ret.push_back(Pair("message", "Netbox.Wallet has no wallet"));
+            break;
+        case 4:
+            ret.push_back(Pair("message", "Netbox.Wallet has no window"));
+            break;
+        default:
+            ret.push_back(Pair("message", "Error"));
+    }
+    return ret;
 }
 
 
@@ -284,6 +316,7 @@ static const CRPCCommand vRPCCommands[] =
         {"control", "getinfo", &getinfo, true, false, false}, /* uses wallet if enabled */
         {"control", "help", &help, true, true, false},
         {"control", "stop", &stop, true, true, false},
+        {"control", "show", &show, true, true, false},
 
         /* P2P networking */
         {"network", "getnetworkinfo", &getnetworkinfo, true, false, false},

@@ -74,6 +74,8 @@ Q_IMPORT_PLUGIN(QCocoaIntegrationPlugin);
 Q_DECLARE_METATYPE(bool*)
 Q_DECLARE_METATYPE(CAmount)
 
+extern bool appInitialized;
+
 static void InitMessage(const std::string& message)
 {
     LogPrintf("init message: %s\n", message);
@@ -511,6 +513,8 @@ void BitcoinApplication::initializeResult(int retval)
         // NBX: URIs or payment requests:
         connect(paymentServer, SIGNAL(receivedPaymentRequest(SendCoinsRecipient)),
             window, SLOT(handlePaymentRequest(SendCoinsRecipient)));
+        connect(paymentServer, SIGNAL(receivedShowRequest()),
+            window, SLOT(showNormalIfMinimized()));
         connect(window, SIGNAL(receivedURI(QString)),
             paymentServer, SLOT(handleURIOrFile(QString)));
         connect(paymentServer, SIGNAL(message(QString, QString, unsigned int)),
@@ -570,35 +574,18 @@ void segFaultHandlerGui(int signum)
 }
 #endif
 
-#ifdef WIN32
-BOOL CALLBACK EnumWalletWindows(HWND hwnd, LPARAM lParam) {
-    if (!hwnd || GetWindow(hwnd, GW_OWNER))
-        return TRUE;
-	char buf[17];
-	if (GetClassNameA(hwnd, buf, 16) != 14)
-		return TRUE;
-	if (memcmp(buf, "Qt5QWindowIcon", 14))
-		return TRUE;
-	if (GetWindowTextA(hwnd, buf, 17) != 16)
-		return TRUE;
-	if (memcmp(buf, "Netbox.Wallet - ", 16))
-		return TRUE;
-	DWORD windowPid = 0;
-	GetWindowThreadProcessId(hwnd, &windowPid);
-	if (windowPid != ((pid_t*)lParam)[0])
-		return TRUE;
-	if (IsWindowVisible(hwnd)){
-        WINDOWPLACEMENT place = { sizeof(WINDOWPLACEMENT) };
-        GetWindowPlacement(hwnd, &place);
-        if (SW_SHOWMINIMIZED == place.showCmd)
-            ShowWindowAsync(hwnd, SW_RESTORE);
-	} else
-	    ShowWindowAsync(hwnd, SW_SHOW);
-	SetForegroundWindow(hwnd);
-	((pid_t*)lParam)[1] = (pid_t)hwnd;
-	return FALSE;
-}
+int rpcShow()
+{
+#ifndef ENABLE_WALLET
+    return 3;
+#else
+    if (!PaymentServer::ipcSendCommand("nbx:show"))
+        return 2;
+    if (!appInitialized)
+        return 1;
+    return 0;
 #endif
+}
 
 #ifndef BITCOIN_QT_TEST
 int main(int argc, char* argv[])
@@ -735,23 +722,11 @@ int main(int argc, char* argv[])
     // translated properly.
     if (PaymentServer::ipcSendCommandLine())
         exit(0);
-#endif
 
-#ifdef WIN32
-    // check if we already running
-    {
-        pid_t pid[2]; // second value is a window hwnd
-        pid[0] = ReadPidFile(GetPidFile());
-        if (pid[0]) {
-            pid[1] = 0;
-            EnumWindows(EnumWalletWindows, (LPARAM)pid);
-            if (pid[1])
-                return 0;
-        }
-    }
-#endif
+    // try to show another already running instance
+    if (PaymentServer::ipcSendCommand("nbx:show"))
+        exit(0);
 
-#ifdef ENABLE_WALLET
     // Start up the payment server early, too, so impatient users that click on
     // nbx: links repeatedly have their payment requests routed to this process:
     app.createPaymentServer();

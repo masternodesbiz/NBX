@@ -1612,12 +1612,6 @@ Please be patient after clicking import.</source>
         <translation>Промяна на езика. Настройката е активна след рестарт на портфейла.</translation>
     </message>
     <message>
-        <source>Language missing or translation incomplete? Help contributing translations here:
-https://www.transifex.com/pivx-project/pivx-project-translations</source>
-        <translation>Липсващ език или непълен превод? Помогнете с преводите тук:
-https://www.transifex.com/pivx-project/pivx-project-translations</translation>
-    </message>
-    <message>
         <source>Map port using &amp;UPnP</source>
         <translation>Картографирай портовете използвайки &amp;UPnP</translation>
     </message>

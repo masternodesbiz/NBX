@@ -90,6 +90,8 @@ src/qt/test/moc*.cpp
 **/*.json.h
 **/*.raw.h
 
+contrib/linearize/linearize.cfg
+
 #libtool object files
 **/*.lo
 **/*.la

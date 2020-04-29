@@ -127,12 +127,14 @@ PeerTableModel::PeerTableModel(ClientModel* parent) : QAbstractTableModel(parent
 
 void PeerTableModel::startAutoRefresh()
 {
-    timer->start();
+    if (timer)
+        timer->start();
 }
 
 void PeerTableModel::stopAutoRefresh()
 {
-    timer->stop();
+    if (timer)
+        timer->stop();
 }
 
 int PeerTableModel::rowCount(const QModelIndex& parent) const

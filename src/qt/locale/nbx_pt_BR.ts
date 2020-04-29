@@ -1447,12 +1447,6 @@ MultiSend: %1</translation>
         <translation>A linguagem da interface pode ser definida aqui. Está configuração terá efeito após reinício do Netbox.Wallet.</translation>
     </message>
     <message>
-        <source>Language missing or translation incomplete? Help contributing translations here:
-https://www.transifex.com/pivx-project/pivx-project-translations</source>
-        <translation>Linguagem não encontrada ou tradução incompleta? Ajude contribuido com traduções aqui:
-https://www.transifex.com/pivx-project/pivx-project-translations</translation>
-    </message>
-    <message>
         <source>Connect to the NBX network through a SOCKS5 proxy.</source>
         <translation>Conectar à rede NBX através de um proxy SOCKS5</translation>
     </message>

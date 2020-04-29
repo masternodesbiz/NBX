@@ -755,12 +755,6 @@ margin-top:0px;
 margin-bottom:0px;
 }
 
-QDialog#OptionsDialog QLabel#label_3 { /* Translations Missing? Label */
-qproperty-alignment: 'AlignVCenter | AlignCenter';
-color:#818181;
-padding-bottom:8px;
-}
-
 QDialog#OptionsDialog QCheckBox {
 min-height:20px;
 }
