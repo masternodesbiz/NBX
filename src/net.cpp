@@ -58,7 +58,6 @@
 
 namespace
 {
-const int MAX_OUTBOUND_CONNECTIONS = 16;
 
 struct ListenSocket {
     SOCKET socket;
@@ -81,7 +80,8 @@ static CNode* pnodeLocalHost = NULL;
 uint64_t nLocalHostNonce = 0;
 static std::vector<ListenSocket> vhListenSocket;
 CAddrMan addrman;
-int nMaxConnections = 125;
+int nMaxConnections = 250;
+int nMaxOutboundConnections = 12;
 bool fAddressesInitialized = false;
 std::string strSubVersion;
 
@@ -94,9 +94,6 @@ limitedmap<CInv, int64_t> mapAlreadyAskedFor(MAX_INV_SZ);
 
 static std::deque<std::string> vOneShots;
 CCriticalSection cs_vOneShots;
-
-std::set<CNetAddr> setservAddNodeAddresses;
-CCriticalSection cs_setservAddNodeAddresses;
 
 std::vector<std::string> vAddedNodes;
 CCriticalSection cs_vAddedNodes;
@@ -1006,7 +1003,7 @@ void ThreadSocketHandler()
                 } else if (!IsSelectableSocket(hSocket)) {
                     LogPrintf("connection from %s dropped: non-selectable socket\n", addr.ToString());
                     CloseSocket(hSocket);
-                } else if (nInbound >= nMaxConnections - MAX_OUTBOUND_CONNECTIONS) {
+                } else if (nInbound >= nMaxConnections - nMaxOutboundConnections) {
                     LogPrint("net", "connection from %s dropped (full)\n", addr.ToString());
                     CloseSocket(hSocket);
                 } else if (CNode::IsBanned(addr) && !whitelisted) {
@@ -1432,14 +1429,8 @@ void ThreadOpenAddedConnections()
         std::list<std::vector<CService> > lservAddressesToAdd(0);
         for (std::string& strAddNode : lAddresses) {
             std::vector<CService> vservNode(0);
-            if (Lookup(strAddNode.c_str(), vservNode, Params().GetDefaultPort(), fNameLookup, 0)) {
+            if (Lookup(strAddNode.c_str(), vservNode, Params().GetDefaultPort(), fNameLookup, 0))
                 lservAddressesToAdd.push_back(vservNode);
-                {
-                    LOCK(cs_setservAddNodeAddresses);
-                    for (CService& serv : vservNode)
-                        setservAddNodeAddresses.insert(serv);
-                }
-            }
         }
         // Attempt to connect to each IP for each addnode entry until at least one is successful per addnode entry
         // (keeping in mind that addnode entries can have many IPs if fNameLookup)
@@ -1455,8 +1446,9 @@ void ThreadOpenAddedConnections()
                         }
         }
         for (std::vector<CService>& vserv : lservAddressesToAdd) {
+            CAddress addr;
             CSemaphoreGrant grant(*semOutbound);
-            OpenNetworkConnection(CAddress(vserv[i % vserv.size()]), &grant);
+            OpenNetworkConnection(addr, &grant, vserv[i % vserv.size()].ToStringIPPort().c_str());
             MilliSleep(500);
         }
         MilliSleep(120000); // Retry every 2 minutes
@@ -1719,8 +1711,7 @@ void StartNode(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     if (semOutbound == NULL) {
         // initialize semaphore
-        int nMaxOutbound = std::min(MAX_OUTBOUND_CONNECTIONS, nMaxConnections);
-        semOutbound = new CSemaphore(nMaxOutbound);
+        semOutbound = new CSemaphore(nMaxOutboundConnections);
     }
 
     if (pnodeLocalHost == NULL)
@@ -1761,7 +1752,7 @@ bool StopNode()
     LogPrintf("StopNode()\n");
     MapPort(false);
     if (semOutbound)
-        for (int i = 0; i < MAX_OUTBOUND_CONNECTIONS; i++)
+        for (int i = 0; i < nMaxOutboundConnections; i++)
             semOutbound->post();
 
     if (fAddressesInitialized) {

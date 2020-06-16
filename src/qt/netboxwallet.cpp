@@ -1,7 +1,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -689,10 +689,6 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-#ifdef WIN32
-    AllowSetForegroundWindow(ASFW_ANY);
-#endif
-
 #ifdef ENABLE_WALLET
     // Parse URIs on command line -- this can affect Params()
     PaymentServer::ipcParseCommandLine(argc, argv);
@@ -724,6 +720,9 @@ int main(int argc, char* argv[])
         exit(0);
 
     // try to show another already running instance
+#ifdef WIN32
+    AllowSetForegroundWindow(ReadPidFile(GetPidFile()) ?: ASFW_ANY);
+#endif
     if (PaymentServer::ipcSendCommand("nbx:show"))
         exit(0);
 

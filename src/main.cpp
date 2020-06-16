@@ -693,7 +693,7 @@ bool IsStandardTx(const CTransaction& tx, std::string& reason)
 {
     AssertLockHeld(cs_main);
     if (tx.nVersion > CTransaction::CURRENT_VERSION || tx.nVersion < 1) {
-        reason = "version";
+        reason = "Wrong transaction version";
         return false;
     }
 
@@ -715,7 +715,7 @@ bool IsStandardTx(const CTransaction& tx, std::string& reason)
     // can't know what timestamp the next block will have, and there aren't
     // timestamp applications where it matters.
     if (!IsFinalTx(tx, chainActive.Height() + 1)) {
-        reason = "non-final";
+        reason = "Transaction is not final";
         return false;
     }
 
@@ -726,7 +726,7 @@ bool IsStandardTx(const CTransaction& tx, std::string& reason)
     unsigned int sz = tx.GetSerializeSize(SER_NETWORK, CTransaction::CURRENT_VERSION);
     unsigned int nMaxSize = MAX_STANDARD_TX_SIZE;
     if (sz >= nMaxSize) {
-        reason = "tx-size";
+        reason = "Transaction size is too large";
         return false;
     }
 
@@ -739,11 +739,11 @@ bool IsStandardTx(const CTransaction& tx, std::string& reason)
         // CHECKMULTISIG scriptPubKey, though such a scriptPubKey is not
         // considered standard)
         if (txin.scriptSig.size() > 1650) {
-            reason = "scriptsig-size";
+            reason = "Wrong ScriptSig size";
             return false;
         }
         if (!txin.scriptSig.IsPushOnly()) {
-            reason = "scriptsig-not-pushonly";
+            reason = "ScriptSig is not pushonly";
             return false;
         }
     }
@@ -752,24 +752,24 @@ bool IsStandardTx(const CTransaction& tx, std::string& reason)
     txnouttype whichType;
     for (const CTxOut& txout : tx.vout) {
         if (!::IsStandard(txout.scriptPubKey, whichType)) {
-            reason = "scriptpubkey";
+            reason = "Wrong ScriptPubKey";
             return false;
         }
 
         if (whichType == TX_NULL_DATA)
             nDataOut++;
         else if ((whichType == TX_MULTISIG) && (!fIsBareMultisigStd)) {
-            reason = "bare-multisig";
+            reason = "Bare Multisig";
             return false;
         } else if (txout.IsDust(::minRelayTxFee)) {
-            reason = "dust";
+            reason = "Transaction output amount is too low (considered as dust)";
             return false;
         }
     }
 
     // only one OP_RETURN txout is permitted
     if (nDataOut > 1) {
-        reason = "multi-op-return";
+        reason = "Too many nulldata outputs";
         return false;
     }
 

@@ -2,8 +2,6 @@
 Encoding=UTF-8
 Name=Netbox.Wallet
 Comment=Netbox.Wallet P2P Cryptocurrency
-Comment[fr]=Netbox.Wallet, monnaie virtuelle cryptographique pair à pair
-Comment[tr]=Netbox.Wallet, eşten eşe kriptografik sanal para birimi
 Exec=netboxwallet %u
 Terminal=false
 Type=Application

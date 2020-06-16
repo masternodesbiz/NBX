@@ -428,7 +428,7 @@ public:
     bool IsUsed(const CBitcoinAddress address) const;
 
     isminetype IsMine(const CTxIn& txin) const;
-    CAmount GetDebit(const CTxIn& txin) const;
+    CAmount GetDebit(const CTxIn& txin, bool *fIsMine = NULL) const;
     isminetype IsMine(const CTxOut& txout) const
     {
         return ::IsMine(*this, txout.scriptPubKey);
@@ -456,13 +456,16 @@ public:
     /** should probably be renamed to IsRelevantToMe */
     bool IsFromMe(const CTransaction& tx) const
     {
-        return (GetDebit(tx) > 0);
+        bool fIsMine = false;
+        if (GetDebit(tx, &fIsMine) > 0)
+            return true;
+        return fIsMine;
     }
-    CAmount GetDebit(const CTransaction& tx) const
+    CAmount GetDebit(const CTransaction& tx, bool *fIsMine = NULL) const
     {
         CAmount nDebit = 0;
         for (const CTxIn& txin : tx.vin) {
-            nDebit += GetDebit(txin);
+            nDebit += GetDebit(txin, fIsMine);
             if (!MoneyRange(nDebit))
                 throw std::runtime_error("CWallet::GetDebit() : value out of range");
         }
@@ -843,7 +846,7 @@ public:
         MarkDirty();
     }
 
-    CAmount GetDebit() const;
+    CAmount GetDebit(bool *fIsMine = NULL) const;
     CAmount GetCredit() const;
     CAmount GetImmatureCredit(bool fUseCache = true) const;
     CAmount GetAvailableCredit(bool fUseCache = true) const;
@@ -870,7 +873,10 @@ public:
 
     bool IsFromMe() const
     {
-        return (GetDebit() > 0);
+        bool fIsMine = false;
+        if (GetDebit(&fIsMine) > 0)
+            return true;
+        return fIsMine;
     }
 
     bool InMempool() const;

@@ -961,7 +961,7 @@ bool CWallet::IsUsed(const CBitcoinAddress address) const
     return false;
 }
 
-CAmount CWallet::GetDebit(const CTxIn& txin) const
+CAmount CWallet::GetDebit(const CTxIn& txin, bool *fIsMine) const
 {
     {
         LOCK(cs_wallet);
@@ -969,8 +969,11 @@ CAmount CWallet::GetDebit(const CTxIn& txin) const
         if (mi != mapWallet.end()) {
             const CWalletTx& prev = (*mi).second;
             if (txin.prevout.n < prev.vout.size())
-                if (IsMine(prev.vout[txin.prevout.n]))
+                if (IsMine(prev.vout[txin.prevout.n])) {
+                    if (fIsMine)
+                        *fIsMine = true;
                     return prev.vout[txin.prevout.n].nValue;
+                }
         }
     }
     return 0;
@@ -1102,7 +1105,7 @@ int CWalletTx::GetRequestCount() const
     return nRequests;
 }
 
-CAmount CWalletTx::GetDebit() const
+CAmount CWalletTx::GetDebit(bool *fIsMine) const
 {
     if (vin.empty())
         return 0;
@@ -1111,7 +1114,7 @@ CAmount CWalletTx::GetDebit() const
     if (fDebitCached)
         debit += nDebitCached;
     else {
-        nDebitCached = pwallet->GetDebit(*this);
+        nDebitCached = pwallet->GetDebit(*this, fIsMine);
         fDebitCached = true;
         debit += nDebitCached;
     }
