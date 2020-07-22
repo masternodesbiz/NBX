@@ -1509,12 +1509,6 @@ Muktisendi: %1</translation>
         <translation>Via aktuala NBX totalo, nekonformita kaj nematurita transakcioj inkluzivita</translation>
     </message>
     <message>
-        <source>Unconfirmed: less than 20 confirmations
-Immature: confirmed, but less than 1 mint of the same denomination after it was minted</source>
-        <translation>Malkonfirmita: malpli ol 20 konfirmacioj
-Nematura: konfirmita, sed malpli ol 1 minto el la samo nomado post ĝin estis mintita</translation>
-    </message>
-    <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NBX network after a connection is established, but this process has not completed yet.</source>
         <translation>Montrata informon povas esti malmoderna. Via monujo automate sinkronigis kun la NBX reto post konekcio establas, sed ĉi tio procezo ankoraŭ ne kompletigis.</translation>
     </message>

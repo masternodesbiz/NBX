@@ -2407,15 +2407,6 @@ Please be patient after clicking import.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+14"/>
-        <location line="+17"/>
-        <location line="+14"/>
-        <location line="+17"/>
-        <source>Unconfirmed: less than 20 confirmations
-Immature: confirmed, but less than 1 mint of the same denomination after it was minted</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location line="-725"/>
         <location line="+852"/>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NBX network after a connection is established, but this process has not completed yet.</source>
@@ -5035,11 +5026,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
     </message>
     <message>
         <location line="+3"/>
-        <source>Found unconfirmed denominated outputs, will wait till they confirm to continue.</source>
-        <translation type="unfinished">Found unconfirmed denominated outputs, will wait till they confirm to continue.</translation>
-    </message>
-    <message>
-        <location line="+3"/>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
         <translation type="unfinished">If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</translation>
     </message>
@@ -5305,11 +5291,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
     </message>
     <message>
         <location line="+1"/>
-        <source>Can&apos;t denominate: no compatible inputs left.</source>
-        <translation type="unfinished">Can&apos;t denominate: no compatible inputs left.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
         <source>Can&apos;t find random Masternode.</source>
         <translation type="unfinished">Can&apos;t find random Masternode.</translation>
     </message>
@@ -5517,11 +5498,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
         <location line="+1"/>
         <source>Error: A fatal internal error occured, see debug.log for details</source>
         <translation type="unfinished">Error: A fatal internal error occured, see debug.log for details</translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Error: Can&apos;t select current denominated inputs</source>
-        <translation type="unfinished">Error: Can&apos;t select current denominated inputs</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -6004,16 +5980,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
         <location line="+1"/>
         <source>No compatible Masternode found.</source>
         <translation type="unfinished">No compatible Masternode found.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>No funds detected in need of denominating.</source>
-        <translation type="unfinished">No funds detected in need of denominating.</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>No matching denominations found for mixing.</source>
-        <translation type="unfinished">No matching denominations found for mixing.</translation>
     </message>
     <message>
         <location line="+1"/>

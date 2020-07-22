@@ -1801,12 +1801,6 @@ Budite strpljivi nakon što kliknete uvoz.</translation>
         <translation>Uključena je vaša trenutna bilanca NBX, nepotvrđene i nezrele transakcije</translation>
     </message>
     <message>
-        <source>Unconfirmed: less than 20 confirmations
-Immature: confirmed, but less than 1 mint of the same denomination after it was minted</source>
-        <translation>Nepotvrđeno: manje od 20 potvrda
-Nezreli: potvrđeno, ali manje od 1 minta iste denominacije nakon mintanja</translation>
-    </message>
-    <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NBX network after a connection is established, but this process has not completed yet.</source>
         <translation>Prikazane informacije mogu biti zastarjele. Vaš se novčanik automatski sinkronizira s NBX mrežom nakon uspostavljanja veze, ali taj postupak još nije dovršen.</translation>
     </message>
@@ -3749,10 +3743,6 @@ Nezreli: potvrđeno, ali manje od 1 minta iste denominacije nakon mintanja</tran
         <translation>Ispraznite aktivnost baze podataka iz baze memorije na dnevnik diska svakog megabajta (zadano: %u)</translation>
     </message>
     <message>
-        <source>Found unconfirmed denominated outputs, will wait till they confirm to continue.</source>
-        <translation>Pronađeni su nepotvrđeni denonimi izlaza, čekat će dok ne potvrde nastavak.</translation>
-    </message>
-    <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
         <translation>Ako paytxfee nije postavljen, uključite dovoljnu naknadu kako bi transakcije započele potvrdu u prosjeku unutar n blokova (zadana vrijednost: %u)</translation>
     </message>
@@ -4108,10 +4098,6 @@ Nezreli: potvrđeno, ali manje od 1 minta iste denominacije nakon mintanja</tran
     <message>
         <source>Error: A fatal internal error occured, see debug.log for details</source>
         <translation>Pogreška: Došlo je do kobne interne pogreške, pogledajte detalje o debug.logu</translation>
-    </message>
-    <message>
-        <source>Error: Can't select current denominated inputs</source>
-        <translation>Pogreška: Nije moguće odabrati trenutne unose</translation>
     </message>
     <message>
         <source>Error: Disk space is low!</source>
@@ -4495,14 +4481,6 @@ Nezreli: potvrđeno, ali manje od 1 minta iste denominacije nakon mintanja</tran
     <message>
         <source>No compatible Masternode found.</source>
         <translation>Nema kompatibilnog Masternoda.</translation>
-    </message>
-    <message>
-        <source>No funds detected in need of denominating.</source>
-        <translation>Nema otkrivenih sredstava kojima je potrebna denominacija.</translation>
-    </message>
-    <message>
-        <source>No matching denominations found for mixing.</source>
-        <translation>Za miješanje nisu pronađeni odgovarajući apoeni.</translation>
     </message>
     <message>
         <source>Node relay options:</source>

@@ -1,6 +1,6 @@
 // Copyright (c) 2009-2012 The Bitcoin developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -35,7 +35,8 @@ UniValue getpoolinfo(const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getpoolinfo", "") + HelpExampleRpc("getpoolinfo", ""));
+            HelpExampleCli("getpoolinfo", "") +
+            HelpExampleRpc("getpoolinfo", ""));
 
     UniValue obj(UniValue::VOBJ);
     obj.push_back(Pair("current_masternode", mnodeman.GetCurrentMasterNode()->addr.ToString()));
@@ -78,7 +79,8 @@ UniValue listmasternodes(const UniValue& params, bool fHelp)
             "]\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("listmasternodes", "") + HelpExampleRpc("listmasternodes", ""));
+            HelpExampleCli("listmasternodes", "") +
+            HelpExampleRpc("listmasternodes", ""));
 
     UniValue ret(UniValue::VARR);
     int nHeight;
@@ -143,7 +145,8 @@ UniValue masternodeconnect(const UniValue& params, bool fHelp)
             "1. \"address\"     (string, required) IP or net address to connect to\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("masternodeconnect", "\"192.168.0.6:28734\"") + HelpExampleRpc("masternodeconnect", "\"192.168.0.6:28734\""));
+            HelpExampleCli("masternodeconnect", "\"192.168.0.6:28734\"") +
+            HelpExampleRpc("masternodeconnect", "\"192.168.0.6:28734\""));
 
     std::string strAddress = params[0].get_str();
 
@@ -175,7 +178,8 @@ UniValue getmasternodecount (const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getmasternodecount", "") + HelpExampleRpc("getmasternodecount", ""));
+            HelpExampleCli("getmasternodecount", "") +
+            HelpExampleRpc("getmasternodecount", ""));
 
     UniValue obj(UniValue::VOBJ);
     int nCount = 0;
@@ -215,7 +219,8 @@ UniValue masternodecurrent (const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("masternodecurrent", "") + HelpExampleRpc("masternodecurrent", ""));
+            HelpExampleCli("masternodecurrent", "") +
+            HelpExampleRpc("masternodecurrent", ""));
 
     CMasternode* winner = mnodeman.GetCurrentMasterNode(1);
     if (winner) {
@@ -243,7 +248,8 @@ UniValue masternodedebug (const UniValue& params, bool fHelp)
             "\"status\"     (string) Masternode status message\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("masternodedebug", "") + HelpExampleRpc("masternodedebug", ""));
+            HelpExampleCli("masternodedebug", "") +
+            HelpExampleRpc("masternodedebug", ""));
 
     if (!fMasterNode)
         throw std::runtime_error("This is not a masternode");
@@ -304,9 +310,10 @@ UniValue startmasternode (const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("startmasternode", "\"alias\" \"0\" \"my_mn\"") + HelpExampleRpc("startmasternode", "\"alias\" \"0\" \"my_mn\""));
+            HelpExampleCli("startmasternode", "\"alias\" \"0\" \"my_mn\"") +
+            HelpExampleRpc("startmasternode", "\"alias\", \"0\", \"my_mn\""));
 
-    bool fLock = (params[1].get_str() == "true" ? true : false);
+    bool fLock = ParseBool(params[1]);
 
     EnsureWalletIsUnlocked();
 
@@ -442,7 +449,8 @@ UniValue createmasternodekey (const UniValue& params, bool fHelp)
             "\"key\"    (string) Masternode private key\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("createmasternodekey", "") + HelpExampleRpc("createmasternodekey", ""));
+            HelpExampleCli("createmasternodekey", "") +
+            HelpExampleRpc("createmasternodekey", ""));
 
     CKey secret;
     secret.MakeNewKey(false);
@@ -467,7 +475,8 @@ UniValue getmasternodeoutputs (const UniValue& params, bool fHelp)
             "]\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getmasternodeoutputs", "") + HelpExampleRpc("getmasternodeoutputs", ""));
+            HelpExampleCli("getmasternodeoutputs", "") +
+            HelpExampleRpc("getmasternodeoutputs", ""));
 
     // Find possible candidates
     std::vector<COutput> possibleCoins = activeMasternode.SelectCoinsMasternode();
@@ -511,7 +520,8 @@ UniValue listmasternodeconf (const UniValue& params, bool fHelp)
             "]\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("listmasternodeconf", "") + HelpExampleRpc("listmasternodeconf", ""));
+            HelpExampleCli("listmasternodeconf", "") +
+            HelpExampleRpc("listmasternodeconf", ""));
 
     std::vector<CMasternodeConfig::CMasternodeEntry> mnEntries;
     mnEntries = masternodeConfig.getEntries();
@@ -563,7 +573,8 @@ UniValue getmasternodestatus (const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getmasternodestatus", "") + HelpExampleRpc("getmasternodestatus", ""));
+            HelpExampleCli("getmasternodestatus", "") +
+            HelpExampleRpc("getmasternodestatus", ""));
 
     if (!fMasterNode) throw std::runtime_error("This is not a masternode");
 
@@ -622,7 +633,8 @@ UniValue getmasternodewinners (const UniValue& params, bool fHelp)
             "]\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getmasternodewinners", "") + HelpExampleRpc("getmasternodewinners", ""));
+            HelpExampleCli("getmasternodewinners", "") +
+            HelpExampleRpc("getmasternodewinners", ""));
 
     int nHeight;
     {
@@ -702,7 +714,8 @@ UniValue getmasternodescores (const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getmasternodescores", "") + HelpExampleRpc("getmasternodescores", ""));
+            HelpExampleCli("getmasternodescores", "") +
+            HelpExampleRpc("getmasternodescores", ""));
 
     int nLast = 10;
 
@@ -788,7 +801,8 @@ UniValue createmasternodebroadcast(const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("createmasternodebroadcast", "alias mymn1") + HelpExampleRpc("createmasternodebroadcast", "alias mymn1"));
+            HelpExampleCli("createmasternodebroadcast", "\"alias\" \"my_mn\"") +
+            HelpExampleRpc("createmasternodebroadcast", "\"alias\", \"my_mn\""));
 
     EnsureWalletIsUnlocked();
 
@@ -909,7 +923,8 @@ UniValue decodemasternodebroadcast(const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("decodemasternodebroadcast", "hexstring") + HelpExampleRpc("decodemasternodebroadcast", "hexstring"));
+            HelpExampleCli("decodemasternodebroadcast", "\"hexstring\"") +
+            HelpExampleRpc("decodemasternodebroadcast", "\"hexstring\""));
 
     CMasternodeBroadcast mnb;
 
@@ -952,7 +967,8 @@ UniValue relaymasternodebroadcast(const UniValue& params, bool fHelp)
             "1. \"hexstring\"        (string) The hex encoded masternode broadcast message\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("relaymasternodebroadcast", "hexstring") + HelpExampleRpc("relaymasternodebroadcast", "hexstring"));
+            HelpExampleCli("relaymasternodebroadcast", "\"hexstring\"") +
+            HelpExampleRpc("relaymasternodebroadcast", "\"hexstring\""));
 
 
     CMasternodeBroadcast mnb;

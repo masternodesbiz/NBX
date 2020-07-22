@@ -168,6 +168,7 @@ extern uint256 ParseHashO(const UniValue& o, std::string strKey);
 extern std::vector<unsigned char> ParseHexV(const UniValue& v, std::string strName);
 extern std::vector<unsigned char> ParseHexO(const UniValue& o, std::string strKey);
 extern int ParseInt(const UniValue& o, std::string strKey);
+extern bool ParseBool(const UniValue& o, bool defaultValue = false);
 extern bool ParseBool(const UniValue& o, std::string strKey);
 
 extern int64_t nWalletUnlockTime;
@@ -213,6 +214,7 @@ extern UniValue getrawchangeaddress(const UniValue& params, bool fHelp);
 extern UniValue setaccount(const UniValue& params, bool fHelp);
 extern UniValue getaccount(const UniValue& params, bool fHelp);
 extern UniValue getaddressesbyaccount(const UniValue& params, bool fHelp);
+extern UniValue presendtoaddresses(const UniValue& params, bool fHelp);
 extern UniValue presendtoaddress(const UniValue& params, bool fHelp);
 extern UniValue sendtoaddress(const UniValue& params, bool fHelp);
 extern UniValue sendtoaddressix(const UniValue& params, bool fHelp);

@@ -1909,12 +1909,6 @@ Please be patient after clicking import.</translation>
         <translation>Your current NBX balance, unconfirmed and immature transactions included</translation>
     </message>
     <message>
-        <source>Unconfirmed: less than 20 confirmations
-Immature: confirmed, but less than 1 mint of the same denomination after it was minted</source>
-        <translation>Unconfirmed: less than 20 confirmations
-Immature: confirmed, but less than 1 mint of the same denomination after it was minted</translation>
-    </message>
-    <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NBX network after a connection is established, but this process has not completed yet.</source>
         <translation>The displayed information may be out of date. Your wallet automatically synchronises with the NBX network after a connection is established, but this process has not completed yet.</translation>
     </message>
@@ -3948,10 +3942,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
         <translation>Flush database activity from memory pool to disk log every &lt;n&gt; megabytes (default: %u)</translation>
     </message>
     <message>
-        <source>Found unconfirmed denominated outputs, will wait till they confirm to continue.</source>
-        <translation>Found unconfirmed denominated outputs, will wait till they confirm to continue.</translation>
-    </message>
-    <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
         <translation>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</translation>
     </message>
@@ -4314,10 +4304,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
     <message>
         <source>Error: A fatal internal error occured, see debug.log for details</source>
         <translation>Error: A fatal internal error occurred, see debug.log for details</translation>
-    </message>
-    <message>
-        <source>Error: Can't select current denominated inputs</source>
-        <translation>Error: Can't select current denominated inputs</translation>
     </message>
     <message>
         <source>Error: Disk space is low!</source>
@@ -4706,14 +4692,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
     <message>
         <source>No compatible Masternode found.</source>
         <translation>No compatible Masternode found.</translation>
-    </message>
-    <message>
-        <source>No funds detected in need of denominating.</source>
-        <translation>No funds detected in need of denominating.</translation>
-    </message>
-    <message>
-        <source>No matching denominations found for mixing.</source>
-        <translation>No matching denominations found for mixing.</translation>
     </message>
     <message>
         <source>Node relay options:</source>

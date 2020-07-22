@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -417,7 +417,7 @@ UniValue getdapp(const UniValue &params, bool fHelp) {
                 "  \"blockchain\": \"xxxx\",     (string) Blockchain on which dApp is based\n"
                 "  \"description\": \"xxxx\",    (string) DApp description\n"
                 "  \"image\": \"xxxx\"           (string) DApp image (Base64-encoded)\n"
-                "  \"deleted\": true             (bool, optional) True if application was deleted\n"
+                "  \"deleted\": true             (boolean, optional) True if application was deleted\n"
                 "}\n"
 
                 "\nExamples:\n"
@@ -476,7 +476,7 @@ UniValue listdapps(const UniValue &params, bool fHelp) {
                 "\nLists all dApp's in dApp Store.\n"
 
                 "\nArguments:\n"
-                "1. verbose     (bool, optional, default=false) If false, return txid's list, otherwise return list with description\n"
+                "1. verbose     (boolean, optional, default=false) If false, return txid's list, otherwise return list with description\n"
 
                 "\nResult (if verbose is not set or set to false):\n"
                 "[\n"
@@ -530,7 +530,7 @@ UniValue listmydapps(const UniValue &params, bool fHelp) {
                 "\nLists my dApp's.\n"
 
                 "\nArguments:\n"
-                "1. verbose     (bool, optional, default=false) If false, return txid's list, otherwise return list with description\n"
+                "1. verbose     (boolean, optional, default=false) If false, return txid's list, otherwise return list with description\n"
 
                 "\nResult (if verbose is not set or set to false):\n"
                 "[\n"

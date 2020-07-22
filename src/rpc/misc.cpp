@@ -71,7 +71,8 @@ UniValue getinfo(const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getinfo", "") + HelpExampleRpc("getinfo", ""));
+            HelpExampleCli("getinfo", "") +
+            HelpExampleRpc("getinfo", ""));
 
 #ifdef ENABLE_WALLET
     LOCK2(cs_main, pwalletMain ? &pwalletMain->cs_wallet : NULL);
@@ -178,7 +179,8 @@ UniValue mnsync(const UniValue& params, bool fHelp)
             "\"status\"     (string) 'success'\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("mnsync", "\"status\"") + HelpExampleRpc("mnsync", "\"status\""));
+            HelpExampleCli("mnsync", "\"status\"") +
+            HelpExampleRpc("mnsync", "\"status\""));
     }
 
     if (strMode == "status") {
@@ -312,7 +314,8 @@ UniValue spork(const UniValue& params, bool fHelp)
         " \"success|failure\"       (string) Whether or not the update succeeded.\n"
 
         "\nExamples:\n" +
-        HelpExampleCli("spork", "show") + HelpExampleRpc("spork", "show"));
+        HelpExampleCli("spork", "\"show\"") +
+        HelpExampleRpc("spork", "\"show\""));
 }
 
 UniValue validateaddress(const UniValue& params, bool fHelp)
@@ -340,7 +343,8 @@ UniValue validateaddress(const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("validateaddress", "\"1PSSGeFHDnKNxiEyFrD1wcEaHr9hrQDDWc\"") + HelpExampleRpc("validateaddress", "\"1PSSGeFHDnKNxiEyFrD1wcEaHr9hrQDDWc\""));
+            HelpExampleCli("validateaddress", "\"NYkDC3hHouRaCSAMNsSxFj5Xv1h5etPzGT\"") +
+            HelpExampleRpc("validateaddress", "\"NYkDC3hHouRaCSAMNsSxFj5Xv1h5etPzGT\""));
 
 #ifdef ENABLE_WALLET
     LOCK2(cs_main, pwalletMain ? &pwalletMain->cs_wallet : NULL);
@@ -456,9 +460,9 @@ UniValue createmultisig(const UniValue& params, bool fHelp)
 
             "\nExamples:\n"
             "\nCreate a multisig address from 2 addresses\n" +
-            HelpExampleCli("createmultisig", "2 \"[\\\"16sSauSf5pF2UkUwvKGq4qjNRzBZYqgEL5\\\",\\\"171sgjn4YtPu27adkKGrdDwzRTxnRkBfKV\\\"]\"") +
+            HelpExampleCli("createmultisig", "2 \"[\\\"NYkDC3hHouRaCSAMNsSxFj5Xv1h5etPzGT\\\",\\\"NbMDdS7JjQHKACRtJT3aGm31BLW2eNvALs\\\"]\"") +
             "\nAs a json rpc call\n" +
-            HelpExampleRpc("createmultisig", "2, \"[\\\"16sSauSf5pF2UkUwvKGq4qjNRzBZYqgEL5\\\",\\\"171sgjn4YtPu27adkKGrdDwzRTxnRkBfKV\\\"]\""));
+            HelpExampleRpc("createmultisig", "2, [\"NYkDC3hHouRaCSAMNsSxFj5Xv1h5etPzGT\",\"NbMDdS7JjQHKACRtJT3aGm31BLW2eNvALs\"]"));
 
     // Construct using pay-to-script-hash:
     CScript inner = _createmultisig_redeemScript(params);
@@ -491,11 +495,11 @@ UniValue verifymessage(const UniValue& params, bool fHelp)
             "\nUnlock the wallet for 30 seconds\n" +
             HelpExampleCli("walletpassphrase", "\"mypassphrase\" 30") +
             "\nCreate the signature\n" +
-            HelpExampleCli("signmessage", "\"1D1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XZ\" \"my message\"") +
+            HelpExampleCli("signmessage", "\"NYkDC3hHouRaCSAMNsSxFj5Xv1h5etPzGT\" \"my message\"") +
             "\nVerify the signature\n" +
-            HelpExampleCli("verifymessage", "\"1D1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XZ\" \"signature\" \"my message\"") +
+            HelpExampleCli("verifymessage", "\"NYkDC3hHouRaCSAMNsSxFj5Xv1h5etPzGT\" \"signature\" \"my message\"") +
             "\nAs json rpc\n" +
-            HelpExampleRpc("verifymessage", "\"1D1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XZ\", \"signature\", \"my message\""));
+            HelpExampleRpc("verifymessage", "\"NYkDC3hHouRaCSAMNsSxFj5Xv1h5etPzGT\", \"signature\", \"my message\""));
 
     LOCK(cs_main);
 
@@ -570,7 +574,8 @@ UniValue getstakingstatus(const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getstakingstatus", "") + HelpExampleRpc("getstakingstatus", ""));
+            HelpExampleCli("getstakingstatus", "") +
+            HelpExampleRpc("getstakingstatus", ""));
 
 #ifdef ENABLE_WALLET
     LOCK2(cs_main, pwalletMain ? &pwalletMain->cs_wallet : NULL);

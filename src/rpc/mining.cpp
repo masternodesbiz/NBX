@@ -2,7 +2,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -88,7 +88,8 @@ UniValue getnetworkhashps(const UniValue& params, bool fHelp)
             "\nResult:\n"
             "x             (numeric) Hashes per second estimated\n"
             "\nExamples:\n" +
-            HelpExampleCli("getnetworkhashps", "") + HelpExampleRpc("getnetworkhashps", ""));
+            HelpExampleCli("getnetworkhashps", "") +
+            HelpExampleRpc("getnetworkhashps", ""));
 
     LOCK(cs_main);
     return GetNetworkHashPS(params.size() > 0 ? params[0].get_int() : 120, params.size() > 1 ? params[1].get_int() : -1);
@@ -108,7 +109,8 @@ UniValue getgenerate(const UniValue& params, bool fHelp)
             "true|false      (boolean) If the server is set to generate coins or not\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getgenerate", "") + HelpExampleRpc("getgenerate", ""));
+            HelpExampleCli("getgenerate", "") +
+            HelpExampleRpc("getgenerate", ""));
 
     LOCK(cs_main);
     return GetBoolArg("-gen", false);
@@ -208,9 +210,7 @@ UniValue setgenerate(const UniValue& params, bool fHelp)
     if (Params().MineBlocksOnDemand())
         throw JSONRPCError(RPC_INVALID_REQUEST, "Use the generate method instead of setgenerate on this network");
 
-    bool fGenerate = true;
-    if (params.size() > 0)
-        fGenerate = params[0].get_bool();
+    bool fGenerate = ParseBool(params[0], true);
 
     if (fGenerate && (chainActive.Height() >= Params().LAST_POW_BLOCK()))
         throw JSONRPCError(RPC_INVALID_REQUEST, "Proof of Work phase has already ended");
@@ -241,14 +241,14 @@ UniValue gethashespersec(const UniValue& params, bool fHelp)
             "n            (numeric) The recent hashes per second when generation is on (will return 0 if generation is off)\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("gethashespersec", "") + HelpExampleRpc("gethashespersec", ""));
+            HelpExampleCli("gethashespersec", "") +
+            HelpExampleRpc("gethashespersec", ""));
 
     if (GetTimeMillis() - nHPSTimerStart > 8000)
         return (int64_t)0;
     return (int64_t)dHashesPerSec;
 }
 #endif
-
 
 UniValue getmininginfo(const UniValue& params, bool fHelp)
 {
@@ -273,7 +273,8 @@ UniValue getmininginfo(const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getmininginfo", "") + HelpExampleRpc("getmininginfo", ""));
+            HelpExampleCli("getmininginfo", "") +
+            HelpExampleRpc("getmininginfo", ""));
 
     LOCK(cs_main);
 
@@ -294,7 +295,6 @@ UniValue getmininginfo(const UniValue& params, bool fHelp)
 #endif
     return obj;
 }
-
 
 // NOTE: Unlike wallet RPC (which use BTC values), mining RPCs follow GBT (BIP 22) in using satoshi amounts
 UniValue prioritisetransaction(const UniValue& params, bool fHelp)
@@ -317,7 +317,8 @@ UniValue prioritisetransaction(const UniValue& params, bool fHelp)
             "true              (boolean) Returns true\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("prioritisetransaction", "\"txid\" 0.0 10000") + HelpExampleRpc("prioritisetransaction", "\"txid\", 0.0, 10000"));
+            HelpExampleCli("prioritisetransaction", "\"txid\" 0.0 10000") +
+            HelpExampleRpc("prioritisetransaction", "\"txid\", 0.0, 10000"));
 
     LOCK(cs_main);
 
@@ -327,7 +328,6 @@ UniValue prioritisetransaction(const UniValue& params, bool fHelp)
     mempool.PrioritiseTransaction(hash, params[0].get_str(), params[1].get_real(), nAmount);
     return true;
 }
-
 
 // NOTE: Assumes a conclusive result; if result is inconclusive, it must be handled by caller
 static UniValue BIP22ValidationResult(const CValidationState& state)
@@ -411,7 +411,8 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getblocktemplate", "") + HelpExampleRpc("getblocktemplate", ""));
+            HelpExampleCli("getblocktemplate", "") +
+            HelpExampleRpc("getblocktemplate", ""));
 
     LOCK(cs_main);
 
@@ -661,7 +662,8 @@ UniValue submitblock(const UniValue& params, bool fHelp)
             "\nResult:\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("submitblock", "\"mydata\"") + HelpExampleRpc("submitblock", "\"mydata\""));
+            HelpExampleCli("submitblock", "\"mydata\"") +
+            HelpExampleRpc("submitblock", "\"mydata\""));
 
     CBlock block;
     if (!DecodeHexBlk(block, params[0].get_str()))

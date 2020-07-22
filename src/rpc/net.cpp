@@ -1,7 +1,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -32,7 +32,8 @@ UniValue getconnectioncount(const UniValue& params, bool fHelp)
             "n          (numeric) The connection count\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getconnectioncount", "") + HelpExampleRpc("getconnectioncount", ""));
+            HelpExampleCli("getconnectioncount", "") +
+            HelpExampleRpc("getconnectioncount", ""));
 
     LOCK2(cs_main, cs_vNodes);
 
@@ -49,7 +50,8 @@ UniValue ping(const UniValue& params, bool fHelp)
             "Ping command is handled in queue with all other commands, so it measures processing backlog, not just network ping.\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("ping", "") + HelpExampleRpc("ping", ""));
+            HelpExampleCli("ping", "") +
+            HelpExampleRpc("ping", ""));
 
     // Request that each node send a ping during next message processing pass
     LOCK2(cs_main, cs_vNodes);
@@ -112,7 +114,8 @@ UniValue getpeerinfo(const UniValue& params, bool fHelp)
             "]\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getpeerinfo", "") + HelpExampleRpc("getpeerinfo", ""));
+            HelpExampleCli("getpeerinfo", "") +
+            HelpExampleRpc("getpeerinfo", ""));
 
     LOCK(cs_main);
 
@@ -181,7 +184,8 @@ UniValue addnode(const UniValue& params, bool fHelp)
             "2. \"command\"  (string, required) 'add' to add a node to the list, 'remove' to remove a node from the list, 'onetry' to try a connection to the node once\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("addnode", "\"192.168.0.6:28734\" \"onetry\"") + HelpExampleRpc("addnode", "\"192.168.0.6:28734\", \"onetry\""));
+            HelpExampleCli("addnode", "\"192.168.0.6:28734\" \"onetry\"") +
+            HelpExampleRpc("addnode", "\"192.168.0.6:28734\", \"onetry\""));
 
     std::string strNode = params[0].get_str();
 
@@ -265,9 +269,11 @@ UniValue getaddednodeinfo(const UniValue& params, bool fHelp)
             "]\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getaddednodeinfo", "true") + HelpExampleCli("getaddednodeinfo", "true \"192.168.0.201\"") + HelpExampleRpc("getaddednodeinfo", "true, \"192.168.0.201\""));
+            HelpExampleCli("getaddednodeinfo", "true") +
+            HelpExampleCli("getaddednodeinfo", "true \"192.168.0.201\"") +
+            HelpExampleRpc("getaddednodeinfo", "true, \"192.168.0.201\""));
 
-    bool fDns = params[0].get_bool();
+    bool fDns = ParseBool(params[0]);
 
     std::list<std::string> laddedNodes(0);
     if (params.size() == 1) {
@@ -356,7 +362,8 @@ UniValue getnettotals(const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getnettotals", "") + HelpExampleRpc("getnettotals", ""));
+            HelpExampleCli("getnettotals", "") +
+            HelpExampleRpc("getnettotals", ""));
 
     UniValue obj(UniValue::VOBJ);
     obj.push_back(Pair("totalbytesrecv", CNode::GetTotalBytesRecv()));
@@ -421,7 +428,8 @@ UniValue getnetworkinfo(const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getnetworkinfo", "") + HelpExampleRpc("getnetworkinfo", ""));
+            HelpExampleCli("getnetworkinfo", "") +
+            HelpExampleRpc("getnetworkinfo", ""));
 
     LOCK(cs_main);
 
@@ -495,9 +503,7 @@ UniValue setban(const UniValue& params, bool fHelp)
         if (params.size() >= 3 && !params[2].isNull())
             banTime = params[2].get_int64();
 
-        bool absolute = false;
-        if (params.size() == 4)
-            absolute = params[3].get_bool();
+        bool absolute = ParseBool(params[3]);
 
         isSubnet ? CNode::Ban(subNet, BanReasonManuallyAdded, banTime, absolute) : CNode::Ban(netAddr, BanReasonManuallyAdded, banTime, absolute);
 

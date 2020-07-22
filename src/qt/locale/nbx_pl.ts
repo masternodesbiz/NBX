@@ -1910,12 +1910,6 @@ Please be patient after clicking import.</source>
         <translation>Twoje bieżące saldo NBX, niepotwierdzone transakcje zostały uwzględnione</translation>
     </message>
     <message>
-        <source>Unconfirmed: less than 20 confirmations
-Immature: confirmed, but less than 1 mint of the same denomination after it was minted</source>
-        <translation>Niepotwierdzone: mniej niż 20 potwierdzeń
-Niedojrzały: potwierdzony, ale mniej niż 1 mint o tym samym nominale po wybiciu</translation>
-    </message>
-    <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NBX network after a connection is established, but this process has not completed yet.</source>
         <translation>Wyświetlane informacje mogą być nieaktualne. Twój portfel automatycznie synchronizuje się z siecią NBX po nawiązaniu połączenia, ale ten proces jeszcze się nie zakończył.</translation>
     </message>
@@ -3953,10 +3947,6 @@ Niedojrzały: potwierdzony, ale mniej niż 1 mint o tym samym nominale po wybici
         <translation>Opróżniaj dziennik z pamięci dysku co &lt;n&gt; megabajtów (domyślnie:%u)</translation>
     </message>
     <message>
-        <source>Found unconfirmed denominated outputs, will wait till they confirm to continue.</source>
-        <translation>Znaleziono niepotwierdzone wyniki, czekam na potwierdzenie żeby kontynuować.</translation>
-    </message>
-    <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
         <translation>Jeśli paytxfee nie jest ustawiony, należy ustawić odpowiednią opłatę, aby transakcje zaczęły potwierdzać średnio w n blokach (domyślnie:%u)</translation>
     </message>
@@ -4131,10 +4121,6 @@ Niedojrzały: potwierdzony, ale mniej niż 1 mint o tym samym nominale po wybici
     <message>
         <source>Error</source>
         <translation>Błąd</translation>
-    </message>
-    <message>
-        <source>Error: Can't select current denominated inputs</source>
-        <translation>Błąd: nie można wybrać takich jednostek</translation>
     </message>
     <message>
         <source>Error: Disk space is low!</source>

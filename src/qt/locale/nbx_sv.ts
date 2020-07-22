@@ -1905,12 +1905,6 @@ Var god vänta efter att du trycker på importera.</translation>
         <translation>Ditt nuvarande NBX saldo, obekräftade och omogna transaktioner är inkluderade</translation>
     </message>
     <message>
-        <source>Unconfirmed: less than 20 confirmations
-Immature: confirmed, but less than 1 mint of the same denomination after it was minted</source>
-        <translation>Obekräftade: Under 20 bekräftelser
-Omogna: bekräftade men under 1 myntning av samma valör efter den blev präglad</translation>
-    </message>
-    <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NBX network after a connection is established, but this process has not completed yet.</source>
         <translation>nformationen kan vara föråldrad. Din plånbok synkroniserar automatiskt med NBX nätverket efter att en anslutning är etablerad, men denna process har inte blivit klar än.</translation>
     </message>
@@ -3896,10 +3890,6 @@ Omogna: bekräftade men under 1 myntning av samma valör efter den blev präglad
         <translation>Spola databasaktivitet från minnes pool till disk log varje &lt;n&gt;megabytes (default: %u)</translation>
     </message>
     <message>
-        <source>Found unconfirmed denominated outputs, will wait till they confirm to continue.</source>
-        <translation>Obekräftade betecknade utmatningar hittade, kommer vänta tills de bekräftar för att fortsätta.</translation>
-    </message>
-    <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
         <translation>Om paytxfee inte är satt, inkludera tillräcklig avgift för att transaktionen ska börja bekräfta i genomsnitt inom n block (standard: %u)</translation>
     </message>
@@ -4262,10 +4252,6 @@ Omogna: bekräftade men under 1 myntning av samma valör efter den blev präglad
     <message>
         <source>Error: A fatal internal error occured, see debug.log for details</source>
         <translation>Fel: Ett fatalt internt fel inträffade, se debug.log för detaljer</translation>
-    </message>
-    <message>
-        <source>Error: Can't select current denominated inputs</source>
-        <translation>Fel: Kan ej välja nuvarande benämnda inmatningar</translation>
     </message>
     <message>
         <source>Error: Disk space is low!</source>
@@ -4654,14 +4640,6 @@ Omogna: bekräftade men under 1 myntning av samma valör efter den blev präglad
     <message>
         <source>No compatible Masternode found.</source>
         <translation>Inga kompatibla Huvudnoder hittade.</translation>
-    </message>
-    <message>
-        <source>No funds detected in need of denominating.</source>
-        <translation>Inga pengar o behov av benämnelse upptäckta.</translation>
-    </message>
-    <message>
-        <source>No matching denominations found for mixing.</source>
-        <translation>Inga matchande valörer hittade till blandning.</translation>
     </message>
     <message>
         <source>Node relay options:</source>

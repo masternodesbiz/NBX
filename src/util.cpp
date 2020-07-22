@@ -2,7 +2,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -835,6 +835,18 @@ std::string uint2hex(unsigned int num, bool showZeros){
     if (res.empty())
         res = '0';
     return res;
+}
+
+std::string uint2str(unsigned int number)
+{
+    static char buf[11];
+    char * tmp = buf + 10;
+    *tmp-- = 0;
+    do{
+        *tmp-- = number % 10 + '0';
+        number /= 10;
+    } while (number != 0);
+    return tmp + 1;
 }
 
 void RenameThread(const char* name)

@@ -1877,12 +1877,6 @@ S'il vous plaît soyez patient après avoir cliqué sur l'importation.</translat
         <translation>Votre solde NBX actuel, incluant les transactions non confirmées et immatures</translation>
     </message>
     <message>
-        <source>Unconfirmed: less than 20 confirmations
-Immature: confirmed, but less than 1 mint of the same denomination after it was minted</source>
-        <translation>Non confirmé: moins de 20 confirmations
-Immature: confirmé, mais moins de 1 monnaie de la même dénomination après sa frappe</translation>
-    </message>
-    <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NBX network after a connection is established, but this process has not completed yet.</source>
         <translation>Les informations affichées pourraient être périmées. Votre portefeuille se synchronise automatiquement avec le réseau NBX après l'établissement d'une connexion, mais ce processus n'est pas encore terminé.</translation>
     </message>
@@ -3888,10 +3882,6 @@ Immature: confirmé, mais moins de 1 monnaie de la même dénomination après sa
         <translation>Vider l'activité de la base de données du pool de mémoire vers le journal du disque tous les &lt;n&gt;mégaoctets (par défaut: %u)</translation>
     </message>
     <message>
-        <source>Found unconfirmed denominated outputs, will wait till they confirm to continue.</source>
-        <translation>Les sorties libellées non confirmées attendront jusqu'à ce qu'elles se confirment pour continuer.</translation>
-    </message>
-    <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
         <translation>Si paytxfee n'est pas défini, incluez suffisamment de frais pour que les transactions commencent la confirmation en moyenne dans les n blocs (par défaut: %u)</translation>
     </message>
@@ -4254,10 +4244,6 @@ Immature: confirmé, mais moins de 1 monnaie de la même dénomination après sa
     <message>
         <source>Error: A fatal internal error occured, see debug.log for details</source>
         <translation>Erreur: Une erreur interne fatale est survenue, voir debug.log pour plus de détails</translation>
-    </message>
-    <message>
-        <source>Error: Can't select current denominated inputs</source>
-        <translation>Erreur: Impossible de sélectionner les entrées spécifiées</translation>
     </message>
     <message>
         <source>Error: Disk space is low!</source>
@@ -4647,14 +4633,6 @@ Immature: confirmé, mais moins de 1 monnaie de la même dénomination après sa
     <message>
         <source>No compatible Masternode found.</source>
         <translation>Aucun Masternode compatible trouvé.</translation>
-    </message>
-    <message>
-        <source>No funds detected in need of denominating.</source>
-        <translation>Aucun fonds détecté nécessitant une dénomination.</translation>
-    </message>
-    <message>
-        <source>No matching denominations found for mixing.</source>
-        <translation>Aucune dénomination adéquate trouvée pour le mélange.</translation>
     </message>
     <message>
         <source>Node relay options:</source>

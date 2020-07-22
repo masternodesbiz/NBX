@@ -1799,12 +1799,6 @@ Please be patient after clicking import.</source>
         <translation>Вашите NBX наличности, включително непотвърдените и неузрели преводи</translation>
     </message>
     <message>
-        <source>Unconfirmed: less than 20 confirmations
-Immature: confirmed, but less than 1 mint of the same denomination after it was minted</source>
-        <translation>Непотвърдени: по-малко от 20 потвърждения
-Неузрели: потвърдени, но с по-малко от 1 емисии от същата деноминация след като са биле емитирани</translation>
-    </message>
-    <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NBX network after a connection is established, but this process has not completed yet.</source>
         <translation>Информацията на вашия екран може би е стара. Вашия портфейла синхронизира автоматично с NBX мрежата след като има успешна свръзка, но процеса отнема време и не е завършил все още.</translation>
     </message>
@@ -3738,10 +3732,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
         <translation>Изпразни паметта за дейности по базата данни в лог файл на диска на всеки &lt;n&gt; мегабайта (default: %u)</translation>
     </message>
     <message>
-        <source>Found unconfirmed denominated outputs, will wait till they confirm to continue.</source>
-        <translation>Намерени са непотвърдени деноминации, ще изчакаме докато се потвърдят преди да продължим.</translation>
-    </message>
-    <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
         <translation>Ако paytxfee не е зададен, включи достатъчно такси, така че превода да започне с потвърждение на всеки N блока (default: %u)</translation>
     </message>
@@ -4096,10 +4086,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
     <message>
         <source>Error: A fatal internal error occured, see debug.log for details</source>
         <translation>Грешка: Фатална вътрешна грешка, вижте debug.log за повече подробности.</translation>
-    </message>
-    <message>
-        <source>Error: Can't select current denominated inputs</source>
-        <translation>Грешка: Така зададените деноминации не могат да бъдат избрани</translation>
     </message>
     <message>
         <source>Error: Disk space is low!</source>
@@ -4484,14 +4470,6 @@ Immature: confirmed, but less than 1 mint of the same denomination after it was 
     <message>
         <source>No compatible Masternode found.</source>
         <translation>Не е намерен съвместим Мастърноуд.</translation>
-    </message>
-    <message>
-        <source>No funds detected in need of denominating.</source>
-        <translation>Не засякохме средства, които да имат нужда от деноминация.</translation>
-    </message>
-    <message>
-        <source>No matching denominations found for mixing.</source>
-        <translation>Не намерихме съвпадащи деноминации за смесване.</translation>
     </message>
     <message>
         <source>Node relay options:</source>

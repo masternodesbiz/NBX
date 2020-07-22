@@ -151,7 +151,7 @@ background-color:#dedbe5;
 }
 
 QWidget {
-selection-background-color:#5c4c7c; /* Object highlight color */
+selection-background-color:#6184fc; /* Object highlight color */
 selection-color:#fff;
 outline:0; /* Remove Annoying Focus Rectangle */
 }
@@ -577,7 +577,7 @@ border-radius: 4px;
 }
 
 QSlider::add-page:horizontal {
-background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #5c4c7c, stop: 1 #9179c7);
+background: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #30c3f6, stop: 1 #6184fc);
 border: 1px solid #333;
 height: 10px;
 border-radius: 4px;
@@ -1265,7 +1265,7 @@ QDialog#CoinControlDialog .CoinControlTreeWidget#treeWidget::item {
 }
 
 QDialog#CoinControlDialog .CoinControlTreeWidget#treeWidget::item:selected { /* Coin Control Item (selected) */
-background-color:#5c4c7c;
+background-color:#6184fc;
 color:#fff;
 }
 
@@ -1394,7 +1394,7 @@ border:1px solid #333;
 }
 
 QCalendarWidget QWidget#qt_calendar_navigationbar { /* Calendar widget navigation bar */
-background-color:#5c4c7c;
+background-color:#6184fc;
 font-weight:bold;
 }
 

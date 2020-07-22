@@ -1,7 +1,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -76,7 +76,8 @@ UniValue dumpprivkey(const UniValue& params, bool fHelp)
             "\"key\"                (string) The private key\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("dumpprivkey", "\"myaddress\"") + HelpExampleRpc("dumpprivkey", "\"myaddress\""));
+            HelpExampleCli("dumpprivkey", "\"myaddress\"") +
+            HelpExampleRpc("dumpprivkey", "\"myaddress\""));
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
@@ -108,7 +109,8 @@ UniValue dumpwallet(const UniValue& params, bool fHelp)
             "1. \"filename\"    (string, required) The filename\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("dumpwallet", "\"test\"") + HelpExampleRpc("dumpwallet", "\"test\""));
+            HelpExampleCli("dumpwallet", "\"test\"") +
+            HelpExampleRpc("dumpwallet", "\"test\""));
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 

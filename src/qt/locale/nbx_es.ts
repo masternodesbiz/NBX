@@ -1861,12 +1861,6 @@ Por favor, tenga paciencia después de hacer clic en importar.</translation>
         <translation>Su balance NBX actual, transacciones no confirmadas e inmaduras incluidas</translation>
     </message>
     <message>
-        <source>Unconfirmed: less than 20 confirmations
-Immature: confirmed, but less than 1 mint of the same denomination after it was minted</source>
-        <translation>Sin confirmar: menos de 20 confirmaciones
-Inmaduro: confirmado, pero menos de 1 acuñación de la misma denominación después de ser acuñado</translation>
-    </message>
-    <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NBX network after a connection is established, but this process has not completed yet.</source>
         <translation>La información mostrada puede estar desactualizada. Su monedero se sincroniza automáticamente con la red NBX después de establecer una conexión, pero este proceso aún no se ha completado.</translation>
     </message>
@@ -3804,10 +3798,6 @@ Inmaduro: confirmado, pero menos de 1 acuñación de la misma denominación desp
         <translation>Trasladar la actividad de la base de datos en el pool de memoria al log de disco cada &lt;n&gt; megabytes (default: %u)</translation>
     </message>
     <message>
-        <source>Found unconfirmed denominated outputs, will wait till they confirm to continue.</source>
-        <translation>Se encontró salidas denominadas sin confirmar, se esperará hasta que se confirmen para continuar.</translation>
-    </message>
-    <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
         <translation>Si paytxfee no esta definido, incluir suficiente comisión de manera que la transacción se vuelva confirmada en promedio dentro de n bloques (predeterminado: %u)</translation>
     </message>
@@ -4162,10 +4152,6 @@ Inmaduro: confirmado, pero menos de 1 acuñación de la misma denominación desp
     <message>
         <source>Error: A fatal internal error occured, see debug.log for details</source>
         <translation>Error: Un error interno fatal a ocurrido, ver debug.log para mas detalles</translation>
-    </message>
-    <message>
-        <source>Error: Can't select current denominated inputs</source>
-        <translation>Error: No se pudo seleccionar las entradas denominadas actuales</translation>
     </message>
     <message>
         <source>Error: Disk space is low!</source>
@@ -4554,14 +4540,6 @@ Inmaduro: confirmado, pero menos de 1 acuñación de la misma denominación desp
     <message>
         <source>No compatible Masternode found.</source>
         <translation>No hay un Masternode compatible encontrado.</translation>
-    </message>
-    <message>
-        <source>No funds detected in need of denominating.</source>
-        <translation>No hay fondos detectados necesarios de denominación.</translation>
-    </message>
-    <message>
-        <source>No matching denominations found for mixing.</source>
-        <translation>No hemos encontrado billetes coincidentes para mezclado.</translation>
     </message>
     <message>
         <source>Node relay options:</source>

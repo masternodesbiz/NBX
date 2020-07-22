@@ -342,7 +342,6 @@ set(WALLET_SOURCES
         ./src/dappstore/dapp.cpp
         ./src/dappstore/dappstore.cpp
         ./src/dappstore/dappstoredb.cpp
-        ./src/denomination_functions.cpp
         ./src/obfuscation.cpp
         ./src/obfuscation-relay.cpp
         ./src/wallet/db.cpp

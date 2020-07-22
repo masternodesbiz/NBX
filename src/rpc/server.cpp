@@ -115,10 +115,7 @@ CAmount AmountFromValue(const UniValue& value)
     if (!value.isNum())
         throw JSONRPCError(RPC_TYPE_ERROR, "Amount is not a number");
 
-    double dAmount = value.get_real();
-    if (dAmount <= 0.0 || dAmount > 500000.0)
-        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount");
-    CAmount nAmount = roundint64(dAmount * COIN);
+    CAmount nAmount = roundint64(value.get_real() * COIN);
     if (!MoneyRange(nAmount))
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount");
     return nAmount;
@@ -147,10 +144,12 @@ uint256 ParseHashV(const UniValue& v, std::string strName)
     result.SetHex(strHex);
     return result;
 }
+
 uint256 ParseHashO(const UniValue& o, std::string strKey)
 {
     return ParseHashV(find_value(o, strKey), strKey);
 }
+
 std::vector<unsigned char> ParseHexV(const UniValue& v, std::string strName)
 {
     std::string strHex;
@@ -160,6 +159,7 @@ std::vector<unsigned char> ParseHexV(const UniValue& v, std::string strName)
         throw JSONRPCError(RPC_INVALID_PARAMETER, strName + " must be hexadecimal string (not '" + strHex + "')");
     return ParseHex(strHex);
 }
+
 std::vector<unsigned char> ParseHexO(const UniValue& o, std::string strKey)
 {
     return ParseHexV(find_value(o, strKey), strKey);
@@ -172,6 +172,16 @@ int ParseInt(const UniValue& o, std::string strKey)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, " + strKey + "is not an int");
 
     return v.get_int();
+}
+
+bool ParseBool(const UniValue& o, bool defaultValue) {
+    if (o.isNull())
+        return defaultValue;
+    if (o.isNum())
+        return o.get_int() != 0;
+    if (o.isBool())
+        return o.get_bool();
+    return defaultValue;
 }
 
 bool ParseBool(const UniValue& o, std::string strKey)
@@ -457,6 +467,7 @@ static const CRPCCommand vRPCCommands[] =
         {"wallet", "multisend", &multisend, false, false, true},
         {"wallet", "sendfrom", &sendfrom, false, false, true},
         {"wallet", "sendmany", &sendmany, false, false, true},
+        {"wallet", "presendtoaddresses", &presendtoaddresses, false, false, true},
         {"wallet", "presendtoaddress", &presendtoaddress, false, false, true},
         {"wallet", "sendtoaddress", &sendtoaddress, false, false, true},
         {"wallet", "sendtoaddressix", &sendtoaddressix, false, false, true},
@@ -637,8 +648,8 @@ std::string HelpExampleCli(std::string methodname, std::string args)
 std::string HelpExampleRpc(std::string methodname, std::string args)
 {
     return "> curl --user myusername --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", "
-           "\"method\": \"" +
-           methodname + "\", \"params\": [" + args + "] }' -H 'content-type: text/plain;' http://127.0.0.1:28735/\n";
+           "\"method\": \"" + methodname + "\", \"params\": [" + args + "] }' "
+           "-H 'content-type: text/plain;' http://127.0.0.1:" + uint2str(BaseParams().RPCPort()) + "/\n";
 }
 
 void RPCSetTimerInterfaceIfUnset(RPCTimerInterface *iface)

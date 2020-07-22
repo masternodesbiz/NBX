@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,6 +8,7 @@
 #include <psapi.h>
 #include <dbghelp.h>
 
+#include "util.h"
 
 #if defined(_M_X64) || defined(__x86_64__)
 typedef DWORD64 MACH_DWORD;
@@ -64,18 +65,6 @@ std::string addr2hex(MACH_DWORD num, bool trim = true)
             res += alpha[low];
     }
     return res;
-}
-
-std::string uint2str(unsigned long number)
-{
-    static char buf[11];
-    char * tmp = buf + 10;
-    *tmp-- = 0;
-    do{
-        *tmp-- = number % 10 + '0';
-        number /= 10;
-    } while (number != 0);
-    return tmp + 1;
 }
 
 std::string GetWinAddrDescription(DWORD64 addr)

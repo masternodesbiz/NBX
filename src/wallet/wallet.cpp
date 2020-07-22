@@ -1934,7 +1934,7 @@ bool CWallet::CreateTransaction(const std::vector<std::pair<CScript, CAmount> >&
     CAmount nValue = 0;
 
     for (const PAIRTYPE(CScript, CAmount) & s : vecSend) {
-        if (nValue < 0) {
+        if (s.second < 0) {
             strFailReason = _("Transaction amounts must be positive");
             return false;
         }

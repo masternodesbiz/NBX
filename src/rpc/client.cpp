@@ -35,6 +35,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
         {"generate", 0},
         {"getnetworkhashps", 0},
         {"getnetworkhashps", 1},
+        {"presendtoaddresses", 0},
         {"presendtoaddress", 1},
         {"sendtoaddress", 1},
         {"sendtoaddressix", 1},
@@ -109,8 +110,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
         {"setban", 2},
         {"setban", 3},
         {"spork", 1},
-        // disabled until removal of the legacy 'masternode' command
-        //{"startmasternode", 1},
+        {"startmasternode", 1},
         {"mnvoteraw", 1},
         {"mnvoteraw", 4},
         {"reservebalance", 0},

@@ -96,9 +96,6 @@ QT_TRANSLATE_NOOP("core", ""
 "Flush database activity from memory pool to disk log every <n> megabytes "
 "(default: %u)"),
 QT_TRANSLATE_NOOP("core", ""
-"Found unconfirmed denominated outputs, will wait till they confirm to "
-"continue."),
-QT_TRANSLATE_NOOP("core", ""
 "If paytxfee is not set, include enough fee so transactions begin "
 "confirmation on average within n blocks (default: %u)"),
 QT_TRANSLATE_NOOP("core", ""
@@ -180,9 +177,6 @@ QT_TRANSLATE_NOOP("core", ""
 "Reduce the number or size of uacomments."),
 QT_TRANSLATE_NOOP("core", ""
 "Unable to bind to %s on this computer. Netbox.Wallet is probably already running."),
-QT_TRANSLATE_NOOP("core", ""
-"Unable to locate enough Obfuscation non-denominated funds for this "
-"transaction that are not equal 10000 NBX."),
 QT_TRANSLATE_NOOP("core", ""
 "Unable to locate enough funds for this transaction that are not equal 10000 "
 "NBX."),
@@ -288,7 +282,6 @@ QT_TRANSLATE_NOOP("core", "Error recovering public key."),
 QT_TRANSLATE_NOOP("core", "Error"),
 QT_TRANSLATE_NOOP("core", "Error: A fatal internal error occured, see debug.log for details"),
 QT_TRANSLATE_NOOP("core", "Error: A fatal internal error occurred, see debug.log for details"),
-QT_TRANSLATE_NOOP("core", "Error: Can't select current denominated inputs"),
 QT_TRANSLATE_NOOP("core", "Error: Disk space is low!"),
 QT_TRANSLATE_NOOP("core", "Error: No valid utxo!"),
 QT_TRANSLATE_NOOP("core", "Error: Unsupported argument -tor found, use -onion."),
@@ -360,8 +353,6 @@ QT_TRANSLATE_NOOP("core", "Need address because change is not exact"),
 QT_TRANSLATE_NOOP("core", "Need to specify a port with -whitebind: '%s'"),
 QT_TRANSLATE_NOOP("core", "No Masternodes detected."),
 QT_TRANSLATE_NOOP("core", "No compatible Masternode found."),
-QT_TRANSLATE_NOOP("core", "No funds detected in need of denominating."),
-QT_TRANSLATE_NOOP("core", "No matching denominations found for mixing."),
 QT_TRANSLATE_NOOP("core", "Node relay options:"),
 QT_TRANSLATE_NOOP("core", "Non-standard public key detected."),
 QT_TRANSLATE_NOOP("core", "Not compatible with existing transactions."),

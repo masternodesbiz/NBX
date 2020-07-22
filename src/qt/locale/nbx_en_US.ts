@@ -665,10 +665,6 @@ Address: %4
 <context>
     <name>ClientModel</name>
     <message>
-        <source>Total: %1 (OBF compatible: %2 / Enabled: %3)</source>
-        <translation>Total: %1 (OBF compatible: %2 / Enabled: %3)</translation>
-    </message>
-    <message>
         <source>Network Alert</source>
         <translation>Network Alert</translation>
     </message>
@@ -1639,10 +1635,6 @@ Please check the address and try again.</translation>
         <translation>0 NBX / 0 Rounds</translation>
     </message>
     <message>
-        <source>Enabled/Disabled</source>
-        <translation>Enabled/Disabled</translation>
-    </message>
-    <message>
         <source>Try to manually submit a Obfuscation request.</source>
         <translation>Try to manually submit a Obfuscation request.</translation>
     </message>
@@ -1663,10 +1655,6 @@ Please check the address and try again.</translation>
         <translation>Amount and Rounds:</translation>
     </message>
     <message>
-        <source>Submitted Denom:</source>
-        <translation>Submitted Denom:</translation>
-    </message>
-    <message>
         <source>n/a</source>
         <translation>n/a</translation>
     </message>
@@ -1675,32 +1663,12 @@ Please check the address and try again.</translation>
         <translation>Recent transactions</translation>
     </message>
     <message>
-        <source>Start/Stop Mixing</source>
-        <translation>Start/Stop Mixing</translation>
-    </message>
-    <message>
-        <source>The denominations you submitted to the Masternode.&lt;br&gt;To mix, other users must submit the exact same denominations.</source>
-        <translation>The denominations you submitted to the Masternode.&lt;br&gt;To mix, other users must submit the exact same denominations.</translation>
-    </message>
-    <message>
-        <source>(Last Message)</source>
-        <translation>(Last Message)</translation>
-    </message>
-    <message>
-        <source>Try Mix</source>
-        <translation>Try Mix</translation>
-    </message>
-    <message>
         <source>Reset</source>
         <translation>Reset</translation>
     </message>
     <message>
         <source>out of sync</source>
         <translation>out of sync</translation>
-    </message>
-    <message>
-        <source>Disabled</source>
-        <translation>Disabled</translation>
     </message>
     <message>
         <source>No inputs detected</source>
@@ -1715,50 +1683,8 @@ Please check the address and try again.</translation>
         <translation>Overall progress</translation>
     </message>
     <message>
-        <source>Denominated</source>
-        <translation>Denominated</translation>
-    </message>
-    <message numerus="yes">
-        <source>Denominated inputs have %5 of %n rounds on average</source>
-        <translation><numerusform>Denominated inputs have %5 of %n rounds on average</numerusform><numerusform>Denominated inputs have %5 of %n rounds on average</numerusform></translation>
-    </message>
-    <message>
-        <source>Last Obfuscation message:
-</source>
-        <translation>Last Obfuscation message:
-</translation>
-    </message>
-    <message>
-        <source>Obfuscation was successfully reset.</source>
-        <translation>Obfuscation was successfully reset.</translation>
-    </message>
-    <message>
-        <source>If you don't want to see internal Obfuscation fees/transactions select "Most Common" as Type on the "Transactions" tab.</source>
-        <translation>If you don't want to see internal Obfuscation fees/transactions select "Most Common" as Type on the "Transactions" tab.</translation>
-    </message>
-    <message>
-        <source>Obfuscation requires at least %1 to use.</source>
-        <translation>Obfuscation requires at least %1 to use.</translation>
-    </message>
-    <message>
         <source>Wallet is locked and user declined to unlock. Disabling Obfuscation.</source>
         <translation>Wallet is locked and user declined to unlock. Disabling Obfuscation.</translation>
-    </message>
-    <message>
-        <source>Start Obfuscation</source>
-        <translation>Start Obfuscation</translation>
-    </message>
-    <message>
-        <source>Stop Obfuscation</source>
-        <translation>Stop Obfuscation</translation>
-    </message>
-    <message>
-        <source>Mixed</source>
-        <translation>Mixed</translation>
-    </message>
-    <message>
-        <source>Enabled</source>
-        <translation>Enabled</translation>
     </message>
     <message>
         <source>N/A</source>
@@ -2684,10 +2610,6 @@ Please check the address and try again.</translation>
         <translation>The recipient address is not valid, please recheck.</translation>
     </message>
     <message>
-        <source>(obfuscation requires this amount to be rounded up to the nearest %1).</source>
-        <translation>(obfuscation requires this amount to be rounded up to the nearest %1).</translation>
-    </message>
-    <message>
         <source> split into %1 outputs using the UTXO splitter.</source>
         <translation> split into %1 outputs using the UTXO splitter.</translation>
     </message>
@@ -3606,14 +3528,6 @@ Please check the address and try again.</translation>
         <translation>Flush database activity from memory pool to disk log every &lt;n&gt; megabytes (default: %u)</translation>
     </message>
     <message>
-        <source>Found unconfirmed denominated outputs, will wait till they confirm to continue.</source>
-        <translation>Found unconfirmed denominated outputs, will wait till they confirm to continue.</translation>
-    </message>
-    <message>
-        <source>How thorough the block verification of -checkblocks is (0-4, default: %u)</source>
-        <translation>How thorough the block verification of -checkblocks is (0-4, default: %u)</translation>
-    </message>
-    <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
         <translation>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</translation>
     </message>
@@ -3982,10 +3896,6 @@ for example: alertnotify=echo %%s | mail -s "NBX Alert" admin@foo.com
         <translation>Error: A fatal internal error occured, see debug.log for details</translation>
     </message>
     <message>
-        <source>Error: Can't select current denominated inputs</source>
-        <translation>Error: Can't select current denominated inputs</translation>
-    </message>
-    <message>
         <source>Error: Disk space is low!</source>
         <translation>Error: Disk space is low!</translation>
     </message>
@@ -4284,14 +4194,6 @@ for example: alertnotify=echo %%s | mail -s "NBX Alert" admin@foo.com
     <message>
         <source>No compatible Masternode found.</source>
         <translation>No compatible Masternode found.</translation>
-    </message>
-    <message>
-        <source>No funds detected in need of denominating.</source>
-        <translation>No funds detected in need of denominating.</translation>
-    </message>
-    <message>
-        <source>No matching denominations found for mixing.</source>
-        <translation>No matching denominations found for mixing.</translation>
     </message>
     <message>
         <source>Node relay options:</source>

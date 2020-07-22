@@ -1841,12 +1841,6 @@ Vær tålmodig efter at du har klikket på import.</translation>
         <translation>Din nuværende NBX-saldo, ubekræftede og umodne transaktioner inkluderet</translation>
     </message>
     <message>
-        <source>Unconfirmed: less than 20 confirmations
-Immature: confirmed, but less than 1 mint of the same denomination after it was minted</source>
-        <translation>Ubekræftet: mindre end 20 bekræftelser
-Uplettet: bekræftet, men mindre end 1 minutter med samme betegnelse, efter at den blev mønnet</translation>
-    </message>
-    <message>
         <source>The displayed information may be out of date. Your wallet automatically synchronizes with the NBX network after a connection is established, but this process has not completed yet.</source>
         <translation>De viste informationer kan være uddaterede. Deres tegnebog synkronisere automatism med NBX netværket så snart en forbindelse er etalbleret, men denne proces er ikke færdiggjort endnu. </translation>
     </message>
@@ -3805,10 +3799,6 @@ Uplettet: bekræftet, men mindre end 1 minutter med samme betegnelse, efter at d
         <translation>Opsaml databaseaktiviteterne fra hukommelsespool og gem dem i loggen på disken for hver &lt;n&gt; megabytes (default: %u)</translation>
     </message>
     <message>
-        <source>Found unconfirmed denominated outputs, will wait till they confirm to continue.</source>
-        <translation>Der er fundet ubekræftede designerede outputs. Vent indtil de bekræftes for at fortsætte.</translation>
-    </message>
-    <message>
         <source>If paytxfee is not set, include enough fee so transactions begin confirmation on average within n blocks (default: %u)</source>
         <translation>Hvis der ikke fastsættes et betalingsTxgebyr, skal der inkluderes tilstrækkelige midler til gebyret så transaktionens bekræftelsesproces vil begynde indenfor n blokke (default: %u)</translation>
     </message>
@@ -4163,10 +4153,6 @@ Uplettet: bekræftet, men mindre end 1 minutter med samme betegnelse, efter at d
     <message>
         <source>Error: A fatal internal error occured, see debug.log for details</source>
         <translation>Fejl! En fatal intern fejl opstod. Se debug.log for nærmere detaljer</translation>
-    </message>
-    <message>
-        <source>Error: Can't select current denominated inputs</source>
-        <translation>Fejl! Kan ikke vælge de aktuelt designerede inputs</translation>
     </message>
     <message>
         <source>Error: Disk space is low!</source>
@@ -4555,14 +4541,6 @@ Uplettet: bekræftet, men mindre end 1 minutter med samme betegnelse, efter at d
     <message>
         <source>No compatible Masternode found.</source>
         <translation>Ingen kompatible masternoder fundet.</translation>
-    </message>
-    <message>
-        <source>No funds detected in need of denominating.</source>
-        <translation>Ingen midler fundet til eventuel designering</translation>
-    </message>
-    <message>
-        <source>No matching denominations found for mixing.</source>
-        <translation>ingen matchende designerede midler til usynliggørelse.</translation>
     </message>
     <message>
         <source>Node relay options:</source>

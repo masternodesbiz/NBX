@@ -170,7 +170,8 @@ UniValue getblockcount(const UniValue& params, bool fHelp)
             "n    (numeric) The current block count\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getblockcount", "") + HelpExampleRpc("getblockcount", ""));
+            HelpExampleCli("getblockcount", "") +
+            HelpExampleRpc("getblockcount", ""));
 
     LOCK(cs_main);
     return chainActive.Height();
@@ -187,7 +188,8 @@ UniValue getbestblockhash(const UniValue& params, bool fHelp)
             "\"hex\"      (string) the block hash hex encoded\n"
 
             "\nExamples\n" +
-            HelpExampleCli("getbestblockhash", "") + HelpExampleRpc("getbestblockhash", ""));
+            HelpExampleCli("getbestblockhash", "") +
+            HelpExampleRpc("getbestblockhash", ""));
 
     LOCK(cs_main);
     return chainActive.Tip()->GetBlockHash().GetHex();
@@ -346,7 +348,8 @@ UniValue getdifficulty(const UniValue& params, bool fHelp)
             "n.nnn       (numeric) the proof-of-work difficulty as a multiple of the minimum difficulty.\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getdifficulty", "") + HelpExampleRpc("getdifficulty", ""));
+            HelpExampleCli("getdifficulty", "") +
+            HelpExampleRpc("getdifficulty", ""));
 
     LOCK(cs_main);
     return GetDifficulty();
@@ -428,13 +431,12 @@ UniValue getrawmempool(const UniValue& params, bool fHelp)
             "]\n"
 
             "\nExamples\n" +
-            HelpExampleCli("getrawmempool", "true") + HelpExampleRpc("getrawmempool", "true"));
+            HelpExampleCli("getrawmempool", "true") +
+            HelpExampleRpc("getrawmempool", "true"));
 
     LOCK(cs_main);
 
-    bool fVerbose = false;
-    if (params.size() > 0)
-        fVerbose = params[0].get_bool();
+    bool fVerbose = ParseBool(params[0]);
 
     return mempoolToJSON(fVerbose);
 }
@@ -471,7 +473,8 @@ UniValue getblockhash(const UniValue& params, bool fHelp)
             "\"hash\"         (string) The block hash\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getblockhash", "1000") + HelpExampleRpc("getblockhash", "1000"));
+            HelpExampleCli("getblockhash", "1000") +
+            HelpExampleRpc("getblockhash", "1000"));
 
     LOCK(cs_main);
 
@@ -534,9 +537,7 @@ UniValue getblock(const UniValue& params, bool fHelp)
     std::string strHash = params[0].get_str();
     uint256 hash(strHash);
 
-    bool fVerbose = true;
-    if (params.size() > 1)
-        fVerbose = params[1].get_bool();
+    bool fVerbose = ParseBool(params[1], true);
 
     if (mapBlockIndex.count(hash) == 0)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Block not found");
@@ -590,9 +591,7 @@ UniValue getblockheader(const UniValue& params, bool fHelp)
     std::string strHash = params[0].get_str();
     uint256 hash(strHash);
 
-    bool fVerbose = true;
-    if (params.size() > 1)
-        fVerbose = params[1].get_bool();
+    bool fVerbose = ParseBool(params[1], true);
 
     if (mapBlockIndex.count(hash) == 0)
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Block not found");
@@ -629,7 +628,8 @@ UniValue gettxoutsetinfo(const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("gettxoutsetinfo", "") + HelpExampleRpc("gettxoutsetinfo", ""));
+            HelpExampleCli("gettxoutsetinfo", "") +
+            HelpExampleRpc("gettxoutsetinfo", ""));
 
     LOCK(cs_main);
 
@@ -657,8 +657,8 @@ UniValue gettxout(const UniValue& params, bool fHelp)
             "\nReturns details about an unspent transaction output.\n"
 
             "\nArguments:\n"
-            "1. \"txid\"       (string, required) The transaction id\n"
-            "2. n              (numeric, required) vout value\n"
+            "1. \"txid\"          (string, required) The transaction id\n"
+            "2. n               (numeric, required) vout value\n"
             "3. includemempool  (boolean, optional) Whether to included the mem pool\n"
 
             "\nResult:\n"
@@ -695,9 +695,7 @@ UniValue gettxout(const UniValue& params, bool fHelp)
     std::string strHash = params[0].get_str();
     uint256 hash(strHash);
     int n = params[1].get_int();
-    bool fMempool = true;
-    if (params.size() > 2)
-        fMempool = params[2].get_bool();
+    bool fMempool = ParseBool(params[2], true);
 
     CCoins coins;
     if (fMempool) {
@@ -744,7 +742,8 @@ UniValue verifychain(const UniValue& params, bool fHelp)
             "true|false       (boolean) Verified or not\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("verifychain", "") + HelpExampleRpc("verifychain", ""));
+            HelpExampleCli("verifychain", "") +
+            HelpExampleRpc("verifychain", ""));
 
     LOCK(cs_main);
 
@@ -792,7 +791,8 @@ UniValue getblockchaininfo(const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getblockchaininfo", "") + HelpExampleRpc("getblockchaininfo", ""));
+            HelpExampleCli("getblockchaininfo", "") +
+            HelpExampleRpc("getblockchaininfo", ""));
 
     LOCK(cs_main);
 
@@ -853,7 +853,8 @@ UniValue getchaintips(const UniValue& params, bool fHelp)
             "5.  \"active\"                This is the tip of the active main chain, which is certainly valid\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getchaintips", "") + HelpExampleRpc("getchaintips", ""));
+            HelpExampleCli("getchaintips", "") +
+            HelpExampleRpc("getchaintips", ""));
 
     LOCK(cs_main);
 
@@ -930,7 +931,8 @@ UniValue getfeeinfo(const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getfeeinfo", "5") + HelpExampleRpc("getfeeinfo", "5"));
+            HelpExampleCli("getfeeinfo", "5") +
+            HelpExampleRpc("getfeeinfo", "5"));
 
     int nBlocks = params[0].get_int();
     int nBestHeight;
@@ -973,7 +975,8 @@ UniValue getmempoolinfo(const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getmempoolinfo", "") + HelpExampleRpc("getmempoolinfo", ""));
+            HelpExampleCli("getmempoolinfo", "") +
+            HelpExampleRpc("getmempoolinfo", ""));
 
     return mempoolInfoToJSON();
 }
@@ -989,7 +992,8 @@ UniValue invalidateblock(const UniValue& params, bool fHelp)
             "1. hash   (string, required) the hash of the block to mark as invalid\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("invalidateblock", "\"blockhash\"") + HelpExampleRpc("invalidateblock", "\"blockhash\""));
+            HelpExampleCli("invalidateblock", "\"blockhash\"") +
+            HelpExampleRpc("invalidateblock", "\"blockhash\""));
 
     std::string strHash = params[0].get_str();
     uint256 hash(strHash);
@@ -1027,7 +1031,8 @@ UniValue reconsiderblock(const UniValue& params, bool fHelp)
             "1. hash   (string, required) the hash of the block to reconsider\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("reconsiderblock", "\"blockhash\"") + HelpExampleRpc("reconsiderblock", "\"blockhash\""));
+            HelpExampleCli("reconsiderblock", "\"blockhash\"") +
+            HelpExampleRpc("reconsiderblock", "\"blockhash\""));
 
     std::string strHash = params[0].get_str();
     uint256 hash(strHash);
