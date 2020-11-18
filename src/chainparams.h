@@ -102,12 +102,16 @@ public:
     std::string ActivityAddress() const { return activityAddress; }
     std::string TeamAddress() const { return teamAddress; }
     std::string DAppAddress() const { return dAppAddress; }
+    std::string DynamicRewardAddress() const { return dynamicRewardAddress; }
 
     CBaseChainParams::Network NetworkID() const { return networkID; }
 
     /** Height or Time Based Activations **/
     int LAST_POW_BLOCK() const { return nLastPOWBlock; }
     bool IsStakeModifierV2(const int nHeight) const { return nHeight >= nBlockStakeModifierlV2; }
+    bool IsDynamicReward(const int nHeight) const { return nHeight >= nDynamicRewardBlock + nDynamicRewardDelay; }
+    bool IsDynamicRewardSave(const int nHeight) const { return nHeight >= nDynamicRewardBlock; }
+    int GetDynamicRewardBlock(const int nHeight) const { return nHeight - nDynamicRewardDelay; }
 
 protected:
     CChainParams() {}
@@ -122,6 +126,8 @@ protected:
     int64_t nTargetSpacing;
     int nLastPOWBlock;
     int nBlockStakeModifierlV2;
+    int nDynamicRewardBlock;
+    int nDynamicRewardDelay;
     int nMasternodeCountDrift;
     int nMaturity;
     int nStakeMinDepth;
@@ -149,6 +155,7 @@ protected:
     std::string activityAddress;
     std::string teamAddress;
     std::string dAppAddress;
+    std::string dynamicRewardAddress;
 };
 
 /**

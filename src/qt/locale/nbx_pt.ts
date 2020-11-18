@@ -1154,8 +1154,8 @@
         <translation>Aviso: Argumento não suportado -debugnet ignorado, use -debug=net.</translation>
     </message>
     <message>
-        <source>You need to rebuild the database using -reindex to change -txindex</source>
-        <translation>Você precisa reconstruir a database usando -reindex para mudar -txindex</translation>
+        <source>You need to rebuild the database using -reindex</source>
+        <translation>Você precisa reconstruir a database usando -reindex</translation>
     </message>
     <message>
         <source>Your transaction was accepted into the pool!</source>

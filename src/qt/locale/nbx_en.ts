@@ -912,11 +912,6 @@ Address: %4
         <source>TextLabel</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../blockexplorer.cpp" line="+480"/>
-        <source>Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (nbx.conf).</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>ClientModel</name>
@@ -5055,11 +5050,6 @@ Please be patient after clicking import.</source>
         <translation type="unfinished">Log transaction priority and fee per kB when mining blocks (default: %u)</translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)</source>
-        <translation type="unfinished">Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)</translation>
-    </message>
-    <message>
         <location line="+3"/>
         <source>Maximum average size of an index occurrence in the block spam filter (default: %u)</source>
         <translation type="unfinished"></translation>
@@ -6553,8 +6543,8 @@ Please be patient after clicking import.</source>
     </message>
     <message>
         <location line="+1"/>
-        <source>You need to rebuild the database using -reindex to change -txindex</source>
-        <translation type="unfinished">You need to rebuild the database using -reindex to change -txindex</translation>
+        <source>You need to rebuild the database using -reindex</source>
+        <translation type="unfinished">You need to rebuild the database using -reindex</translation>
     </message>
     <message>
         <location line="+1"/>

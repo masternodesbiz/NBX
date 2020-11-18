@@ -704,10 +704,6 @@ MultiSend: %1</translation>
         <source>TextLabel</source>
         <translation>TextLabel</translation>
     </message>
-    <message>
-        <source>Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (nbx.conf).</source>
-        <translation>Niet alle transacties zullen worden getoond. Om alle transacties te bekijken moet u txindex=1 instellen in het configuratie bestand (nbx.conf).</translation>
-    </message>
 </context>
 <context>
     <name>ClientModel</name>
@@ -3894,10 +3890,6 @@ Waas alsjeblieft geduldig nadat u op importeren hebt geklikt.</translation>
         <translation>Log transactie prioriteit en vergoeding per kB wanneer blokken worden gemined (standaard: %u)</translation>
     </message>
     <message>
-        <source>Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)</source>
-        <translation>Onderhoud een volledige transactie index, gebruikt door de getrawtransaction rpc call (standaard: %u)</translation>
-    </message>
-    <message>
         <source>Maximum size of data in data carrier transactions we relay and mine (default: %u)</source>
         <translation>Maximale gegevensgrootte in data carrier transacties die we relayen en minen (standaard: %u)</translation>
     </message>
@@ -5070,8 +5062,8 @@ Waas alsjeblieft geduldig nadat u op importeren hebt geklikt.</translation>
         <translation>Zal het opnieuw proberen...</translation>
     </message>
     <message>
-        <source>You need to rebuild the database using -reindex to change -txindex</source>
-        <translation>Je moet de database herbouwen met -reindex om -txindex te wijzigen</translation>
+        <source>You need to rebuild the database using -reindex</source>
+        <translation>Je moet de database herbouwen met -reindex</translation>
     </message>
     <message>
         <source>Your entries added successfully.</source>

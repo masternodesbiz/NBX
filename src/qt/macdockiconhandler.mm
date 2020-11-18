@@ -1,4 +1,5 @@
 // Copyright (c) 2011-2013 The Bitcoin Core developers
+// Copyright (c) 2020 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -79,7 +80,7 @@ void MacDockIconHandler::setIcon(const QIcon &icon)
         image = [[NSImage imageNamed:@"NSApplicationIcon"] retain];
     else {
         // generate NSImage from QIcon and use this as dock icon.
-        QSize size = icon.actualSize(QSize(128, 128));
+        QSize size = icon.actualSize(QSize(256, 256));
         QPixmap pixmap = icon.pixmap(size);
 
         // Write image into a R/W buffer from raw pixmap, then save the image.

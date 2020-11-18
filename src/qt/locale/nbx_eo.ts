@@ -680,10 +680,6 @@ Muktisendi: %1</translation>
         <source>TextLabel</source>
         <translation>Tekstetikedo</translation>
     </message>
-    <message>
-        <source>Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (nbx.conf).</source>
-        <translation>Ĉiuj transakcio ne estos montri. Peor vidi ĉiuj transakcio bezonas agordi txindekso=1 en la agordo dosiero (nbx.conf).</translation>
-    </message>
 </context>
 <context>
     <name>ClientModel</name>

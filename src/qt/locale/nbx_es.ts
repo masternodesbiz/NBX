@@ -696,10 +696,6 @@ MultiEnvío: %1</translation>
         <source>TextLabel</source>
         <translation>EtiquetaDeTexto</translation>
     </message>
-    <message>
-        <source>Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (nbx.conf).</source>
-        <translation>No se muestran todas las transacciones. Para ver todas las transacciones introduzca la línea "txindex=1" en el archivo de configuración (nbx.conf).</translation>
-    </message>
 </context>
 <context>
     <name>ClientModel</name>
@@ -3822,10 +3818,6 @@ Por favor, tenga paciencia después de hacer clic en importar.</translation>
         <translation>Prioridad y comisión del registro de transacciones por kB cuando se esta minando bloques (predeterminado: %u)</translation>
     </message>
     <message>
-        <source>Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)</source>
-        <translation>Mantener un indice de transacción completo, utilizado por la llamada rpc getrawtransaction (predeterminado: %u)</translation>
-    </message>
-    <message>
         <source>Maximum size of data in data carrier transactions we relay and mine (default: %u)</source>
         <translation>Tamaño máximo de datos en transacciones de transmisiones de datos que pasamos y minamos (predeterminado: %u)</translation>
     </message>
@@ -4990,8 +4982,8 @@ Por favor, tenga paciencia después de hacer clic en importar.</translation>
         <translation>Probando...</translation>
     </message>
     <message>
-        <source>You need to rebuild the database using -reindex to change -txindex</source>
-        <translation>Usted necesita reconstruir la base de datos usando -reindex para cambiar -txindex</translation>
+        <source>You need to rebuild the database using -reindex</source>
+        <translation>Usted necesita reconstruir la base de datos usando -reindex</translation>
     </message>
     <message>
         <source>Your entries added successfully.</source>

@@ -1,5 +1,6 @@
 // Copyright (c) 2011-2013 The Bitcoin developers
 // Copyright (c) 2017-2018 The PIVX developers
+// Copyright (c) 2020 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -226,7 +227,8 @@ void Notificator::notifySystray(Class cls, const QString& title, const QString& 
         sicon = QSystemTrayIcon::Critical;
         break;
     }
-    trayIcon->showMessage(title, text, sicon, millisTimeout);
+    if (trayIcon->isSystemTrayAvailable())
+        trayIcon->showMessage(title, text, sicon, millisTimeout);
 }
 
 // Based on Qt's tray icon implementation

@@ -2,7 +2,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -218,7 +218,7 @@ std::string GetWarnings(std::string strFor);
 /** Retrieve a transaction (from memory pool, or from disk, if possible) */
 bool GetTransaction(const uint256& hash, CTransaction& tx, uint256& hashBlock, bool fAllowSlow = false, CBlockIndex* blockIndex = nullptr);
 /** Retrieve an output (from memory pool, or from disk, if possible) */
-bool GetOutput(const uint256& hash, unsigned int index, CValidationState& state, CTxOut& out);
+bool GetOutput(const uint256& hash, unsigned int index, CTxOut& out);
 /** Find the best known block, and make it the tip of the block chain */
 
 // ***TODO***
@@ -230,7 +230,7 @@ int64_t GetActivityPayment(int nHeight, int64_t blockValue);
 int64_t GetTeamPayment(int nHeight, int64_t blockValue);
 
 bool ActivateBestChain(CValidationState& state, CBlock* pblock = NULL, bool fAlreadyChecked = false);
-CAmount GetBlockValue(int nHeight);
+CAmount GetBlockValue(int nHeight, CAmount prevMoneySupply);
 
 /** Create a new block index entry for a given block hash */
 CBlockIndex* InsertBlockIndex(uint256 hash);

@@ -266,8 +266,8 @@ UniValue waitforblock(const UniValue& params, bool fHelp)
             "}\n"
 
             "\nExamples:\n"
-            + HelpExampleCli("waitforblock", "\"0000000000079f8ef3d2c688c244eb7a4570b24c9ed7b4a8c619eb02596f8862\", 1000")
-            + HelpExampleRpc("waitforblock", "\"0000000000079f8ef3d2c688c244eb7a4570b24c9ed7b4a8c619eb02596f8862\", 1000")
+            + HelpExampleCli("waitforblock", "\"1e5aca38a7e5f2e2aea1b88335df9afc64b71544fcb93a708a516e492bd806a5\", 1000")
+            + HelpExampleRpc("waitforblock", "\"1e5aca38a7e5f2e2aea1b88335df9afc64b71544fcb93a708a516e492bd806a5\", 1000")
         );
     int timeout = 0;
 
@@ -500,28 +500,29 @@ UniValue getblock(const UniValue& params, bool fHelp)
 
             "\nResult (for verbose = true):\n"
             "{\n"
-            "  \"hash\" : \"hash\",     (string) the block hash (same as provided)\n"
-            "  \"confirmations\" : n,   (numeric) The number of confirmations, or -1 if the block is not on the main chain\n"
-            "  \"size\" : n,            (numeric) The block size\n"
-            "  \"height\" : n,          (numeric) The block height or index\n"
-            "  \"version\" : n,         (numeric) The block version\n"
-            "  \"merkleroot\" : \"xxxx\", (string) The merkle root\n"
-            "  \"tx\" : [               (array of string) The transaction ids\n"
-            "     \"transactionid\"     (string) The transaction id\n"
+            "  \"hash\": \"hash\",               (string) the block hash (same as provided)\n"
+            "  \"confirmations\": n,           (numeric) The number of confirmations, or -1 if the block is not on the main chain\n"
+            "  \"size\": n,                    (numeric) The block size\n"
+            "  \"height\": n,                  (numeric) The block height or index\n"
+            "  \"version\": n,                 (numeric) The block version\n"
+            "  \"merkleroot\": \"xxxx\",         (string) The merkle root\n"
+            "  \"tx\": [                       (array of string) The transaction ids\n"
+            "     \"transactionid\"            (string) The transaction id\n"
             "     ,...\n"
             "  ],\n"
-            "  \"time\" : ttt,          (numeric) The block time in seconds since epoch (Jan 1 1970 GMT)\n"
-            "  \"mediantime\" : ttt,    (numeric) The median block time in seconds since epoch (Jan 1 1970 GMT)\n"
-            "  \"nonce\" : n,           (numeric) The nonce\n"
-            "  \"bits\" : \"1d00ffff\", (string) The bits\n"
-            "  \"difficulty\" : x.xxx,  (numeric) The difficulty\n"
-            "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
-            "  \"nextblockhash\" : \"hash\",      (string) The hash of the next block\n"
-            "  \"moneysupply\" : \"supply\",      (numeric) Coins supply when this block was added to the blockchain\n"
-            "  \"CoinStake\" :\n"
-            "    \"BlockFromHash\" : \"hash\",      (string) Block hash of the coin stake input\n"
-            "    \"BlockFromHeight\" : n,           (numeric) Block Height of the coin stake input\n"
-            "    \"hashProofOfStake\" : \"hash\"    (string) Proof of Stake hash\n"
+            "  \"time\": ttt,                  (numeric) The block time in seconds since epoch (Jan 1 1970 GMT)\n"
+            "  \"mediantime\": ttt,            (numeric) The median block time in seconds since epoch (Jan 1 1970 GMT)\n"
+            "  \"nonce\": n,                   (numeric) The nonce\n"
+            "  \"bits\": \"1d00ffff\",           (string) The bits\n"
+            "  \"difficulty\": x.xxx,          (numeric) The difficulty\n"
+            "  \"chainwork\": \"xxxx\"           (string) total amount of work in active chain, in hexadecimal\n"
+            "  \"previousblockhash\": \"hash\",  (string) The hash of the previous block\n"
+            "  \"nextblockhash\": \"hash\",      (string) The hash of the next block\n"
+            "  \"moneysupply\": n,             (numeric) Coins supply when this block was added to the blockchain\n"
+            "  \"CoinStake\":\n"
+            "    \"BlockFromHash\": \"hash\",    (string) Block hash of the coin stake input\n"
+            "    \"BlockFromHeight\": n,       (numeric) Block Height of the coin stake input\n"
+            "    \"hashProofOfStake\": \"hash\"  (string) Proof of Stake hash\n"
             "  }\n"
             "}\n"
 
@@ -529,8 +530,8 @@ UniValue getblock(const UniValue& params, bool fHelp)
             "\"data\"             (string) A string that is serialized, hex-encoded data for block 'hash'.\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getblock", "\"00000000000fd08c2fb661d2fcb0d49abb3a91e5f27082ce64feed3b4dede2e2\"") +
-            HelpExampleRpc("getblock", "\"00000000000fd08c2fb661d2fcb0d49abb3a91e5f27082ce64feed3b4dede2e2\""));
+            HelpExampleCli("getblock", "\"1e5aca38a7e5f2e2aea1b88335df9afc64b71544fcb93a708a516e492bd806a5\"") +
+            HelpExampleRpc("getblock", "\"1e5aca38a7e5f2e2aea1b88335df9afc64b71544fcb93a708a516e492bd806a5\""));
 
     LOCK(cs_main);
 
@@ -572,21 +573,26 @@ UniValue getblockheader(const UniValue& params, bool fHelp)
 
             "\nResult (for verbose = true):\n"
             "{\n"
-            "  \"version\" : n,         (numeric) The block version\n"
+            "  \"hash\" : \"hash\",               (string) the block hash (same as provided)\n"
+            "  \"confirmations\" : n,           (numeric) The number of confirmations, or -1 if the block is not on the main chain\n"
+            "  \"height\" : n,                  (numeric) The block height or index\n"
+            "  \"version\" : n,                 (numeric) The block version\n"
+            "  \"merkleroot\" : \"xxxx\",         (string) The merkle root\n"
+            "  \"time\" : ttt,                  (numeric) The block time in seconds since epoch (Jan 1 1970 GMT)\n"
+            "  \"mediantime\" : ttt,            (numeric) The median block time in seconds since epoch (Jan 1 1970 GMT)\n"
+            "  \"nonce\" : n,                   (numeric) The nonce\n"
+            "  \"bits\" : \"1d00ffff\",           (string) The bits\n"
+            "  \"difficulty\" : x.xxx,          (numeric) The difficulty\n"
+            "  \"chainwork\": \"xxxx\"            (string) total amount of work in active chain, in hexadecimal\n"
             "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
-            "  \"merkleroot\" : \"xxxx\", (string) The merkle root\n"
-            "  \"time\" : ttt,          (numeric) The block time in seconds since epoch (Jan 1 1970 GMT)\n"
-            "  \"mediantime\" : ttt,    (numeric) The median block time in seconds since epoch (Jan 1 1970 GMT)\n"
-            "  \"nonce\" : n,           (numeric) The nonce\n"
-            "  \"bits\" : \"1d00ffff\", (string) The bits\n"
             "}\n"
 
             "\nResult (for verbose=false):\n"
             "\"data\"             (string) A string that is serialized, hex-encoded data for block 'hash' header.\n"
 
             "\nExamples:\n" +
-            HelpExampleCli("getblockheader", "\"00000000000fd08c2fb661d2fcb0d49abb3a91e5f27082ce64feed3b4dede2e2\"") +
-            HelpExampleRpc("getblockheader", "\"00000000000fd08c2fb661d2fcb0d49abb3a91e5f27082ce64feed3b4dede2e2\""));
+            HelpExampleCli("getblockheader", "\"1e5aca38a7e5f2e2aea1b88335df9afc64b71544fcb93a708a516e492bd806a5\"") +
+            HelpExampleRpc("getblockheader", "\"1e5aca38a7e5f2e2aea1b88335df9afc64b71544fcb93a708a516e492bd806a5\""));
 
     std::string strHash = params[0].get_str();
     uint256 hash(strHash);

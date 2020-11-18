@@ -115,9 +115,6 @@ QT_TRANSLATE_NOOP("core", ""
 QT_TRANSLATE_NOOP("core", ""
 "Log transaction priority and fee per kB when mining blocks (default: %u)"),
 QT_TRANSLATE_NOOP("core", ""
-"Maintain a full transaction index, used by the getrawtransaction rpc call "
-"(default: %u)"),
-QT_TRANSLATE_NOOP("core", ""
 "Maximum average size of an index occurrence in the block spam filter "
 "(default: %u)"),
 QT_TRANSLATE_NOOP("core", ""
@@ -467,7 +464,7 @@ QT_TRANSLATE_NOOP("core", "Warning: This version is obsolete, upgrade required!"
 QT_TRANSLATE_NOOP("core", "Warning: Unsupported argument -benchmark ignored, use -debug=bench."),
 QT_TRANSLATE_NOOP("core", "Warning: Unsupported argument -debugnet ignored, use -debug=net."),
 QT_TRANSLATE_NOOP("core", "Will retry..."),
-QT_TRANSLATE_NOOP("core", "You need to rebuild the database using -reindex to change -txindex"),
+QT_TRANSLATE_NOOP("core", "You need to rebuild the database using -reindex"),
 QT_TRANSLATE_NOOP("core", "Your entries added successfully."),
 QT_TRANSLATE_NOOP("core", "Your transaction was accepted into the pool!"),
 QT_TRANSLATE_NOOP("core", "Zapping all transactions from wallet..."),

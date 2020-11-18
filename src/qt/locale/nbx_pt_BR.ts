@@ -681,10 +681,6 @@ MultiSend: %1</translation>
         <source>TextLabel</source>
         <translation>Rótulo</translation>
     </message>
-    <message>
-        <source>Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (nbx.conf).</source>
-        <translation>Nem todas as transações serão exibidas. Para visualizar todas as transações você precisa definir txindex=1 no arquivo de configuração (nbx.conf). </translation>
-    </message>
 </context>
 <context>
     <name>ClientModel</name>
@@ -3805,8 +3801,8 @@ MultiSend: %1</translation>
         <translation>Tentando novamente...</translation>
     </message>
     <message>
-        <source>You need to rebuild the database using -reindex to change -txindex</source>
-        <translation>Você precisa refazer a base de dados usando -reindex para mudar -txindex</translation>
+        <source>You need to rebuild the database using -reindex</source>
+        <translation>Você precisa refazer a base de dados usando -reindex</translation>
     </message>
     <message>
         <source>Your entries added successfully.</source>

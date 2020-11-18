@@ -684,11 +684,6 @@ Adres: %4
         <source>TextLabel</source>
         <translation>TextLabel</translation>
     </message>
-    <message>
-        <source>Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (nbx.conf).</source>
-        <translation>Tüm işlemler gösterilmez. Tüm işlemleri görmek için yapılandırma dosyasında txindex = 1 ayarlamanız gerekir (nbx.conf).
-</translation>
-    </message>
 </context>
 <context>
     <name>ClientModel</name>

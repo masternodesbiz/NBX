@@ -1,6 +1,6 @@
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -218,11 +218,13 @@ const CScript& GetTeamPubKey() {
     return *teamPubKey;
 }
 
-bool IsBlockPayeeValid(const CBlock& block, int nBlockHeight)
+bool IsBlockPayeeValid(const CBlock& block, int nBlockHeight, int64_t prevMoneySupply)
 {
     const CTransaction &txNew = (nBlockHeight > Params().LAST_POW_BLOCK() ? block.vtx[1] : block.vtx[0]);
 
-    CAmount blockValue = GetBlockValue(nBlockHeight);
+    CAmount blockValue = GetBlockValue(nBlockHeight, prevMoneySupply);
+    if (!blockValue)
+        return false;
     CAmount activityPayment = GetActivityPayment(nBlockHeight, blockValue);
     CAmount teamPayment = GetTeamPayment(nBlockHeight, blockValue);
 
@@ -263,7 +265,7 @@ bool IsBlockPayeeValid(const CBlock& block, int nBlockHeight)
     }
 
     //check for masternode payee
-    if (masternodePayments.IsTransactionValid(txNew, nBlockHeight))
+    if (masternodePayments.IsTransactionValid(txNew, nBlockHeight, prevMoneySupply))
         return true;
 
     LogPrint("masternode","Invalid mn payment detected %s\n", txNew.ToString().c_str());
@@ -301,7 +303,7 @@ bool CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
         }
     }
 
-    CAmount blockValue = GetBlockValue(pindexPrev->nHeight + 1);
+    CAmount blockValue = GetBlockValue(pindexPrev->nHeight + 1, pindexPrev->nMoneySupply);
     CAmount masternodePayment = GetMasternodePayment(pindexPrev->nHeight + 1, blockValue);
     CAmount activityPayment = GetActivityPayment(pindexPrev->nHeight + 1, blockValue);
     CAmount teamPayment = GetTeamPayment(pindexPrev->nHeight + 1, blockValue);
@@ -518,7 +520,7 @@ bool CMasternodePayments::AddWinningMasternode(CMasternodePaymentWinner& winnerI
     return true;
 }
 
-bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
+bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew, CAmount prevMoneySupply)
 {
     LOCK(cs_vecPayments);
 
@@ -526,7 +528,7 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
 
     std::string strPayeesPossible = "";
 
-    CAmount nReward = GetBlockValue(nBlockHeight);
+    CAmount nReward = GetBlockValue(nBlockHeight, prevMoneySupply);
 
     CAmount requiredMasternodePayment = GetMasternodePayment(nBlockHeight, nReward);
 
@@ -600,12 +602,12 @@ std::string CMasternodePayments::GetRequiredPaymentsString(int nBlockHeight)
     return "Unknown";
 }
 
-bool CMasternodePayments::IsTransactionValid(const CTransaction& txNew, int nBlockHeight)
+bool CMasternodePayments::IsTransactionValid(const CTransaction& txNew, int nBlockHeight, CAmount prevMoneySupply)
 {
     LOCK(cs_mapMasternodeBlocks);
 
     if (mapMasternodeBlocks.count(nBlockHeight)) {
-        return mapMasternodeBlocks[nBlockHeight].IsTransactionValid(txNew);
+        return mapMasternodeBlocks[nBlockHeight].IsTransactionValid(txNew, prevMoneySupply);
     }
 
     return true;

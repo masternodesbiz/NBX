@@ -70,7 +70,9 @@ enum WalletFeature {
 
     FEATURE_HD = 130000, // Hierarchical key derivation after BIP32 (HD Wallet)
 
-    FEATURE_LATEST = FEATURE_HD
+    FEATURE_FROM = 140000,
+
+    FEATURE_LATEST = FEATURE_FROM
 };
 
 enum AvailableCoinsType {
@@ -527,7 +529,7 @@ public:
     bool SetMaxVersion(int nVersion);
 
     //! get the current wallet format (the oldest client version guaranteed to understand this wallet)
-    int GetVersion()
+    int GetVersion() const
     {
         LOCK(cs_wallet);
         return nWalletVersion;
@@ -623,7 +625,6 @@ static void WriteOrderPos(const int64_t& nOrderPos, mapValue_t& mapValue)
 
 struct COutputEntry {
     CTxDestination destination;
-    CTxDestination from;
     CAmount amount;
     int vout;
 };
@@ -716,6 +717,7 @@ public:
     char fFromMe;
     std::string strFromAccount;
     int64_t nOrderPos; //! position in ordered transaction list
+    CScript from;
 
     // memory only
     mutable bool fDebitCached;
@@ -782,6 +784,7 @@ public:
         nWatchCreditCached = 0;
         nChangeCached = 0;
         nOrderPos = -1;
+        from.clear();
     }
 
     ADD_SERIALIZE_METHODS;
@@ -789,6 +792,7 @@ public:
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
     {
+        int walletVersion = pwallet ? pwallet->GetVersion() : 0;
         if (ser_action.ForRead())
             Init(NULL);
         char fSpent = false;
@@ -811,6 +815,8 @@ public:
         READWRITE(nTimeReceived);
         READWRITE(fFromMe);
         READWRITE(fSpent);
+        if (walletVersion >= FEATURE_FROM)
+            READWRITE(from);
 
         if (ser_action.ForRead()) {
             strFromAccount = mapValue["fromaccount"];

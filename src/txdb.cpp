@@ -1,7 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2016-2019 The PIVX developers
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -255,6 +255,8 @@ bool CBlockTreeDB::LoadBlockIndexGuts()
                 } else {
                     pindexNew->nStakeModifierV2 = diskindex.nStakeModifierV2;
                 }
+                if (Params().IsDynamicRewardSave(pindexNew->nHeight))
+                    pindexNew->nDynamicMultiplier = diskindex.nDynamicMultiplier;
                 pindexNew->prevoutStake = diskindex.prevoutStake;
                 pindexNew->nStakeTime = diskindex.nStakeTime;
                 pindexNew->hashProofOfStake = diskindex.hashProofOfStake;

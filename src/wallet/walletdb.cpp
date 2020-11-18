@@ -2,7 +2,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -420,7 +420,7 @@ bool ReadKeyValue(CWallet* pwallet, CDataStream& ssKey, CDataStream& ssValue, CW
         } else if (strType == "tx") {
             uint256 hash;
             ssKey >> hash;
-            CWalletTx wtx;
+            CWalletTx wtx(pwallet);
             ssValue >> wtx;
             CValidationState state;
             if (!(CheckTransaction(wtx, state) && (wtx.GetHash() == hash) && state.IsValid()))
@@ -789,7 +789,7 @@ DBErrors CWalletDB::FindWalletTx(CWallet* pwallet, std::vector<uint256>& vTxHash
                 uint256 hash;
                 ssKey >> hash;
 
-                CWalletTx wtx;
+                CWalletTx wtx(pwallet);
                 ssValue >> wtx;
 
                 vTxHash.push_back(hash);

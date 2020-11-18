@@ -87,8 +87,7 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
             "getrawtransaction \"txid\" ( verbose \"blockhash\" )\n"
 
             "\nNOTE: By default this function only works sometimes. This is when the tx is in the mempool\n"
-            "or there is an unspent output in the utxo for this transaction. To make it always work,\n"
-            "you need to maintain a transaction index, using the -txindex command line option.\n"
+            "or there is an unspent output in the utxo for this transaction.\n"
 
             "\nReturn the raw transaction data.\n"
             "\nIf verbose is 'true', returns an Object with information about 'txid'.\n"
@@ -183,7 +182,7 @@ UniValue getrawtransaction(const UniValue& params, bool fHelp)
         } else {
             errmsg = fTxIndex
               ? "No such mempool or blockchain transaction"
-              : "No such mempool transaction. Use -txindex to enable blockchain transaction queries";
+              : "No such mempool transaction";
         }
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, errmsg + ". Use gettransaction for wallet transactions.");
     }

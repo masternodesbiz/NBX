@@ -714,10 +714,6 @@ MultiWysyłlka: %1</translation>
         <source>TextLabel</source>
         <translation>TekstZakładka</translation>
     </message>
-    <message>
-        <source>Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (nbx.conf).</source>
-        <translation>Nie wszystkie transakcje zostaną pokazane. Aby wyświetlić wszystkie transakcje, musisz ustawić txindex=1 w pliku konfiguracyjnym (nbx.conf).</translation>
-    </message>
 </context>
 <context>
     <name>ClientModel</name>
@@ -3967,10 +3963,6 @@ Please be patient after clicking import.</source>
         <translation>Loguj priorytet transakcji i opłatę za kB, gdy kopiesz bloki (domyślnie:%u)</translation>
     </message>
     <message>
-        <source>Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)</source>
-        <translation>Utrzymuj pełny indeks transakcji, używany przez wywołanie getrawtransaction rpc (domyślnie:%u)</translation>
-    </message>
-    <message>
         <source>Unable to bind to %s on this computer. Netbox.Wallet is probably already running.</source>
         <translation>Nie można podłączyć %s na tym komputerze. Netbox.Wallet prawdopodobnie już działa.</translation>
     </message>
@@ -4539,8 +4531,8 @@ Please be patient after clicking import.</source>
         <translation>Spróbuję ponownie ...</translation>
     </message>
     <message>
-        <source>You need to rebuild the database using -reindex to change -txindex</source>
-        <translation>Musisz przebudować bazę danych za pomocą -reindex, aby zmienić -txindeks</translation>
+        <source>You need to rebuild the database using -reindex</source>
+        <translation>Musisz przebudować bazę danych za pomocą -reindex</translation>
     </message>
     <message>
         <source>Your entries added successfully.</source>

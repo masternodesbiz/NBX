@@ -20,6 +20,7 @@
 #include "masternode-payments.h"
 #include "masternodeman.h"
 #include "merkleblock.h"
+#include "messages.h"
 #include "net.h"
 #include "obfuscation.h"
 #include "pow.h"
@@ -1441,16 +1442,14 @@ bool AcceptableInputs(CTxMemPool& pool, CValidationState& state, const CTransact
     return true;
 }
 
-bool GetOutput(const uint256& hash, unsigned int index, CValidationState& state, CTxOut& out)
+bool GetOutput(const uint256& hash, unsigned int index, CTxOut& out)
 {
     CTransaction txPrev;
     uint256 hashBlock;
-    if (!GetTransaction(hash, txPrev, hashBlock, true)) {
-        return state.DoS(100, error("Output not found"));
-    }
-    if (index > txPrev.vout.size()) {
-        return state.DoS(100, error("Output not found, invalid index %d for %s",index, hash.GetHex()));
-    }
+    if (!GetTransaction(hash, txPrev, hashBlock, true))
+        return false;
+    if (index > txPrev.vout.size())
+        return false;
     out = txPrev.vout[index];
     return true;
 }
@@ -1603,15 +1602,17 @@ double ConvertBitsToDouble(unsigned int nBits)
     return dDiff;
 }
 
-int64_t GetBlockValue(int nHeight)
+int64_t GetBlockValue(int nHeight, CAmount prevMoneySupply)
 {
     int64_t nSubsidy = 0;
     if (nHeight <= 200) {
         nSubsidy = 360000 * COIN;
-    } else if (nHeight <= 770000) {
-        nSubsidy = 10 * COIN * pow(0.99, (nHeight - 1) / 10000) + 0.5;
+    } else if (Params().IsDynamicReward(nHeight)) {
+        if (!prevMoneySupply || chainActive.Height() < Params().GetDynamicRewardBlock(nHeight))
+            return 0;
+        nSubsidy = (COIN - (double)prevMoneySupply / 100000000) * chainActive[Params().GetDynamicRewardBlock(nHeight)]->nDynamicMultiplier / DYNAMIC_MULTIPLIER_DIVIDER + 0.5;
     } else {
-        nSubsidy = (1 - chainActive[nHeight - 1]->nMoneySupply / 100000000) * 20 * COIN;
+        nSubsidy = 10 * COIN * pow(0.99, (nHeight - 1) / 10000) + 0.5;
     }
     return nSubsidy;
 }
@@ -2135,6 +2136,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     CAmount nMoneySupplyPrev = pindex->pprev ? pindex->pprev->nMoneySupply : 0;
     pindex->nMoneySupply = nMoneySupplyPrev + nValueOut - nValueIn;
     pindex->nMint = pindex->nMoneySupply - nMoneySupplyPrev + nFees;
+    pindex->nDynamicMultiplier = pindex->pprev ? pindex->pprev->nDynamicMultiplier : DYNAMIC_MULTIPLIER_DEFAULT * DYNAMIC_MULTIPLIER_DIVIDER;
 
 //    LogPrintf("XX69----------> ConnectBlock(): nValueOut: %s, nValueIn: %s, nFees: %s, nMint: %s\n",
 //              FormatMoney(nValueOut), FormatMoney(nValueIn), FormatMoney(nFees), FormatMoney(pindex->nMint));
@@ -2144,7 +2146,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime1 - nTimeStart), 0.001 * (nTime1 - nTimeStart) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime1 - nTimeStart) / (nInputs - 1), nTimeConnect * 0.000001);
 
     //PoW phase redistributed fees to miner. PoS stage destroys fees.
-    CAmount nExpectedMint = GetBlockValue(pindex->nHeight);
+    CAmount nExpectedMint = GetBlockValue(pindex->nHeight, nMoneySupplyPrev);
     if (block.IsProofOfWork())
         nExpectedMint += nFees;
 
@@ -2164,6 +2166,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     //IMPORTANT NOTE: Nothing before this point should actually store to disk (or even memory)
     if (fJustCheck)
         return true;
+
+    // check block messages
+    if (Params().IsDynamicRewardSave(pindex->nHeight))
+        ParseBlockMessages(block, pindex);
 
     // Write undo information to disk
     if (pindex->GetUndoPos().IsNull() || !pindex->IsValid(BLOCK_VALID_SCRIPTS)) {
@@ -2810,6 +2816,8 @@ bool ReconsiderBlock(CValidationState& state, CBlockIndex* pindex)
 
 CBlockIndex* AddToBlockIndex(const CBlock& block)
 {
+    AssertLockHeld(cs_main);
+
     // Check for duplicate
     uint256 hash = block.GetHash();
     BlockMap::iterator it = mapBlockIndex.find(hash);
@@ -2859,7 +2867,50 @@ CBlockIndex* AddToBlockIndex(const CBlock& block)
             // compute v2 stake modifier
             pindexNew->nStakeModifierV2 = ComputeStakeModifier(pindexNew->pprev, block.vtx[1].vin[0].prevout.hash);
         }
+
+        // track money supply and mint amount info
+        std::unordered_map<uint256, const CTransaction *> txsMap;
+        for (unsigned int i = 0; i < block.vtx.size(); i++)
+            txsMap[block.vtx[i].GetHash()] = &block.vtx[i];
+        CCoinsViewCache view(pcoinsTip);
+        CAmount nValueOut = 0;
+        CAmount nValueIn = 0;
+        CAmount nFees = 0;
+        for (unsigned int i = 0; i < block.vtx.size(); i++) {
+            const CTransaction &tx = block.vtx[i];
+            CAmount txValueOut = tx.GetValueOut();
+            nValueOut += txValueOut;
+            if (!tx.IsCoinBase()) {
+                CAmount txValueIn = 0;
+                for (unsigned int i = 0; i < tx.vin.size(); i++) {
+                    uint256 prevHash = tx.vin[i].prevout.hash;
+                    size_t prevN = tx.vin[i].prevout.n;
+                    CTxOut prevOut;
+                    auto prevTxIt = txsMap.find(prevHash);
+                    if (prevTxIt != txsMap.end()) {
+                        assert(prevN <= (*prevTxIt).second->vout.size());
+                        prevOut = (*prevTxIt).second->vout[prevN];
+                    } else {
+                        const CCoins *coins = view.AccessCoins(prevHash);
+                        if (coins && coins->IsAvailable(prevN))
+                            prevOut = view.GetOutputFor(tx.vin[i]);
+                        else
+                            assert(GetOutput(prevHash, prevN, prevOut));
+                    }
+                    txValueIn += prevOut.nValue;
+                }
+                if (!tx.IsCoinStake())
+                    nFees += txValueIn - txValueOut;
+                nValueIn += txValueIn;
+            }
+        }
+        CAmount nMoneySupplyPrev = pindexNew->pprev ? pindexNew->pprev->nMoneySupply : 0;
+        pindexNew->nMoneySupply = nMoneySupplyPrev + nValueOut - nValueIn;
+        pindexNew->nMint = pindexNew->nMoneySupply - nMoneySupplyPrev + nFees;
     }
+
+    pindexNew->nDynamicMultiplier = pindexNew->pprev ? pindexNew->pprev->nDynamicMultiplier : DYNAMIC_MULTIPLIER_DEFAULT * DYNAMIC_MULTIPLIER_DIVIDER;
+
     pindexNew->nChainWork = (pindexNew->pprev ? pindexNew->pprev->nChainWork : 0) + GetBlockProof(*pindexNew);
     pindexNew->RaiseValidity(BLOCK_VALID_TREE);
     if (pindexBestHeader == NULL || pindexBestHeader->nChainWork < pindexNew->nChainWork)
@@ -3014,14 +3065,18 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
 
     CBlockIndex* pindexPrev = chainActive.Tip();
     int nHeight = 0;
+    int64_t prevMoneySupply = 0;
 
     if (pindexPrev != NULL) {
         if (pindexPrev->GetBlockHash() == block.hashPrevBlock) {
             nHeight = pindexPrev->nHeight + 1;
+            prevMoneySupply = pindexPrev->nMoneySupply;
         } else { //out of order
             BlockMap::iterator mi = mapBlockIndex.find(block.hashPrevBlock);
-            if (mi != mapBlockIndex.end() && (*mi).second)
+            if (mi != mapBlockIndex.end() && (*mi).second) {
                 nHeight = (*mi).second->nHeight + 1;
+                prevMoneySupply = (*mi).second->nMoneySupply;
+            }
         }
     }
 
@@ -3114,7 +3169,7 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
         // but issue an initial reject message.
         // The case also exists that the sending peer could not have enough data to see
         // that this block is invalid, so don't issue an outright ban.
-        if (!IsBlockPayeeValid(block, nHeight)) {
+        if (!IsBlockPayeeValid(block, nHeight, prevMoneySupply)) {
             mapRejectedBlocks.insert(std::make_pair(block.GetHash(), GetTime()));
             return state.DoS(0, error("%s : Couldn't find some payments", __func__),
                     REJECT_INVALID, "bad-cb-payee");
@@ -3959,8 +4014,6 @@ bool InitBlockIndex()
     if (chainActive.Genesis() != NULL)
         return true;
 
-    // Use the provided setting for -txindex in the new database
-    fTxIndex = GetBoolArg("-txindex", true);
     pblocktree->WriteFlag("txindex", fTxIndex);
     LogPrintf("Initializing databases...\n");
 

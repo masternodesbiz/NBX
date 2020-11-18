@@ -696,10 +696,6 @@ Adresse : %4
         <source>TextLabel</source>
         <translation>TextLabel</translation>
     </message>
-    <message>
-        <source>Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (nbx.conf).</source>
-        <translation>Toutes les transaction ne seront pas affichés. Pour voir toutes les transactions, vous devez régler txindex=1 dans le fichier de configuration (nbx.conf).</translation>
-    </message>
 </context>
 <context>
     <name>ClientModel</name>
@@ -3906,10 +3902,6 @@ S'il vous plaît soyez patient après avoir cliqué sur l'importation.</translat
         <translation>Journaliser la priorité des transactions et les frais par Ko lors de l'extraction de blocs (par défaut: %u)</translation>
     </message>
     <message>
-        <source>Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)</source>
-        <translation>Maintenir un index de transaction complet, utilisé par l'appel rpc de getrawtransaction (par défaut: %u)</translation>
-    </message>
-    <message>
         <source>Maximum size of data in data carrier transactions we relay and mine (default: %u)</source>
         <translation>Taille maximale des données dans les transactions de support de données que nous transmettons et minons (par défaut: %u)</translation>
     </message>
@@ -5083,8 +5075,8 @@ S'il vous plaît soyez patient après avoir cliqué sur l'importation.</translat
         <translation>Va réessayer ...</translation>
     </message>
     <message>
-        <source>You need to rebuild the database using -reindex to change -txindex</source>
-        <translation>Vous devez reconstruire la base de données en utilisant -reindex pour modifier -txindex</translation>
+        <source>You need to rebuild the database using -reindex</source>
+        <translation>Vous devez reconstruire la base de données en utilisant -reindex</translation>
     </message>
     <message>
         <source>Your entries added successfully.</source>

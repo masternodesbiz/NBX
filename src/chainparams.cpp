@@ -127,6 +127,8 @@ public:
         /** Height or Time Based Activations **/
         nLastPOWBlock = 200;
         nBlockStakeModifierlV2 = 347000;
+        nDynamicRewardBlock = 770001;
+        nDynamicRewardDelay = 300;
 
         /**
          * Build the genesis block. Note that the output of the genesis coinbase cannot
@@ -179,6 +181,7 @@ public:
         activityAddress = "NV8C9AYfmoiU8Sd2dBPCsqWchmnh8F6yry";
         teamAddress = "NYkDC3hHouRaCSAMNsSxFj5Xv1h5etPzGT";
         dAppAddress = "Ncx5oHTq7B2eZ1deLfn9XBGBbiZ5tEs3wu";
+        dynamicRewardAddress = "Nfbm3HScz9GFxEmRBLBJaG1KhcT1FXiUcx";
     }
 
     const Checkpoints::CCheckpointData& Checkpoints() const
@@ -206,12 +209,16 @@ public:
         nDefaultPort = 28754;
         nMinerThreads = 0;
         nTargetSpacing = 1 * 60;  // 1 minute
-        nLastPOWBlock = 200;
         nMaturity = 15;
         nStakeMinDepth = 100;
         nMasternodeCountDrift = 4;
         nMaxMoneyOut = 500000 * COIN;
+
+        /** Height or Time Based Activations **/
+        nLastPOWBlock = 200;
         nBlockStakeModifierlV2 = 326000;
+        nDynamicRewardBlock = 720001;
+        nDynamicRewardDelay = 30;
 
         //! Modify the testnet genesis block so the timestamp is valid for a later start.
         genesis.nTime = 1560246000;
@@ -249,6 +256,7 @@ public:
         activityAddress = "n5q6183ZL3FJsYQfR4NLwRQqP1oas2SdZw";
         teamAddress = "nEnRsJtxh9k4fTtiQrt7TKpphT42asgLhZ";
         dAppAddress = "nFFVKie4qhKd9zwrxCBCnQyM1FhfAV4k51";
+        dynamicRewardAddress = "nSaacMdhVhhnKb4JYSLQMCUDafdxxkCdtQ";
     }
     const Checkpoints::CCheckpointData& Checkpoints() const
     {
@@ -274,12 +282,16 @@ public:
         nMinerThreads = 1;
         nTargetSpacing = 1 * 60;        // 1 minutes
         bnProofOfWorkLimit = ~uint256(0) >> 1;
-        nLastPOWBlock = 200;
         nMaturity = 100;
         nStakeMinDepth = 0;
         nMasternodeCountDrift = 4;
         nMaxMoneyOut = 43199500 * COIN;
+
+        /** Height or Time Based Activations **/
+        nLastPOWBlock = 200;
         nBlockStakeModifierlV2 = std::numeric_limits<int>::max(); // max integer value (never switch on regtest)
+        nDynamicRewardBlock = 770001;
+        nDynamicRewardDelay = 30;
 
         //! Modify the regtest genesis block so the timestamp is valid for a later start.
         genesis.nTime = 1560246000;

@@ -680,10 +680,6 @@ Address: %4
         <source>TextLabel</source>
         <translation>텍스트라벨</translation>
     </message>
-    <message>
-        <source>Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (nbx.conf).</source>
-        <translation>모든 트랜잭션이 표시되지는 않습니다. 모든 트랜잭션을 보려면 구성 파일 (nbx.conf)에 txindex = 1을 설정해야합니다.</translation>
-    </message>
 </context>
 <context>
     <name>ClientModel</name>
@@ -3762,10 +3758,6 @@ Please be patient after clicking import.</source>
         <translation>블록을 채굴 할 때 트랜잭션 우선 순위 및 kB 당 수수료를 기록합니다 (기본값: %u)</translation>
     </message>
     <message>
-        <source>Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)</source>
-        <translation>getrawtransaction rpc 호출에서 사용되는 전체 트랜잭션 색인를 유지보수합니다 (기본값: %u)</translation>
-    </message>
-    <message>
         <source>Maximum size of data in data carrier transactions we relay and mine (default: %u)</source>
         <translation>데이터 캐리어 내에서 우리가 중계하고 채굴하는 트랜잭션 데이터의 최대 사이즈 (기본값: %u)</translation>
     </message>
@@ -4930,7 +4922,7 @@ Please be patient after clicking import.</source>
         <translation>다시 시도합니다...</translation>
     </message>
     <message>
-        <source>You need to rebuild the database using -reindex to change -txindex</source>
+        <source>You need to rebuild the database using -reindex</source>
         <translation>-treindex를 변경하려면 -reindex를 사용하여 데이터베이스를 다시 빌드해야합니다.</translation>
     </message>
     <message>

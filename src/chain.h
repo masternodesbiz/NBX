@@ -1,7 +1,7 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -17,6 +17,8 @@
 
 #include <vector>
 
+#define DYNAMIC_MULTIPLIER_DIVIDER 100
+#define DYNAMIC_MULTIPLIER_DEFAULT 20
 
 struct CDiskBlockPos {
     int nFile;
@@ -165,6 +167,7 @@ public:
     int64_t nMint;
     int64_t nMoneySupply;
     uint256 nStakeModifierV2;
+    unsigned int nDynamicMultiplier;
 
     //! block header
     int nVersion;
@@ -198,6 +201,7 @@ public:
         nStakeModifierV2 = uint256();
         prevoutStake.SetNull();
         nStakeTime = 0;
+        nDynamicMultiplier = DYNAMIC_MULTIPLIER_DEFAULT * DYNAMIC_MULTIPLIER_DIVIDER;
 
         nVersion = 0;
         hashMerkleRoot = uint256();
@@ -426,6 +430,9 @@ public:
             const_cast<CDiskBlockIndex*>(this)->nStakeTime = 0;
             const_cast<CDiskBlockIndex*>(this)->hashProofOfStake = uint256();
         }
+
+        if (Params().IsDynamicRewardSave(nHeight))
+            READWRITE(nDynamicMultiplier);
 
         // block header
         READWRITE(this->nVersion);

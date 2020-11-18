@@ -708,10 +708,6 @@ MultiSend: %1</translation>
         <source>TextLabel</source>
         <translation>text etikett</translation>
     </message>
-    <message>
-        <source>Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (nbx.conf).</source>
-        <translation>Alla transaktioner kommer inte visas. För att visa alla transaktioner behöver du sätta txindex=1 i konfigurationsfilen (nbx.conf).</translation>
-    </message>
 </context>
 <context>
     <name>ClientModel</name>
@@ -3914,10 +3910,6 @@ Var god vänta efter att du trycker på importera.</translation>
         <translation>Log transaktion prioritet och avgift per kB närmining block (standard: %u)</translation>
     </message>
     <message>
-        <source>Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)</source>
-        <translation>Behåll en full transaktionsindex, använd av getrawtransaction rpc call (standard: %u)</translation>
-    </message>
-    <message>
         <source>Maximum size of data in data carrier transactions we relay and mine (default: %u)</source>
         <translation>Maximal datastorlek i databärar transaktioner ändrar vi väg och mine (standard: %u)</translation>
     </message>
@@ -5094,8 +5086,8 @@ Var god vänta efter att du trycker på importera.</translation>
         <translation>Kommer försöka igen...</translation>
     </message>
     <message>
-        <source>You need to rebuild the database using -reindex to change -txindex</source>
-        <translation>Du behöver bygga om databasen genom att använda -reindex för att ändra -txindex</translation>
+        <source>You need to rebuild the database using -reindex</source>
+        <translation>Du behöver bygga om databasen genom att använda -reindex</translation>
     </message>
     <message>
         <source>Your entries added successfully.</source>

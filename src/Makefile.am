@@ -251,6 +251,7 @@ libbitcoin_wallet_a_SOURCES = \
   masternode-sync.cpp \
   masternodeconfig.cpp \
   masternodeman.cpp \
+  messages.cpp \
   mnemonic.cpp \
   mnemonic_en.cpp \
   secure_string.cpp \

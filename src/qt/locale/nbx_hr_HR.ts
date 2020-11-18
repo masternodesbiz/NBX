@@ -680,10 +680,6 @@ Višestruko slanje: %1</translation>
         <source>TextLabel</source>
         <translation>TextLabel</translation>
     </message>
-    <message>
-        <source>Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (nbx.conf).</source>
-        <translation>Nisu prikazane sve transakcije. Za pregled svih transakcija morate postaviti txindex = 1 u konfiguracijskoj datoteci (nbx.conf).</translation>
-    </message>
 </context>
 <context>
     <name>ClientModel</name>
@@ -3767,10 +3763,6 @@ Budite strpljivi nakon što kliknete uvoz.</translation>
         <translation>Prijavite prioritet transakcije i naknadu po kB kada se mining-ju blokovi (zadano: %u)</translation>
     </message>
     <message>
-        <source>Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)</source>
-        <translation>Održavajte cijeli indeks transakcija, koji se koristi pozivom getrawtransaction rpc (zadano: %u)</translation>
-    </message>
-    <message>
         <source>Maximum size of data in data carrier transactions we relay and mine (default: %u)</source>
         <translation>Maksimalna veličina podataka u transakcijama nosača podataka koje šaljemo i minamo (zadana vrijednost: %u)</translation>
     </message>
@@ -4931,8 +4923,8 @@ Budite strpljivi nakon što kliknete uvoz.</translation>
         <translation>Ponovno pokušati...</translation>
     </message>
     <message>
-        <source>You need to rebuild the database using -reindex to change -txindex</source>
-        <translation>orate obnoviti bazu podataka koristeći -index za promjenu -txindexa</translation>
+        <source>You need to rebuild the database using -reindex</source>
+        <translation>orate obnoviti bazu podataka koristeći -index</translation>
     </message>
     <message>
         <source>Your entries added successfully.</source>

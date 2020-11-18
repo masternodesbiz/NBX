@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -410,76 +410,4 @@ bool DAppStore::SaveTxs() {
 bool DAppStore::SetPrice(const CAmount &price) {
     this->price = price;
     return DAppStoreDB(dbFile).WritePrice(price);
-}
-
-GzipInflate::~GzipInflate() {
-    if (initialized) {
-        delete buf;
-        inflateEnd(&stream);
-    }
-}
-
-void GzipInflate::Initialize() {
-    if (Z_OK != inflateInit2(&stream, -15))
-        throw std::runtime_error("Error initializing gzip inflate");
-    buf = new char[10240];
-    initialized = true;
-}
-
-bool GzipInflate::Append(const std::string &data) {
-    if (!initialized)
-        Initialize();
-    stream.next_in = (Bytef *) data.data();
-    stream.avail_in = data.length();
-    int ret;
-    do {
-        stream.next_out = (Bytef *) buf;
-        stream.avail_out = 10240;
-        ret = inflate(&stream, Z_NO_FLUSH);
-        if (Z_STREAM_ERROR == ret || Z_NEED_DICT == ret || Z_DATA_ERROR == ret || Z_MEM_ERROR == ret) {
-            isError = true;
-            return true;
-        }
-        res += std::string(buf, 10240 - stream.avail_out);
-    } while (stream.avail_out == 0);
-    return ret == Z_STREAM_END;
-}
-
-std::string GzipInflate::Get() {
-    return res;
-}
-
-size_t GzipInflate::Size() {
-    return res.size();
-}
-
-bool GzipInflate::IsError() {
-    return isError;
-}
-
-std::string deflate(const std::string &data) {
-    if (data.empty())
-        return "";
-    z_stream stream;
-    stream.zalloc = Z_NULL;
-    stream.zfree = Z_NULL;
-    stream.opaque = Z_NULL;
-    if (Z_OK != deflateInit2(&stream, 6, Z_DEFLATED, -15, 8, Z_DEFAULT_STRATEGY))
-        return "";
-    char *buf = new char[10240];
-    stream.next_in = (Bytef *) data.data();
-    stream.avail_in = data.length();
-    std::string res;
-    do {
-        stream.next_out = (Bytef *) buf;
-        stream.avail_out = 10240;
-        if (Z_STREAM_ERROR == deflate(&stream, Z_FINISH)) {
-            res = "";
-            break;
-        }
-        res.append(buf, 10240 - stream.avail_out);
-    } while (stream.avail_out == 0);
-    delete buf;
-    deflateEnd(&stream);
-    return res;
 }

@@ -1,5 +1,5 @@
 // Copyright (c) 2017-2019 The PIVX developers
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2020 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -230,7 +230,7 @@ std::string BlockToString(CBlockIndex* pBlock)
     if (pBlock->nHeight == 0)
         Generated = OutVolume;
     else
-        Generated = GetBlockValue(pBlock->nHeight - 1);
+        Generated = GetBlockValue(pBlock->nHeight - 1, pBlock->pprev ? pBlock->pprev->nMoneySupply : 0);
 
     std::string BlockContentCells[] =
         {
@@ -476,11 +476,6 @@ void BlockExplorer::showEvent(QShowEvent*)
         ui->searchBox->setText(text);
         m_History.push_back(text);
         updateNavButtons();
-
-        if (!GetBoolArg("-txindex", true)) {
-            QString Warning = tr("Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (nbx.conf).");
-            QMessageBox::warning(this, "Netbox.Wallet Blockchain Explorer", Warning, QMessageBox::Ok);
-        }
     }
 }
 

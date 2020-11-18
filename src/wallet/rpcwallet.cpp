@@ -50,9 +50,11 @@ void WalletTxToJSON(const CWalletTx& wtx, UniValue& entry)
     if (wtx.IsCoinBase() || wtx.IsCoinStake())
         entry.push_back(Pair("generated", true));
     if (confirms > 0) {
+        CBlockIndex* pBlock = mapBlockIndex[wtx.hashBlock];
         entry.push_back(Pair("blockhash", wtx.hashBlock.GetHex()));
+        entry.push_back(Pair("blockheight", pBlock->nHeight));
         entry.push_back(Pair("blockindex", wtx.nIndex));
-        entry.push_back(Pair("blocktime", mapBlockIndex[wtx.hashBlock]->GetBlockTime()));
+        entry.push_back(Pair("blocktime", pBlock->GetBlockTime()));
     }
     uint256 hash = wtx.GetHash();
     entry.push_back(Pair("txid", hash.GetHex()));
@@ -1377,7 +1379,9 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
             UniValue entry(UniValue::VOBJ);
             entry.push_back(Pair("account", strSentAccount));
             MaybePushAddress(entry, "address", s.destination);
-            MaybePushAddress(entry, "from", s.from);
+            CTxDestination from;
+            if (ExtractDestination(wtx.from, from))
+                MaybePushAddress(entry, "from", from);
             entry.push_back(Pair("category", "send"));
             entry.push_back(Pair("amount", ValueFromAmount(-s.amount)));
             entry.push_back(Pair("vout", s.vout));
@@ -1390,6 +1394,9 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
         if (listSent.empty() && nFee != 0) {
             UniValue entry(UniValue::VOBJ);
             entry.push_back(Pair("account", strSentAccount));
+            CTxDestination from;
+            if (ExtractDestination(wtx.from, from))
+                MaybePushAddress(entry, "from", from);
             entry.push_back(Pair("category", "send"));
             entry.push_back(Pair("amount", 0));
             entry.push_back(Pair("vout", 0));
@@ -1411,7 +1418,9 @@ void ListTransactions(const CWalletTx& wtx, const std::string& strAccount, int n
                 UniValue entry(UniValue::VOBJ);
                 entry.push_back(Pair("account", account));
                 MaybePushAddress(entry, "address", r.destination);
-                MaybePushAddress(entry, "from", r.from);
+                CTxDestination from;
+                if (ExtractDestination(wtx.from, from))
+                    MaybePushAddress(entry, "from", from);
                 if (wtx.IsCoinBase()) {
                     if (wtx.GetDepthInMainChain() < 1)
                         entry.push_back(Pair("category", "orphan"));
@@ -1484,13 +1493,15 @@ UniValue listtransactions(const UniValue& params, bool fHelp)
             "                                          and 'receive' category of transactions.\n"
             "    \"blockhash\": \"hashvalue\", (string) The block hash containing the transaction. Available for 'send' and 'receive'\n"
             "                                          category of transactions.\n"
+            "    \"blockheight\": n,         (numeric) The block height containing the transaction. Available for 'send' and 'receive'\n"
+            "                                          category of transactions.\n"
             "    \"blockindex\": n,          (numeric) The block index containing the transaction. Available for 'send' and 'receive'\n"
             "                                          category of transactions.\n"
-            "    \"txid\": \"transactionid\", (string) The transaction id. Available for 'send' and 'receive' category of transactions.\n"
+            "    \"txid\": \"transactionid\",  (string) The transaction id. Available for 'send' and 'receive' category of transactions.\n"
             "    \"time\": xxx,              (numeric) The transaction time in seconds since epoch (midnight Jan 1 1970 GMT).\n"
             "    \"timereceived\": xxx,      (numeric) The time received in seconds since epoch (midnight Jan 1 1970 GMT). Available \n"
             "                                          for 'send' and 'receive' category of transactions.\n"
-            "    \"comment\": \"...\",       (string) If a comment is associated with the transaction.\n"
+            "    \"comment\": \"...\",         (string) If a comment is associated with the transaction.\n"
             "    \"otheraccount\": \"accountname\",  (string) For the 'move' category of transactions, the account the funds came \n"
             "                                          from (for receiving funds, positive amounts), or went to (for sending funds,\n"
             "                                          negative amounts).\n"
@@ -1650,31 +1661,32 @@ UniValue listsinceblock(const UniValue& params, bool fHelp)
             "\nResult:\n"
             "{\n"
             "  \"transactions\": [\n"
-            "    \"account\":\"accountname\",       (string) The account name associated with the transaction. Will be \"\" for the default account.\n"
-            "    \"address\":\"nbxaddress\",        (string) NBX address of the transaction. Not present for move transactions (category = move).\n"
-            "    \"category\":\"send|receive\",     (string) The transaction category. 'send' has negative amounts, 'receive' has positive amounts.\n"
-            "    \"amount\": x.xxx,          (numeric) The amount in NBX. This is negative for the 'send' category, and for the 'move' category for moves \n"
+            "    \"account\": \"accountname\",   (string) The account name associated with the transaction. Will be \"\" for the default account.\n"
+            "    \"address\": \"nbxaddress\",    (string) NBX address of the transaction. Not present for move transactions (category = move).\n"
+            "    \"category\": \"send|receive\", (string) The transaction category. 'send' has negative amounts, 'receive' has positive amounts.\n"
+            "    \"amount\": x.xxx,            (numeric) The amount in NBX. This is negative for the 'send' category, and for the 'move' category for moves \n"
             "                                          outbound. It is positive for the 'receive' category, and for the 'move' category for inbound funds.\n"
-            "    \"vout\" : n,               (numeric) the vout value\n"
-            "    \"fee\": x.xxx,             (numeric) The amount of the fee in NBX. This is negative and only available for the 'send' category of transactions.\n"
-            "    \"confirmations\": n,       (numeric) The number of confirmations for the transaction. Available for 'send' and 'receive' category of transactions.\n"
-            "    \"bcconfirmations\" : n,    (numeric) The number of blockchain confirmations for the transaction. Available for 'send' and 'receive' category of transactions.\n"
-            "    \"blockhash\": \"hashvalue\",     (string) The block hash containing the transaction. Available for 'send' and 'receive' category of transactions.\n"
-            "    \"blockindex\": n,          (numeric) The block index containing the transaction. Available for 'send' and 'receive' category of transactions.\n"
-            "    \"blocktime\": xxx,         (numeric) The block time in seconds since epoch (1 Jan 1970 GMT).\n"
-            "    \"txid\": \"transactionid\",  (string) The transaction id. Available for 'send' and 'receive' category of transactions.\n"
-            "    \"time\": xxx,              (numeric) The transaction time in seconds since epoch (Jan 1 1970 GMT).\n"
-            "    \"timereceived\": xxx,      (numeric) The time received in seconds since epoch (Jan 1 1970 GMT). Available for 'send' and 'receive' category of transactions.\n"
-            "    \"comment\": \"...\",       (string) If a comment is associated with the transaction.\n"
-            "    \"to\": \"...\",            (string) If a comment to is associated with the transaction.\n"
+            "    \"vout\": n,                  (numeric) the vout value\n"
+            "    \"fee\": x.xxx,               (numeric) The amount of the fee in NBX. This is negative and only available for the 'send' category of transactions.\n"
+            "    \"confirmations\": n,         (numeric) The number of confirmations for the transaction. Available for 'send' and 'receive' category of transactions.\n"
+            "    \"bcconfirmations\": n,       (numeric) The number of blockchain confirmations for the transaction. Available for 'send' and 'receive' category of transactions.\n"
+            "    \"blockhash\": \"hashvalue\",   (string) The block hash containing the transaction. Available for 'send' and 'receive' category of transactions.\n"
+            "    \"blockheight\": n,           (numeric) The block height containing the transaction. Available for 'send' and 'receive' category of transactions.\n"
+            "    \"blockindex\": n,            (numeric) The block index containing the transaction. Available for 'send' and 'receive' category of transactions.\n"
+            "    \"blocktime\": xxx,           (numeric) The block time in seconds since epoch (1 Jan 1970 GMT).\n"
+            "    \"txid\": \"transactionid\",    (string) The transaction id. Available for 'send' and 'receive' category of transactions.\n"
+            "    \"time\": xxx,                (numeric) The transaction time in seconds since epoch (Jan 1 1970 GMT).\n"
+            "    \"timereceived\": xxx,        (numeric) The time received in seconds since epoch (Jan 1 1970 GMT). Available for 'send' and 'receive' category of transactions.\n"
+            "    \"comment\": \"...\",           (string) If a comment is associated with the transaction.\n"
+            "    \"to\": \"...\",                (string) If a comment to is associated with the transaction.\n"
             "  ],\n"
-            "  \"lastblock\": \"lastblockhash\"     (string) The hash of the last block\n"
+            "  \"lastblock\": \"lastblockhash\"  (string) The hash of the last block\n"
             "}\n"
 
             "\nExamples:\n" +
             HelpExampleCli("listsinceblock", "") +
-            HelpExampleCli("listsinceblock", "\"000000000000000bacf66f7497b7dc45ef753ee9a7d38571037cdb1a57f663ad\" 6") +
-            HelpExampleRpc("listsinceblock", "\"000000000000000bacf66f7497b7dc45ef753ee9a7d38571037cdb1a57f663ad\", 6"));
+            HelpExampleCli("listsinceblock", "\"1e5aca38a7e5f2e2aea1b88335df9afc64b71544fcb93a708a516e492bd806a5\" 6") +
+            HelpExampleRpc("listsinceblock", "\"1e5aca38a7e5f2e2aea1b88335df9afc64b71544fcb93a708a516e492bd806a5\", 6"));
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
@@ -1730,26 +1742,27 @@ UniValue gettransaction(const UniValue& params, bool fHelp)
 
             "\nResult:\n"
             "{\n"
-            "  \"amount\" : x.xxx,        (numeric) The transaction amount in NBX\n"
-            "  \"confirmations\" : n,     (numeric) The number of confirmations\n"
-            "  \"bcconfirmations\" : n,   (numeric) The number of blockchain confirmations\n"
-            "  \"blockhash\" : \"hash\",  (string) The block hash\n"
-            "  \"blockindex\" : xx,       (numeric) The block index\n"
-            "  \"blocktime\" : ttt,       (numeric) The time in seconds since epoch (1 Jan 1970 GMT)\n"
-            "  \"txid\" : \"transactionid\",   (string) The transaction id.\n"
-            "  \"time\" : ttt,            (numeric) The transaction time in seconds since epoch (1 Jan 1970 GMT)\n"
-            "  \"timereceived\" : ttt,    (numeric) The time received in seconds since epoch (1 Jan 1970 GMT)\n"
-            "  \"details\" : [\n"
+            "  \"amount\": x.xxx,         (numeric) The transaction amount in NBX\n"
+            "  \"confirmations\": n,      (numeric) The number of confirmations\n"
+            "  \"bcconfirmations\": n,    (numeric) The number of blockchain confirmations\n"
+            "  \"blockhash\": \"hash\",     (string) The block hash\n"
+            "  \"blockheight\": n,        (numeric) The block height\n"
+            "  \"blockindex\": xx,        (numeric) The block index\n"
+            "  \"blocktime\": ttt,        (numeric) The time in seconds since epoch (1 Jan 1970 GMT)\n"
+            "  \"txid\": \"transactionid\", (string) The transaction id.\n"
+            "  \"time\": ttt,             (numeric) The transaction time in seconds since epoch (1 Jan 1970 GMT)\n"
+            "  \"timereceived\": ttt,     (numeric) The time received in seconds since epoch (1 Jan 1970 GMT)\n"
+            "  \"details\": [\n"
             "    {\n"
-            "      \"account\" : \"accountname\",      (string) The account name involved in the transaction, can be \"\" for the default account.\n"
-            "      \"address\" : \"nbxaddress\",       (string) NBX address involved in the transaction\n"
-            "      \"category\" : \"send|receive\",    (string) The category, either 'send' or 'receive'\n"
-            "      \"amount\" : x.xxx                  (numeric) The amount in NBX\n"
-            "      \"vout\" : n,                       (numeric) the vout value\n"
+            "      \"account\": \"accountname\",    (string) The account name involved in the transaction, can be \"\" for the default account.\n"
+            "      \"address\": \"nbxaddress\",     (string) NBX address involved in the transaction\n"
+            "      \"category\": \"send|receive\",  (string) The category, either 'send' or 'receive'\n"
+            "      \"amount\": x.xxx              (numeric) The amount in NBX\n"
+            "      \"vout\": n,                   (numeric) the vout value\n"
             "    }\n"
             "    ,...\n"
             "  ],\n"
-            "  \"hex\" : \"data\"         (string) Raw data for transaction\n"
+            "  \"hex\": \"data\"            (string) Raw data for transaction\n"
             "}\n"
 
             "\nExamples:\n" +
@@ -2688,13 +2701,13 @@ UniValue gethdseed(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 0)
         throw std::runtime_error(
-                "gethdseed\n"
-                "Returns mnemonic phrase for HD wallet.\n" +
-                HelpRequiringPassphrase() + "\n"
+            "gethdseed\n"
+            "Returns mnemonic phrase for HD wallet.\n" +
+            HelpRequiringPassphrase() + "\n"
 
-                "\nExamples:\n" +
-                HelpExampleCli("gethdseed", "") +
-                HelpExampleRpc("gethdseed", ""));
+            "\nExamples:\n" +
+            HelpExampleCli("gethdseed", "") +
+            HelpExampleRpc("gethdseed", ""));
 
     EnsureWalletIsUnlocked();
 
@@ -2715,24 +2728,49 @@ UniValue sethdseed(const UniValue &params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
         throw std::runtime_error(
-                "sethdseed \"mnemonic\"\n"
-                "\nSets mnemonic phrase for HD wallet.\n" +
-                HelpRequiringPassphrase() + "\n"
-                "Note that this will shutdown the server.\n"
-                "Old wallet will be saved as " + pwalletMain->strWalletFile + ".old.<time>.\n"
-                "New wallet will be unencrypted.\n"
+            "sethdseed \"mnemonic\"\n"
+            "\nSets mnemonic phrase for HD wallet.\n" +
+            HelpRequiringPassphrase() + "\n"
+            "Note that this will shutdown the server.\n"
+            "Old wallet will be saved as " + pwalletMain->strWalletFile + ".old.<time>.\n"
+            "New wallet will be unencrypted.\n"
 
-                "\nArguments:\n"
-                "1. \"mnemonic\"    (string) Mnemonic phrase for HD wallet seed. It must consist of 24 words from BIP39 english word list.\n"
+            "\nArguments:\n"
+            "1. \"mnemonic\"    (string) Mnemonic phrase for HD wallet seed. It must consist of 24 words from BIP39 english word list.\n"
 
-                "\nExamples:\n"
-                "\nSet mnemonic phrase\n" +
-                HelpExampleCli("sethdseed", "\"valid mnemonic phrase\"") +
-                HelpExampleRpc("sethdseed", "\"valid mnemonic phrase\""));
+            "\nExamples:\n" +
+            HelpExampleCli("sethdseed", "\"valid mnemonic phrase\"") +
+            HelpExampleRpc("sethdseed", "\"valid mnemonic phrase\""));
 
     try {
         // Note that the mnemonic is stored in params[0] which is not mlock()ed
         pwalletMain->SetHdSeed(SecureStringFromString(params[0].get_str()));
+    } catch (const std::runtime_error &e) {
+        throw JSONRPCError(RPC_WALLET_ERROR, e.what());
+    }
+
+    StartShutdown();
+    return "new wallet created; Netbox.Wallet server stopping, restart to run with new wallet.";
+}
+
+UniValue createnewwallet(const UniValue &params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw std::runtime_error(
+            "createnewwallet\n"
+            "\nCreates new HD wallet.\n" +
+            HelpRequiringPassphrase() + "\n"
+            "Note that this will shutdown the server.\n"
+            "Old wallet will be saved as " + pwalletMain->strWalletFile + ".old.<time>.\n"
+            "New wallet will be unencrypted.\n"
+
+            "\nExamples:\n" +
+            HelpExampleCli("createnewwallet", "") +
+            HelpExampleRpc("createnewwallet", ""));
+
+    try {
+        CPubKey masterPubKey = pwalletMain->GenerateNewSeed();
+        pwalletMain->SetHDSeed(masterPubKey);
     } catch (const std::runtime_error &e) {
         throw JSONRPCError(RPC_WALLET_ERROR, e.what());
     }

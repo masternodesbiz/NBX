@@ -704,10 +704,6 @@ Adresse: %4
         <source>TextLabel</source>
         <translation>Tekstmærke</translation>
     </message>
-    <message>
-        <source>Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (nbx.conf).</source>
-        <translation>Ikke alle transaktioner vil blive vist. For at vise alle transaktioner må De sætte "txindex=1" i konfigurationsfilen (nbx.conf).</translation>
-    </message>
 </context>
 <context>
     <name>ClientModel</name>
@@ -3823,10 +3819,6 @@ Vær tålmodig efter at du har klikket på import.</translation>
         <translation>Indskriv transaktionsprioritet og gebyr pr kB i loggen når der mineres (default: %u)</translation>
     </message>
     <message>
-        <source>Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)</source>
-        <translation>Vedligehold et fuldgyldigt transaktionsindeks fra getrawtransaktion fra rpc kald (default: %u)</translation>
-    </message>
-    <message>
         <source>Maximum size of data in data carrier transactions we relay and mine (default: %u)</source>
         <translation>Maksimal størrelse på data hos databærerens transaktioner der videresendes og mineres (default: %u)</translation>
     </message>
@@ -4991,8 +4983,8 @@ Vær tålmodig efter at du har klikket på import.</translation>
         <translation>Prøver igen</translation>
     </message>
     <message>
-        <source>You need to rebuild the database using -reindex to change -txindex</source>
-        <translation>Databasen skal genopbygges ved hjælp af -reindex for at ændre -txindex</translation>
+        <source>You need to rebuild the database using -reindex</source>
+        <translation>Databasen skal genopbygges ved hjælp af -reindex</translation>
     </message>
     <message>
         <source>Your entries added successfully.</source>

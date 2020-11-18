@@ -352,6 +352,7 @@ set(WALLET_SOURCES
         ./src/masternode-sync.cpp
         ./src/masternodeconfig.cpp
         ./src/masternodeman.cpp
+        ./src/messages.cpp
         ./src/wallet/rpcdump.cpp
         ./src/wallet/rpcwallet.cpp
         ./src/kernel.cpp

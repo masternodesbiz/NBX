@@ -680,10 +680,6 @@ Address: %4
         <source>TextLabel</source>
         <translation>ТекстовЕтикет</translation>
     </message>
-    <message>
-        <source>Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (nbx.conf).</source>
-        <translation>Не всички преводи ще бъдат показани. За да разгледате всички преводи, трябва да зададете txindex=1 в конфигурационния файл (nbx.conf).</translation>
-    </message>
 </context>
 <context>
     <name>ClientModel</name>
@@ -3756,10 +3752,6 @@ Please be patient after clicking import.</source>
         <translation>Прихващай приоритета на преводите и таксата за килобайт когато копаете блокове (default: %u)</translation>
     </message>
     <message>
-        <source>Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)</source>
-        <translation>Пази пълен индекс на всички преводи използвани от getrawtransaction rpc call (default: %u)</translation>
-    </message>
-    <message>
         <source>Maximum size of data in data carrier transactions we relay and mine (default: %u)</source>
         <translation>Максимум големина на данните в транзакциите, които препращаме и минираме (default: %u)</translation>
     </message>
@@ -4920,8 +4912,8 @@ Please be patient after clicking import.</source>
         <translation>Ще опита...</translation>
     </message>
     <message>
-        <source>You need to rebuild the database using -reindex to change -txindex</source>
-        <translation>Трябва да построите базата данни наново, използвайки -reindex вместо -txindex</translation>
+        <source>You need to rebuild the database using -reindex</source>
+        <translation>Трябва да построите базата данни наново, използвайки -reindex</translation>
     </message>
     <message>
         <source>Your entries added successfully.</source>

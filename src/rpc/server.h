@@ -252,6 +252,7 @@ extern UniValue multisend(const UniValue& params, bool fHelp);
 extern UniValue autocombinerewards(const UniValue& params, bool fHelp);
 extern UniValue gethdseed(const UniValue& params, bool fHelp);
 extern UniValue sethdseed(const UniValue& params, bool fHelp);
+extern UniValue createnewwallet(const UniValue& params, bool fHelp);
 
 extern UniValue addnewdapp(const UniValue& params, bool fHelp); // in rpc/dappstore.cpp
 extern UniValue dappdelete(const UniValue& params, bool fHelp);

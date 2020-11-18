@@ -412,7 +412,6 @@ std::string HelpMessage(HelpMessageMode mode)
 #if !defined(WIN32)
     strUsage += HelpMessageOpt("-sysperms", _("Create new files with system default permissions, instead of umask 077 (only effective with disabled wallet functionality)"));
 #endif
-    strUsage += HelpMessageOpt("-txindex", strprintf(_("Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)"), 0));
     strUsage += HelpMessageOpt("-forcestart", _("Attempt to force blockchain corruption recovery") + " " + _("on startup"));
 
     strUsage += HelpMessageGroup(_("Connection options:"));
@@ -1401,8 +1400,6 @@ bool AppInit2()
         else if (nTotalCache > (nMaxDbCache << 20))
             nTotalCache = (nMaxDbCache << 20); // total cache cannot be greater than nMaxDbCache
         size_t nBlockTreeDBCache = nTotalCache / 8;
-        if (nBlockTreeDBCache > (1 << 21) && !GetBoolArg("-txindex", true))
-            nBlockTreeDBCache = (1 << 21); // block tree db cache shouldn't be larger than 2 MiB
         nTotalCache -= nBlockTreeDBCache;
         size_t nCoinDBCache = nTotalCache / 2; // use half of the remaining cache for coindb cache
         nTotalCache -= nCoinDBCache;
@@ -1460,8 +1457,8 @@ bool AppInit2()
                     }
 
                     // Check for changed -txindex state
-                    if (fTxIndex != GetBoolArg("-txindex", true)) {
-                        strLoadError = _("You need to rebuild the database using -reindex to change -txindex");
+                    if (fTxIndex != true) {
+                        strLoadError = _("You need to rebuild the database using -reindex");
                         break;
                     }
 
@@ -1631,7 +1628,7 @@ bool AppInit2()
                 strErrors << _("Error loading wallet.dat") << "\n";
         }
 
-        if (GetBoolArg("-upgradewallet", fFirstRun)) {
+        if (GetBoolArg("-upgradewallet", true)) {
             int nMaxVersion = GetArg("-upgradewallet", 0);
             if (nMaxVersion == 0) // the -upgradewallet without argument case
             {
@@ -1787,7 +1784,7 @@ bool AppInit2()
 
     if ((fMasterNode || masternodeConfig.getCount() > -1) && !fTxIndex) {
         return InitError("Enabling Masternode support requires turning on transaction indexing."
-                         "Please add txindex=1 to your configuration and start with -reindex");
+                         "Please start with -reindex");
     }
 
     if (fMasterNode) {

@@ -624,10 +624,6 @@ MultiSend: %1</translation>
         <source>TextLabel</source>
         <translation>TextLabel</translation>
     </message>
-    <message>
-        <source>Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (nbx.conf).</source>
-        <translation>Nie všetky transakcie sa zobrazia. Ak chcete zobraziť všetky transakcie, musíte v konfiguračnom súbore (nbx.conf) nastaviť txindex = 1.</translation>
-    </message>
 </context>
 <context>
     <name>ClientModel</name>

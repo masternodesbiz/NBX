@@ -385,6 +385,27 @@ void CWallet::SetBestChain(const CBlockLocator& loc)
     walletdb.WriteBestBlock(loc);
 }
 
+void ParseWtxFrom(CWalletTx *wtx, const CCoinsViewCache &view){
+    CScript from;
+    for (unsigned int i = 0; i < wtx->vin.size(); ++i) {
+        uint256 prevHash = wtx->vin[i].prevout.hash;
+        size_t prevN = wtx->vin[i].prevout.n;
+        CTxOut prevOut;
+        const CCoins *coins = view.AccessCoins(prevHash);
+        if (coins && coins->IsAvailable(prevN))
+            prevOut = view.GetOutputFor(wtx->vin[i]);
+        else if (!GetOutput(prevHash, prevN, prevOut))
+            continue;
+        if (from.empty())
+            from = prevOut.scriptPubKey;
+        else if (from != prevOut.scriptPubKey) {
+            from.clear();
+            break;
+        }
+    }
+    wtx->from = from;
+}
+
 bool CWallet::SetMinVersion(enum WalletFeature nVersion, CWalletDB* pwalletdbIn, bool fExplicit)
 {
     LOCK(cs_wallet); // nWalletVersion
@@ -395,10 +416,22 @@ bool CWallet::SetMinVersion(enum WalletFeature nVersion, CWalletDB* pwalletdbIn,
     if (fExplicit && nVersion > nWalletMaxVersion)
         nVersion = FEATURE_LATEST;
 
+    int nPrevVersion = nWalletVersion;
     nWalletVersion = nVersion;
 
     if (nVersion > nWalletMaxVersion)
         nWalletMaxVersion = nVersion;
+
+    if (nPrevVersion <= FEATURE_HD && nVersion >= FEATURE_FROM) {
+        LOCK(cs_main);
+        CCoinsViewCache view(pcoinsTip);
+        for (auto it = mapWallet.begin(); it != mapWallet.end(); ++it) {
+            CWalletTx *pwtx = &(*it).second;
+            ParseWtxFrom(pwtx, view);
+            pwtx->WriteToDisk();
+        }
+        nWalletDBUpdated++;
+    }
 
     if (fFileBacked) {
         CWalletDB* pwalletdb = pwalletdbIn ? pwalletdbIn : new CWalletDB(strWalletFile);
@@ -475,6 +508,7 @@ void CWallet::SyncMetaData(std::pair<TxSpends::iterator, TxSpends::iterator> ran
         copyTo->strFromAccount = copyFrom->strFromAccount;
         // nOrderPos not copied on purpose
         // cached members not copied on purpose
+        copyTo->from = copyFrom->from;
     }
 }
 
@@ -810,6 +844,17 @@ bool CWallet::AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet)
         }
 
         bool fUpdated = false;
+
+        // get input address if there is only one address
+        {
+            LOCK(cs_main);
+            CCoinsViewCache view(pcoinsTip);
+            CScript oldFrom = wtx.from;
+            ParseWtxFrom(&wtx, view);
+            if (oldFrom != wtx.from)
+                fUpdated = true;
+        }
+
         if (!fInsertedNew) {
             // Merge
             if (wtxIn.hashBlock != 0 && wtxIn.hashBlock != wtx.hashBlock) {
@@ -1253,46 +1298,29 @@ void CWalletTx::GetAmounts(std::list<COutputEntry>& listReceived,
     strSentAccount = strFromAccount;
     CAmount nDebit = GetDebit();
     CTxDestination address;
-    CTxDestination fromAddress = CNoDestination();
-
-    // get input address if there is only one address
-    for (unsigned int i = 0; i < vin.size(); ++i) {
-        const CTxIn &txin = vin[i];
-        CTransaction tx;
-        uint256 hash_block;
-        CTxDestination tmpAddress;
-        if (GetTransaction(txin.prevout.hash, tx, hash_block, true) && ExtractDestination(tx.vout[txin.prevout.n].scriptPubKey, tmpAddress)) {
-            if (fromAddress.type() == typeid(CNoDestination)) {
-                fromAddress = tmpAddress;
-            } else if (fromAddress != tmpAddress) {
-                fromAddress = CNoDestination();
-                break;
-            }
-        }
-    }
 
     if (IsCoinStake()) {
         CAmount nStakeAmount = 0;
         int nStakeVout = -1;
         for (int i = 1; i < (int) vout.size(); ++i) {
             if (pwallet->IsMine(vout[i])) {
-                if (ExtractDestination(vout[i].scriptPubKey, address)) {
-                    // calculate stake amount
-                    if (address == fromAddress) {
-                        nStakeAmount += vout[i].nValue;
-                        if (nStakeVout == -1)
-                            nStakeVout = i;
-                        continue;
-                    }
-                } else
+                if (!from.empty() && vout[i].scriptPubKey == from) {
+                    nStakeAmount += vout[i].nValue;
+                    if (nStakeVout == -1)
+                        nStakeVout = i;
+                    continue;
+                }
+                if (!ExtractDestination(vout[i].scriptPubKey, address))
                     address = CNoDestination();
-                COutputEntry output = {address, fromAddress, vout[i].nValue, i};
+                COutputEntry output = {address, vout[i].nValue, i};
                 listReceived.push_back(output);
             }
         }
         if (nStakeVout >= 0) {
+            if (!ExtractDestination(from, address))
+                address = CNoDestination();
             CAmount net = nStakeAmount - nDebit;
-            COutputEntry output = {fromAddress, fromAddress, net, nStakeVout};
+            COutputEntry output = {address, net, nStakeVout};
             if (net < 0) {
                 output.amount = -output.amount;
                 listSent.push_back(output);
@@ -1329,7 +1357,7 @@ void CWalletTx::GetAmounts(std::list<COutputEntry>& listReceived,
                 address = CNoDestination();
             }
 
-            COutputEntry output = {address, fromAddress, txout.nValue, (int)i};
+            COutputEntry output = {address, txout.nValue, (int)i};
 
             // If we are debited by the transaction, add the output as a "sent" entry
             if (nDebit > 0)
@@ -2153,6 +2181,7 @@ bool CWallet::CreateCoinStake(
     // Should not be adjusted if you don't understand the consequences
     //int64_t nCombineThreshold = 0;
     const CBlockIndex* pindexPrev = chainActive.Tip();
+    CAmount prevMoneySupply = pindexPrev->nMoneySupply;
     txNew.vin.clear();
     txNew.vout.clear();
 
@@ -2218,7 +2247,7 @@ bool CWallet::CreateCoinStake(
 
             // Calculate reward
             CAmount nReward;
-            nReward = GetBlockValue(chainActive.Height() + 1);
+            nReward = GetBlockValue(chainActive.Height() + 1, prevMoneySupply);
             nCredit += nReward;
 
             // Create the output transaction(s)

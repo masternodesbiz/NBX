@@ -146,8 +146,7 @@ UniValue addnewdapp(const UniValue &params, bool fHelp) {
                 "addnewdapp \"name\" \"url\" \"blockchain\" \"description\" \"image\" ( \"fromaccount\" )\n"
 
                 "\nNOTE: By default this function only works sometimes. This is when the tx is in the mempool\n"
-                "or there is an unspent output in the utxo for this transaction. To make it always work,\n"
-                "you need to maintain a transaction index, using the -txindex command line option.\n"
+                "or there is an unspent output in the utxo for this transaction.\n"
 
                 "\nAdds new dApp to dApp Store.\n"
 
@@ -254,8 +253,7 @@ UniValue dappdelete(const UniValue &params, bool fHelp) {
                 "dappdelete \"txid\"\n"
 
                 "\nNOTE: By default this function only works sometimes. This is when the tx is in the mempool\n"
-                "or there is an unspent output in the utxo for this transaction. To make it always work,\n"
-                "you need to maintain a transaction index, using the -txindex command line option.\n"
+                "or there is an unspent output in the utxo for this transaction.\n"
 
                 "\nDelete dApp from dApp Store.\n"
 
@@ -311,8 +309,7 @@ UniValue dappupdate(const UniValue &params, bool fHelp) {
                 "dappupdate \"txid\" \"name\" \"url\" \"blockchain\" \"description\" \"image\"\n"
 
                 "\nNOTE: By default this function only works sometimes. This is when the tx is in the mempool\n"
-                "or there is an unspent output in the utxo for this transaction. To make it always work,\n"
-                "you need to maintain a transaction index, using the -txindex command line option.\n"
+                "or there is an unspent output in the utxo for this transaction.\n"
 
                 "\nUpdate dApp in dApp Store.\n"
 

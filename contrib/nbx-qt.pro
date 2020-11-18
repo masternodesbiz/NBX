@@ -99,6 +99,7 @@ HEADERS += src/activemasternode.h \
            src/masternodeconfig.h \
            src/masternodeman.h \
            src/merkleblock.h \
+           src/messages.h \
            src/miner.h \
            src/mnemonic.h \
            src/mruset.h \
@@ -399,6 +400,7 @@ SOURCES += src/activemasternode.cpp \
            src/masternodeconfig.cpp \
            src/masternodeman.cpp \
            src/merkleblock.cpp \
+           src/messages.cpp \
            src/miner.cpp \
            src/mnemonic.cpp \
            src/mnemonic_en.cpp \

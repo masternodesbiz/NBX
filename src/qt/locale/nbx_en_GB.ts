@@ -708,10 +708,6 @@ Address: %4
         <source>TextLabel</source>
         <translation>TextLabel</translation>
     </message>
-    <message>
-        <source>Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (nbx.conf).</source>
-        <translation>Not all transactions will be shown. To view all transactions you need to set txindex=1 in the configuration file (nbx.conf).</translation>
-    </message>
 </context>
 <context>
     <name>ClientModel</name>
@@ -3966,10 +3962,6 @@ Please be patient after clicking import.</translation>
         <translation>Log transaction priority and fee per kB when mining blocks (default: %u)</translation>
     </message>
     <message>
-        <source>Maintain a full transaction index, used by the getrawtransaction rpc call (default: %u)</source>
-        <translation>Maintain a full transaction index, used by the getrawtransaction RPC call (default: %u)</translation>
-    </message>
-    <message>
         <source>Maximum size of data in data carrier transactions we relay and mine (default: %u)</source>
         <translation>Maximum size of data in data carrier transactions we relay and mine (default: %u)</translation>
     </message>
@@ -5146,8 +5138,8 @@ Please be patient after clicking import.</translation>
         <translation>Will retry...</translation>
     </message>
     <message>
-        <source>You need to rebuild the database using -reindex to change -txindex</source>
-        <translation>You need to rebuild the database using -reindex to change -txindex</translation>
+        <source>You need to rebuild the database using -reindex</source>
+        <translation>You need to rebuild the database using -reindex</translation>
     </message>
     <message>
         <source>Your entries added successfully.</source>
