@@ -2,7 +2,7 @@
 // Copyright (c) 2009-2018 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2020 Netbox.Global
+// Copyright (c) 2018-2021 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -387,6 +387,7 @@ void CWallet::SetBestChain(const CBlockLocator& loc)
 
 void ParseWtxFrom(CWalletTx *wtx, const CCoinsViewCache &view){
     CScript from;
+    CTxDestination fromDest = CNoDestination();
     for (unsigned int i = 0; i < wtx->vin.size(); ++i) {
         uint256 prevHash = wtx->vin[i].prevout.hash;
         size_t prevN = wtx->vin[i].prevout.n;
@@ -399,8 +400,15 @@ void ParseWtxFrom(CWalletTx *wtx, const CCoinsViewCache &view){
         if (from.empty())
             from = prevOut.scriptPubKey;
         else if (from != prevOut.scriptPubKey) {
-            from.clear();
-            break;
+            if (fromDest.type() == typeid(CNoDestination) && (!ExtractDestination(from, fromDest) || fromDest.type() == typeid(CNoDestination))) {
+                from.clear();
+                break;
+            }
+            CTxDestination tmpDest = CNoDestination();
+            if (!ExtractDestination(prevOut.scriptPubKey, tmpDest) || tmpDest.type() == typeid(CNoDestination) || fromDest != tmpDest) {
+                from.clear();
+                break;
+            }
         }
     }
     wtx->from = from;

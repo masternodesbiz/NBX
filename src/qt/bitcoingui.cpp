@@ -1,7 +1,7 @@
 // Copyright (c) 2011-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2020 Netbox.Global
+// Copyright (c) 2018-2021 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -1071,6 +1071,10 @@ void BitcoinGUI::closeEvent(QCloseEvent* event)
             StartShutdown();
         }
     }
+#else
+    if (GetBoolArg("-hide", false)) {
+        MacDockIconHandler::toggleForegroundApp(false);
+    }
 #endif
     QMainWindow::closeEvent(event);
 }
@@ -1246,12 +1250,25 @@ void BitcoinGUI::showNormalIfMinimized(bool fToggleHidden)
     if (isMinimized() || isHidden()) {
         setWindowState((windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
         show();
+#ifdef Q_OS_MAC
+        if (GetBoolArg("-hide", false)){
+            MacDockIconHandler::toggleForegroundApp(true);
+            QIcon emptyIcon;
+            MacDockIconHandler::instance()->setIcon(emptyIcon);
+        }
+#endif
         activateWindow();
     } else if (GUIUtil::isObscured(this)) {
         raise();
         activateWindow();
-    } else if (fToggleHidden)
+    } else if (fToggleHidden) {
+#ifdef Q_OS_MAC
+        if (GetBoolArg("-hide", false)) {
+            MacDockIconHandler::toggleForegroundApp(false);
+        }
+#endif
         hide();
+    }
 }
 
 void BitcoinGUI::toggleHidden()

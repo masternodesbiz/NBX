@@ -1,5 +1,6 @@
 // Copyright (c) 2014 The Bitcoin developers
 // Copyright (c) 2017-2018 The PIVX developers
+// Copyright (c) 2018-2021 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -39,17 +40,19 @@ bool WinShutdownMonitor::nativeEventFilter(const QByteArray& eventType, void* pM
     case WM_QUERYENDSESSION: {
         // Initiate a client shutdown after receiving a WM_QUERYENDSESSION and block
         // Windows session end until we have finished client shutdown.
-//        StartShutdown();
+        // StartShutdown();
         emit requestedShutdown();
         while (!bShutdownCompleted) {
             Sleep(100);
         }
-        *pnResult = FALSE;
+        if (pnResult)
+            *pnResult = FALSE;
         return true;
     }
 
     case WM_ENDSESSION: {
-        *pnResult = FALSE;
+        if (pnResult)
+            *pnResult = FALSE;
         return true;
     }
     }

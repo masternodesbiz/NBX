@@ -1,7 +1,7 @@
 // Copyright (c) 2011-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2020 Netbox.Global
+// Copyright (c) 2018-2021 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -43,7 +43,7 @@
 #include <QTextDocument>
 #include <QUrlQuery>
 
-const int BITCOIN_IPC_CONNECT_TIMEOUT = 1000; // milliseconds
+const int BITCOIN_IPC_CONNECT_TIMEOUT = 3000; // milliseconds
 const QString BITCOIN_IPC_PREFIX("nbx:");
 // BIP70 payment protocol messages
 const char* BIP70_MESSAGE_PAYMENTACK = "PaymentACK";
@@ -436,19 +436,17 @@ void PaymentServer::handleURIOrFile(const QString& s)
 
 void PaymentServer::handleURIConnection()
 {
-    QLocalSocket* clientConnection = uriServer->nextPendingConnection();
+    QLocalSocket *clientConnection = uriServer->nextPendingConnection();
+    connect(clientConnection, SIGNAL(disconnected()), clientConnection, SLOT(deleteLater()));
 
-    while (clientConnection->bytesAvailable() < (int)sizeof(quint32))
-        clientConnection->waitForReadyRead();
-
-    connect(clientConnection, SIGNAL(disconnected()),
-        clientConnection, SLOT(deleteLater()));
+    while (clientConnection->bytesAvailable() < (int) sizeof(quint32))
+        if (!clientConnection->waitForReadyRead(BITCOIN_IPC_CONNECT_TIMEOUT))
+            return;
 
     QDataStream in(clientConnection);
     in.setVersion(QDataStream::Qt_4_0);
-    if (clientConnection->bytesAvailable() < (int)sizeof(quint16)) {
+    if (clientConnection->bytesAvailable() < (int) sizeof(quint16))
         return;
-    }
     QString msg;
     in >> msg;
 

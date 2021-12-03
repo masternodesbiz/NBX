@@ -2,7 +2,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2020 Netbox.Global
+// Copyright (c) 2018-2021 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -1261,6 +1261,8 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransa
     }
 
     SyncWithWallets(tx, NULL);
+
+    uiInterface.NotifyMempool(hash);
 
     return true;
 }
@@ -2886,6 +2888,7 @@ CBlockIndex* AddToBlockIndex(const CBlock& block)
                     uint256 prevHash = tx.vin[i].prevout.hash;
                     size_t prevN = tx.vin[i].prevout.n;
                     CTxOut prevOut;
+                    prevOut.SetEmpty();
                     auto prevTxIt = txsMap.find(prevHash);
                     if (prevTxIt != txsMap.end()) {
                         assert(prevN <= (*prevTxIt).second->vout.size());
@@ -2895,7 +2898,7 @@ CBlockIndex* AddToBlockIndex(const CBlock& block)
                         if (coins && coins->IsAvailable(prevN))
                             prevOut = view.GetOutputFor(tx.vin[i]);
                         else
-                            assert(GetOutput(prevHash, prevN, prevOut));
+                            GetOutput(prevHash, prevN, prevOut);
                     }
                     txValueIn += prevOut.nValue;
                 }

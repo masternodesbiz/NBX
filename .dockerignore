@@ -8,7 +8,6 @@ Dockerfile*
 Makefile_docker
 .dockerignore
 docker-compose.yml
-docker-compose-prod.yml
 /output
 .gitignore
 .gitattributes
@@ -155,7 +154,5 @@ depends/riscv64*
 /doc/doxygen/
 /nbproject/
 
-.idea
 **/CMakeLists.txt
 **/cmake-build-debug
-.idea

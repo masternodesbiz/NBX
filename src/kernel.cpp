@@ -1,6 +1,6 @@
 // Copyright (c) 2012-2013 The PPCoin developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2019 Netbox.Global
+// Copyright (c) 2018-2021 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -406,7 +406,6 @@ bool CheckProofOfStake(const CBlock block, uint256& hashProofOfStake, std::uniqu
 
     const CTransaction tx = block.vtx[1];
     // Kernel (input 0) must match the stake hash target per coin age (nBits)
-    const CTxIn& txin = tx.vin[0];
     CBlockIndex* pindexPrev = mapBlockIndex[block.hashPrevBlock];
     CBlockIndex* pindexfrom = stake->GetIndexFrom();
     if (!pindexfrom)

@@ -1,4 +1,5 @@
 // Copyright (c) 2011-2013 The Bitcoin developers
+// Copyright (c) 2018-2021 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -29,6 +30,7 @@ public:
     static MacDockIconHandler* instance();
     static void cleanup();
     void handleDockIconClickEvent();
+    static void toggleForegroundApp(bool foreground);
 
 signals:
     void dockIconClicked();

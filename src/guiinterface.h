@@ -1,6 +1,7 @@
 // Copyright (c) 2010 Satoshi Nakamoto
 // Copyright (c) 2012-2014 The Bitcoin developers
 // Copyright (c) 2017-2019 The PIVX developers
+// Copyright (c) 2018-2021 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -105,6 +106,9 @@ public:
 
     /** New block has been accepted and is over a certain size */
     boost::signals2::signal<void(int size, const uint256& hash)> NotifyBlockSize;
+
+    /** Mempool has been changed */
+    boost::signals2::signal<void(const uint256& hash)> NotifyMempool;
 
     /** Banlist did change. */
     boost::signals2::signal<void (void)> BannedListChanged;

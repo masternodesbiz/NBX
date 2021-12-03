@@ -1,7 +1,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2020 Netbox.Global
+// Copyright (c) 2018-2021 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -37,6 +37,10 @@
 
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
+#endif
+
+#ifdef Q_OS_MAC
+#include "macdockiconhandler.h"
 #endif
 
 #include <signal.h>
@@ -438,6 +442,10 @@ void BitcoinApplication::requestShutdown()
     }
 
     startThread();
+#ifdef Q_OS_MAC
+    if (GetBoolArg("-hide", false))
+        MacDockIconHandler::toggleForegroundApp(false);
+#endif
     window->hide();
     window->setClientModel(0);
     pollShutdownTimer->stop();
@@ -616,6 +624,11 @@ int main(int argc, char* argv[])
 /// 2. Basic Qt initialization (not dependent on parameters or configuration)
     Q_INIT_RESOURCE(nbx_locale);
     Q_INIT_RESOURCE(nbx);
+
+#ifdef Q_OS_MAC
+    if (GetBoolArg("-hide", false))
+        qputenv("QT_MAC_DISABLE_FOREGROUND_APPLICATION_TRANSFORM", "1");
+#endif
 
     BitcoinApplication app(argc, argv);
 #if QT_VERSION > 0x050100

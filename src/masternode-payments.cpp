@@ -1,6 +1,6 @@
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2020 Netbox.Global
+// Copyright (c) 2018-2021 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -526,7 +526,7 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew, CAmou
 
     int nMaxSignatures = 0;
 
-    std::string strPayeesPossible = "";
+    std::string strPayeesPossible;
 
     CAmount nReward = GetBlockValue(nBlockHeight, prevMoneySupply);
 
@@ -540,33 +540,36 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew, CAmou
     // if we don't have at least 6 signatures on a payee, approve whichever is the longest chain
     if (nMaxSignatures < MNPAYMENTS_SIGNATURES_REQUIRED) return true;
 
-    for (CMasternodePayee& payee : vecPayments) {
-        bool found = false;
-        for (CTxOut out : txNew.vout) {
-            if (payee.scriptPubKey == out.scriptPubKey) {
-                if(out.nValue >= requiredMasternodePayment)
-                    found = true;
-                else
-                    LogPrint("masternode","Masternode payment is out of drift range. Paid=%s Min=%s\n", FormatMoney(out.nValue).c_str(), FormatMoney(requiredMasternodePayment).c_str());
-            }
-        }
-
-        if (payee.nVotes >= MNPAYMENTS_SIGNATURES_REQUIRED) {
-            if (found) return true;
-
-            CTxDestination address1;
-            ExtractDestination(payee.scriptPubKey, address1);
-            CBitcoinAddress address2(address1);
-
-            if (strPayeesPossible == "") {
-                strPayeesPossible += address2.ToString();
-            } else {
-                strPayeesPossible += "," + address2.ToString();
-            }
+    CScript scriptPubKeyMn;
+    for (auto pOut = txNew.vout.rbegin(); pOut != txNew.vout.rend(); pOut++) {
+        if (pOut->nValue >= requiredMasternodePayment) {
+            scriptPubKeyMn = pOut->scriptPubKey;
+            break;
         }
     }
+    if (!scriptPubKeyMn.empty()) {
+        for (CMasternodePayee &payee : vecPayments) {
+            if (payee.nVotes >= MNPAYMENTS_SIGNATURES_REQUIRED) {
+                if (payee.scriptPubKey == scriptPubKeyMn)
+                    return true;
 
-    LogPrint("masternode","CMasternodePayments::IsTransactionValid - Missing required payment of %s to %s\n", FormatMoney(requiredMasternodePayment).c_str(), strPayeesPossible.c_str());
+                CTxDestination address1;
+                ExtractDestination(payee.scriptPubKey, address1);
+                CBitcoinAddress address2(address1);
+
+                if (strPayeesPossible.empty()) {
+                    strPayeesPossible += address2.ToString();
+                } else {
+                    strPayeesPossible += "," + address2.ToString();
+                }
+            }
+        }
+
+        LogPrint("masternode","CMasternodePayments::IsTransactionValid - Missing required payment of %s to %s\n", FormatMoney(requiredMasternodePayment).c_str(), strPayeesPossible.c_str());
+        return true;
+    } else
+        LogPrint("masternode", "Masternode payment not found\n");
+
     return false;
 }
 

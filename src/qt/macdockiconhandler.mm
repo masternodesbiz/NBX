@@ -1,5 +1,5 @@
 // Copyright (c) 2011-2013 The Bitcoin Core developers
-// Copyright (c) 2020 Netbox.Global
+// Copyright (c) 2018-2021 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -77,7 +77,7 @@ void MacDockIconHandler::setIcon(const QIcon &icon)
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     NSImage *image = nil;
     if (icon.isNull())
-        image = [[NSImage imageNamed:@"NSApplicationIcon"] retain];
+        image = [[NSImage imageNamed:NSImageNameApplicationIcon] retain];
     else {
         // generate NSImage from QIcon and use this as dock icon.
         QSize size = icon.actualSize(QSize(256, 256));
@@ -96,10 +96,11 @@ void MacDockIconHandler::setIcon(const QIcon &icon)
 
         if(!image) {
             // if testnet image could not be created, load std. app icon
-            image = [[NSImage imageNamed:@"NSApplicationIcon"] retain];
+            image = [[NSImage imageNamed:NSImageNameApplicationIcon] retain];
         }
     }
 
+    [image setName:NSImageNameApplicationIcon];
     [NSApp setApplicationIconImage:image];
     [image release];
     [pool release];
@@ -119,11 +120,21 @@ void MacDockIconHandler::cleanup()
 
 void MacDockIconHandler::handleDockIconClickEvent()
 {
-    if (this->mainWindow)
-    {
-        this->mainWindow->activateWindow();
+    if (this->mainWindow) {
+        this->mainWindow->setWindowState((this->mainWindow->windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
         this->mainWindow->show();
+        this->mainWindow->activateWindow();
     }
 
     emit this->dockIconClicked();
+}
+
+void MacDockIconHandler::toggleForegroundApp(bool foreground)
+{
+    ProcessSerialNumber psn = {0, kCurrentProcess};
+    if (foreground) {
+        [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+    } else {
+        [NSApp setActivationPolicy: NSApplicationActivationPolicyAccessory];
+    }
 }

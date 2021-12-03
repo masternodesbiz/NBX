@@ -2,7 +2,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2020 Netbox.Global
+// Copyright (c) 2018-2021 Netbox.Global
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -550,6 +550,7 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
                     continue;
                 }
             }
+            fLastLoopOrphan = false;
         } else { // PoW
             if ((chainActive.Tip()->nHeight - 6) > Params().LAST_POW_BLOCK())
             {
@@ -558,7 +559,7 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
                           __func__, chainActive.Tip()->nHeight);
                 return;
             }
-       }
+        }
 
         //
         // Create new block
@@ -587,10 +588,8 @@ void BitcoinMiner(CWallet* pwallet, bool fProofOfStake)
 
             LogPrintf("CPUMiner : proof-of-stake block was signed %s \n", pblock->GetHash().ToString().c_str());
             SetThreadPriority(THREAD_PRIORITY_NORMAL);
-            if (!ProcessBlockFound(pblock, *pwallet)) {
+            if (!ProcessBlockFound(pblock, *pwallet))
                 fLastLoopOrphan = true;
-                continue;
-            }
             SetThreadPriority(THREAD_PRIORITY_LOWEST);
 
             continue;

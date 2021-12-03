@@ -2,7 +2,7 @@
 // Copyright (c) 2009-2014 The Bitcoin developers
 // Copyright (c) 2014-2015 The Dash developers
 // Copyright (c) 2015-2019 The PIVX developers
-// Copyright (c) 2018-2020 Netbox.Global
+// Copyright (c) 2018-2021 Netbox.Global
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -405,6 +405,7 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-loadblock=<file>", _("Imports blocks from external blk000??.dat file") + " " + _("on startup"));
     strUsage += HelpMessageOpt("-maxreorg=<n>", strprintf(_("Set the Maximum reorg depth (default: %u)"), Params(CBaseChainParams::MAIN).MaxReorganizationDepth()));
     strUsage += HelpMessageOpt("-maxorphantx=<n>", strprintf(_("Keep at most <n> unconnectable transactions in memory (default: %u)"), DEFAULT_MAX_ORPHAN_TRANSACTIONS));
+    strUsage += HelpMessageOpt("-mempoolnotify=<cmd>", _("Execute command when transaction added to mempool (%s in cmd is replaced by transaction hash)"));
     strUsage += HelpMessageOpt("-par=<n>", strprintf(_("Set the number of script verification threads (%u to %d, 0 = auto, <0 = leave that many cores free, default: %d)"), -(int)boost::thread::hardware_concurrency(), MAX_SCRIPTCHECK_THREADS, DEFAULT_SCRIPTCHECK_THREADS));
     strUsage += HelpMessageOpt("-pid=<file>", strprintf(_("Specify pid file (default: %s)"), "nbxd.pid"));
     strUsage += HelpMessageOpt("-reindex", _("Rebuild block chain index from current blk000??.dat files") + " " + _("on startup"));
@@ -625,6 +626,14 @@ static void BlockSizeNotifyCallback(int size, const uint256& hashNewTip)
 
     boost::replace_all(strCmd, "%s", hashNewTip.GetHex());
     boost::replace_all(strCmd, "%d", std::to_string(size));
+    boost::thread t(runCommand, strCmd); // thread runs free
+}
+
+static void MempoolNotifyCallback(const uint256& hash)
+{
+    std::string strCmd = GetArg("-mempoolnotify", "");
+
+    boost::replace_all(strCmd, "%s", hash.GetHex());
     boost::thread t(runCommand, strCmd); // thread runs free
 }
 
@@ -1544,6 +1553,9 @@ bool AppInit2()
 
         if (mapArgs.count("-blocksizenotify"))
             uiInterface.NotifyBlockSize.connect(BlockSizeNotifyCallback);
+
+        if (mapArgs.count("-mempoolnotify"))
+            uiInterface.NotifyMempool.connect(MempoolNotifyCallback);
 
         // scan for better chains in the block chain database, that are not yet connected in the active best chain
         CValidationState state;
