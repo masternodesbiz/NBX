@@ -262,6 +262,7 @@ public:
     std::string GetStatus();
 
     int64_t GetLastPaid();
+    int64_t GetLastPaidBlock();
     bool IsValidNetAddr();
 };
 
